@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Columns\TextColumn;
 
 class PresensiResource extends Resource
 {
@@ -31,7 +32,8 @@ class PresensiResource extends Resource
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('nama_karyawan')
+                    ->label('Nama Karyawan'),
             ])
             ->filters([
                 //
