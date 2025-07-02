@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 
 class PresensiResource extends Resource
 {
@@ -48,10 +49,15 @@ class PresensiResource extends Resource
             ])
             ->defaultSort('nama_karyawan', 'tanggal')
             ->filters([
-                //
+                SelectFilter::make('jenis_presensi')
+                    ->label('Presensi')
+                    ->options([
+                        'pagi' => 'Pagi',
+                        'siang' => 'Siang',
+                    ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
