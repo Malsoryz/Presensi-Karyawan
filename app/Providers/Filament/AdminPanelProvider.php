@@ -54,7 +54,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                QRCodePresenceRecord::class,
+                // QRCodePresenceRecord::class,
             ]);
     }
 }
