@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Presensi extends Model
 {
+    protected $table = 'presensi';
+
     protected $fillable = [
         'nama_karyawan',
         'jenis_presensi',
         'tanggal',
-        'status_vaidasi_jaringan',
-        'alamat_perangkat',
+        'ip_address',
     ];
 }

@@ -18,7 +18,11 @@ class PresensiResource extends Resource
 {
     protected static ?string $model = Presensi::class;
 
+    protected static ?string $slug = 'presensi';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $navigationLabel = 'Data Presensi';
 
     public static function form(Form $form): Form
     {
@@ -34,7 +38,15 @@ class PresensiResource extends Resource
             ->columns([
                 TextColumn::make('nama_karyawan')
                     ->label('Nama Karyawan'),
+                TextColumn::make('jenis_presensi')
+                    ->label('Jenis Presensi'),
+                TextColumn::make('tanggal')
+                    ->label('Tanggal')
+                    ->dateTime(),
+                TextColumn::make('ip_address')
+                    ->label('Alamat Perangkat'),
             ])
+            ->defaultSort('nama_karyawan', 'tanggal')
             ->filters([
                 //
             ])
