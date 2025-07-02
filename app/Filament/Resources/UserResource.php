@@ -39,6 +39,7 @@ class UserResource extends Resource
                     ->required()
                     ->password()
                     ->revealable()
+                    ->minLength(8)
             ]);
     }
 
