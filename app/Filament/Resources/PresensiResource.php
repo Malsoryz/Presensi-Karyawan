@@ -38,7 +38,8 @@ class PresensiResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('nama_karyawan')
-                    ->label('Nama Karyawan'),
+                    ->label('Nama Karyawan')
+                    ->searchable(),
                 TextColumn::make('jenis_presensi')
                     ->label('Jenis Presensi'),
                 TextColumn::make('tanggal')
