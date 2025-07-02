@@ -18,7 +18,7 @@ class PresenceSeeders extends Seeder
         for ($i = 0; $i < 5; $i++) { 
             DB::table('presensi')->insert([
                 'nama_karyawan' => Str::random(10),
-                'jenis_presensi' => 'pagi',
+                'jenis_presensi' => 'siang',
                 'tanggal' => Carbon::now('Asia/Makassar'),
                 'ip_address' => Str::random(10)
             ]);
