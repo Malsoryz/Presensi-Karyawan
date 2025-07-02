@@ -11,16 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('presensis', function (Blueprint $table) {
+        Schema::create('presensi', function (Blueprint $table) {
             $table->id();
             $table->string('nama_karyawan', length: 50);
-            $table->enum('jenis_presensi', [
-                'desktop',
-                'mobile',
-            ]);
+            $table->enum('jenis_presensi', ['pagi', 'siang']);
             $table->timestampTz('tanggal');
-            $table->string('status_validasi_jaringan', length: 255);
-            $table->string('alamat_perangkat', length: 25);
+            $table->string('ip_address', length: 25);
         });
     }
 
@@ -29,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('presensis');
+        Schema::dropIfExists('presensi');
     }
 };
