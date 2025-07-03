@@ -25,14 +25,14 @@ class QRCodePresenceRecord
 
         $siangMulai = Carbon::createFromTimeString('14:00:00', $timezone);
         $siangSelesai = Carbon::createFromTimeString('15:00:00', $timezone);
+        
+        $sesiPresensi = ($now->between($pagiMulai, $pagiSelesai) || $now->between($siangMulai, $siangSelesai));
 
         if (!$request->routeIs('presensi.qr')) {
-            if ($now->gte($pagiMulai) && $now->lte($pagiSelesai)) {
+            if ($sesiPresensi) {
                 return redirect()->route('presensi.qr');
-            } elseif ($now->gte($siangMulai) && $now->lte($siangSelesai)) {
-                return redirect()->route('presensi.qr');
-            } 
-        } else return redirect()->route('root');
+            }
+        }
 
         return $next($request);
     }

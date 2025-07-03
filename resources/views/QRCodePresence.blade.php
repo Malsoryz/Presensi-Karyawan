@@ -1,5 +1,5 @@
 @php
-    $token = Str::random(25);
+    $token = Str::uuid();
 @endphp
 
 <!DOCTYPE html>
@@ -39,7 +39,7 @@
                 </tr>
             </thead>
             <tbody>
-                @for ($i = 0; $i < 3; $i++)
+                @for ($i = 0; $i < 5; $i++)
                     <tr>
                         <th>{{ $i }}</th>
                         <td>Dummy</td>

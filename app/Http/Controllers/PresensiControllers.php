@@ -13,7 +13,21 @@ class PresensiControllers extends Controller
      */
     public function index()
     {
-        return view('QRCodePresence');
+        $timezone = 'Asia/Makassar';
+
+        $now = Carbon::now($timezone);
+
+        $pagiMulai = Carbon::createFromTimeString('08:00:00', $timezone);
+        $pagiSelesai = Carbon::createFromTimeString('09:00:00', $timezone);
+
+        $siangMulai = Carbon::createFromTimeString('14:00:00', $timezone);
+        $siangSelesai = Carbon::createFromTimeString('15:00:00', $timezone);
+        
+        if ($now->between($pagiMulai, $pagiSelesai) || $now->between($siangMulai, $siangSelesai)) {
+            return view('QRCodePresence');
+        }
+
+        return redirect()->route('root');
     }
 
     /**
