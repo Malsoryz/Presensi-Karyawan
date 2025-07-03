@@ -13,8 +13,13 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Radio;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ColumnGroup;
 
 class UserResource extends Resource
 {
@@ -26,20 +31,49 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                    ->label('Nama')
-                    ->required()
-                    ->autoFocus(),
-                TextInput::make('email')
-                    ->label('Email')
-                    ->required()
-                    ->email(),
-                TextInput::make('password')
-                    ->label('Password')
-                    ->required()
-                    ->password()
-                    ->revealable()
-                    ->minLength(8)
+                Tabs::make('User Forms')
+                    ->tabs([
+                        Tabs\Tab::make('Profile')
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Nama')
+                                    ->required()
+                                    ->autoFocus(),
+                                TextInput::make('email')
+                                    ->label('Email')
+                                    ->required()
+                                    ->email(),
+                                DatePicker::make('birth_date')
+                                    ->label('Date of birth')
+                                    ->required(),
+                                Radio::make('gender')
+                                    ->options([
+                                        'male' => 'Laki-Laki',
+                                        'female' => 'Perempuan',
+                                    ])
+                                    ->inline()
+                                    ->inlineLabel(false)
+                                    ->required(),
+                                TextInput::make('phone_number')
+                                    ->label('No Telepon')
+                                    ->numeric()
+                                    ->inputMode('tel'),
+                                Textarea::make('address')
+                                    ->label('Alamat')
+                                    ->autosize()
+                                    ->disableGrammarly()
+                                    ->required(),
+                            ]),
+                        Tabs\Tab::make('Credential')
+                            ->schema([
+                                TextInput::make('password')
+                                    ->label('Password')
+                                    ->required()
+                                    ->password()
+                                    ->revealable()
+                                    ->minLength(8)
+                            ])
+                    ])
             ]);
     }
 
@@ -47,11 +81,23 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->label('Nama')
-                    ->searchable(),
-                TextColumn::make('email')
-                    ->label('Email')
+                ColumnGroup::make('Profil', [
+                    TextColumn::make('name')
+                        ->label('Nama')
+                        ->searchable(),
+                    TextColumn::make('email')
+                        ->label('Email'),
+                    TextColumn::make('address')
+                        ->label('Alamat')
+                        ->wrap(),
+                    TextColumn::make('birth_date')
+                        ->label('Tanggal lahir')
+                        ->date(),
+                    TextColumn::make('gender')
+                        ->label('Jenis kelamin'),
+                    TextColumn::make('phone_number')
+                        ->label('No Telepon'),
+                ]),
             ])
             ->defaultSort('name')
             ->filters([
