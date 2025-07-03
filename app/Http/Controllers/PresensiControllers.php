@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Presensi;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class PresensiControllers extends Controller
 {
@@ -22,10 +23,16 @@ class PresensiControllers extends Controller
 
         $siangMulai = Carbon::createFromTimeString('14:00:00', $timezone);
         $siangSelesai = Carbon::createFromTimeString('15:00:00', $timezone);
-        
+
         if ($now->between($pagiMulai, $pagiSelesai) || $now->between($siangMulai, $siangSelesai)) {
-            return view('QRCodePresence');
+            return view('QRPresenceView', [
+                'token' => Str::uuid(),
+            ]);
         }
+
+        // return view('QRCodePresence', [
+        //     'token' => Str::uuid(),
+        // ]);
 
         return redirect()->route('root');
     }

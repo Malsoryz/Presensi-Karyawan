@@ -1,7 +1,3 @@
-@php
-    $token = Str::uuid();
-@endphp
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
