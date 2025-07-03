@@ -44,16 +44,14 @@ class UserResource extends Resource
                                     ->required()
                                     ->email(),
                                 DatePicker::make('birth_date')
-                                    ->label('Date of birth')
-                                    ->required(),
+                                    ->label('Date of birth'),
                                 Radio::make('gender')
                                     ->options([
                                         'male' => 'Laki-Laki',
                                         'female' => 'Perempuan',
                                     ])
                                     ->inline()
-                                    ->inlineLabel(false)
-                                    ->required(),
+                                    ->inlineLabel(false),
                                 TextInput::make('phone_number')
                                     ->label('No Telepon')
                                     ->numeric()
@@ -61,8 +59,7 @@ class UserResource extends Resource
                                 Textarea::make('address')
                                     ->label('Alamat')
                                     ->autosize()
-                                    ->disableGrammarly()
-                                    ->required(),
+                                    ->disableGrammarly(),
                             ]),
                         Tabs\Tab::make('Credential')
                             ->schema([
@@ -74,6 +71,7 @@ class UserResource extends Resource
                                     ->minLength(8)
                             ])
                     ])
+                    ->contained(false),
             ]);
     }
 
