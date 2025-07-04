@@ -8,6 +8,8 @@ class Presensi extends Model
 {
     protected $table = 'presensi';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'nama_karyawan',
         'jenis_presensi',

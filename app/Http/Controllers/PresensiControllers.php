@@ -35,7 +35,7 @@ class PresensiControllers extends Controller
 
         $token = Str::uuid();
         Cache::put('token_'.$token, true, Carbon::now()->addMinutes(1));
-        return view('QRPresenceView', [
+        return view('QRCodePresence.index', [
             'token' => $token,
         ]);
 
@@ -74,21 +74,21 @@ class PresensiControllers extends Controller
         // if ($now->between($pagiMulai, $pagiSelesai)) $sesi = 'pagi';
         // if ($now->between($siangMulai, $siangSelesai)) $sesi = 'siang';
 
-        $validatedRequest = $request->validate([
-            'nama_karyawan' => 'required|string|max:255',
-            'jenis_presensi' => 'required|string| in:pagi,siang',
-            'tanggal' => 'required|date',
-            'ip_address' => 'required|string',
-        ]);
+        // $validatedRequest = $request->validate([
+        //     'nama_karyawan' => 'required|string|max:255',
+        //     'jenis_presensi' => 'required|string|in:pagi,siang',
+        //     'tanggal' => 'required|date',
+        //     'ip_address' => 'required|string',
+        // ]);
 
-        Presensi::create($validatedRequest, [
+        Presensi::create([
             'nama_karyawan' => auth()->user()->name,
             'jenis_presensi' => 'pagi',
             'tanggal' => $now,
             'ip_address' => $request->ip(),
         ]);
 
-        return redirect()->route('root');
+        return redirect()->route('filament.admin.resources.presensi.index');
     }
 
     /**
