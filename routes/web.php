@@ -8,5 +8,5 @@ Route::get('/', function () {
     return view('welcome');
 })->name('root');
 
-Route::get('/presensi-qr', [PresensiControllers::class, 'index'])->name('presensi.qr');
-Route::get('/presensi-qr/store/{token}', [PresensiControllers::class, 'store'])->name('presensi.qr.store');
+Route::get('/presensi', [PresensiControllers::class, 'index'])->name('presensi.qr');
+Route::get('/presensi/store/{name}/{token}', [PresensiControllers::class, 'store'])->name('presensi.qr.store');

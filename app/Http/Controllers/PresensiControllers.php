@@ -7,6 +7,7 @@ use App\Models\Presensi;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
 
 class PresensiControllers extends Controller
 {
@@ -33,27 +34,24 @@ class PresensiControllers extends Controller
         //     ]);
         // }
 
-        $token = Str::uuid();
-        Cache::put('token_'.$token, true, Carbon::now()->addMinutes(1));
-        return view('QRCodePresence.index', [
-            'token' => $token,
-        ]);
+        if (Auth::check()) {
+            $token = Str::uuid();
+            Cache::put('token_'.$token, true, Carbon::now()->addMinutes(1));
+            return view('QRCodePresence.index', [
+                'name' => auth()->user()->name,
+                'token' => $token,
+            ]);
+        }
+
+        return redirect()->route('filament.admin.auth.login');
 
         // return redirect()->back();
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, string $token)
+    public function store(Request $request, string $name, string $token)
     {
         if (!Cache::has('token_'.$token)) {
             return response()->json(['error' => 'Token tidak valid atau kadaluarsa'], 403);
@@ -83,45 +81,17 @@ class PresensiControllers extends Controller
         //     'ip_address' => 'required|string',
         // ]);
 
+        if ($name != auth()->user()->name) {
+            return redirect()->route('presensi.qr'); // temp
+        }
+
         Presensi::create([
-            'nama_karyawan' => auth()->user()->name,
+            'nama_karyawan' => $name,
             'jenis_presensi' => 'pagi',
             'tanggal' => $now,
             'ip_address' => $request->ip(),
         ]);
 
         return redirect()->route('filament.admin.resources.presensi.index');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

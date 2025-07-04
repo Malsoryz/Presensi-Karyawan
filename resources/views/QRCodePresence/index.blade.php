@@ -5,13 +5,13 @@
 <div class="flex gap-16">
     <div class="flex gap-16 flex-col">
         <div class="p-2 rounded-md bg-white">
-            {!! QrCode::size(256)->generate(route('presensi.qr.store', ['token' => $token])) !!}
+            {!! QrCode::size(256)->generate(route('presensi.qr.store', ['name' => $name, 'token' => $token])) !!}
         </div>
         <div>
             <span>
                 “ Nothing worth having comes easy. ” <br>
                 — Theodore Roosevelt <br>
-                {!! route('presensi.qr.store', ['token' => $token]) !!}
+                {!! route('presensi.qr.store', ['name' => $name, 'token' => $token]) !!}
             </span>
         </div>
     </div>
