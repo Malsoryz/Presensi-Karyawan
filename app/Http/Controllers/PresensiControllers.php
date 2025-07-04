@@ -55,13 +55,6 @@ class PresensiControllers extends Controller
      */
     public function store(Request $request, string $token)
     {
-        $request->validate([
-            'nama_karyawan' => 'required|string|max:255',
-            'jenis_presensi' => 'required|in:pagi,siang',
-            'tanggal' => 'required|date',
-            'ip_address' => 'required',
-        ]);
-
         if (!Cache::has('token_'.$token)) {
             return response()->json(['error' => 'Token tidak valid atau kadaluarsa'], 403);
         }
@@ -70,25 +63,32 @@ class PresensiControllers extends Controller
 
         $now = Carbon::now($timezone);
 
-        $pagiMulai = Carbon::createFromTimeString('08:00:00', $timezone);
-        $pagiSelesai = Carbon::createFromTimeString('09:00:00', $timezone);
+        // $pagiMulai = Carbon::createFromTimeString('08:00:00', $timezone);
+        // $pagiSelesai = Carbon::createFromTimeString('09:00:00', $timezone);
 
-        $siangMulai = Carbon::createFromTimeString('14:00:00', $timezone);
-        $siangSelesai = Carbon::createFromTimeString('15:00:00', $timezone);
+        // $siangMulai = Carbon::createFromTimeString('14:00:00', $timezone);
+        // $siangSelesai = Carbon::createFromTimeString('15:00:00', $timezone);
 
-        $sesi = null;
+        // $sesi = null;
 
-        if ($now->between($pagiMulai, $pagiSelesai)) $sesi = 'pagi';
-        if ($now->between($siangMulai, $siangSelesai)) $sesi = 'siang';
+        // if ($now->between($pagiMulai, $pagiSelesai)) $sesi = 'pagi';
+        // if ($now->between($siangMulai, $siangSelesai)) $sesi = 'siang';
 
-        Presensi::create([
+        $validatedRequest = $request->validate([
+            'nama_karyawan' => 'required|string|max:255',
+            'jenis_presensi' => 'required|string| in:pagi,siang',
+            'tanggal' => 'required|date',
+            'ip_address' => 'required|string',
+        ]);
+
+        Presensi::create($validatedRequest, [
             'nama_karyawan' => auth()->user()->name,
-            'jenis_presensi' => $sesi,
+            'jenis_presensi' => 'pagi',
             'tanggal' => $now,
             'ip_address' => $request->ip(),
         ]);
 
-        return redirect()->route('root')->with(['success', 'Data berhasil di simpan']);
+        return redirect()->route('root');
     }
 
     /**
