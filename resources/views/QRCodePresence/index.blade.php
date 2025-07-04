@@ -11,7 +11,7 @@
             <span>
                 “ Nothing worth having comes easy. ” <br>
                 — Theodore Roosevelt <br>
-                {{ route('presensi.qr.store', ['token' => $token]) }}
+                {!! route('presensi.qr.store', ['token' => $token]) !!}
             </span>
         </div>
     </div>

@@ -28,7 +28,7 @@ class PresensiControllers extends Controller
         // if ($now->between($pagiMulai, $pagiSelesai) || $now->between($siangMulai, $siangSelesai)) {
         //     $token = Str::uuid();
         //     Cache::put('token_'.$token, true, Carbon::now()->addMinutes(1));
-        //     return view('QRPresenceView', [
+        //     return view('QRCodePresence.index', [
         //         'token' => $token,
         //     ]);
         // }
@@ -39,7 +39,7 @@ class PresensiControllers extends Controller
             'token' => $token,
         ]);
 
-        // return redirect()->route('root');
+        // return redirect()->back();
     }
 
     /**
@@ -58,6 +58,8 @@ class PresensiControllers extends Controller
         if (!Cache::has('token_'.$token)) {
             return response()->json(['error' => 'Token tidak valid atau kadaluarsa'], 403);
         }
+
+        Cache::forget('token_'.$token);
 
         $timezone = 'Asia/Makassar';
 

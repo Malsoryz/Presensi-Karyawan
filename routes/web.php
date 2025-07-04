@@ -5,7 +5,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\PresensiControllers;
 
 Route::get('/', function () {
-    return redirect('/admin');
+    return view('welcome');
 })->name('root');
 
 Route::get('/presensi-qr', [PresensiControllers::class, 'index'])->name('presensi.qr');
