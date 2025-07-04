@@ -1,17 +1,18 @@
-@extends('QRCodePresenceLayout')
+@extends('Layout.Presensi')
 
-@section('main-content')
+@section('title', 'Presensi QR Code')
 
+@section('content')
 <div class="flex gap-16">
     <div class="flex gap-16 flex-col">
         <div class="p-2 rounded-md bg-white">
-            {!! QrCode::size(256)->generate(route('presensi.qr.store', ['name' => $name, 'token' => $token])) !!}
+            {!! QrCode::size(256)->generate(route('presensi.store', ['name' => $name, 'token' => $token])) !!}
         </div>
         <div>
             <span>
                 “ Nothing worth having comes easy. ” <br>
                 — Theodore Roosevelt <br>
-                {!! route('presensi.qr.store', ['name' => $name, 'token' => $token]) !!}
+                {!! route('presensi.store', ['name' => $name, 'token' => $token]) !!}
             </span>
         </div>
     </div>
@@ -45,5 +46,10 @@
     </table>
     </div>
 </div>
+@endsection
 
+@section('scripts')
+<script>
+    // You can add any additional scripts here if needed
+</script>
 @endsection

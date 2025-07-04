@@ -3,95 +3,73 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Presensi;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Presensi;
 
 class PresensiControllers extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        // $timezone = 'Asia/Makassar';
-
-        // $now = Carbon::now($timezone);
-
-        // $pagiMulai = Carbon::createFromTimeString('08:00:00', $timezone);
-        // $pagiSelesai = Carbon::createFromTimeString('09:00:00', $timezone);
-
-        // $siangMulai = Carbon::createFromTimeString('14:00:00', $timezone);
-        // $siangSelesai = Carbon::createFromTimeString('15:00:00', $timezone);
-
-        // if ($now->between($pagiMulai, $pagiSelesai) || $now->between($siangMulai, $siangSelesai)) {
-        //     $token = Str::uuid();
-        //     Cache::put('token_'.$token, true, Carbon::now()->addMinutes(1));
-        //     return view('QRCodePresence.index', [
-        //         'token' => $token,
-        //     ]);
+        // $getToday = Presensi::where('nama_karyawan', Auth::user()->name)
+        //     ->where('jenis_presensi', 'pagi')
+        //     ->whereDate('tanggal', now('Asia/Makassar')->toDateString())
+        //     ->exists();
+        // if ($getToday) {
+        //     return redirect()->route('presensi.scanned')->with('info', 'Anda sudah melakukan presensi hari ini.');
         // }
 
-        if (Auth::check()) {
-            $token = Str::uuid();
-            Cache::put('token_'.$token, true, Carbon::now()->addMinutes(1));
-            return view('QRCodePresence.index', [
-                'name' => auth()->user()->name,
-                'token' => $token,
-            ]);
-        }
-
-        return redirect()->route('filament.admin.auth.login');
-
-        // return redirect()->back();
+        $token = Str::uuid();
+        $name = Auth::user()->name;
+        Cache::put('token_' . $name . '_' . $token, true, now()->addMinutes(1));
+        return view('Presensi.index', [
+            'name' => $name,
+            'token' => $token,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request, string $name, string $token)
     {
-        if (!Cache::has('token_'.$token)) {
-            return response()->json(['error' => 'Token tidak valid atau kadaluarsa'], 403);
+        if (!Cache::has('token_' . $name . '_' . $token)) {
+            return redirect()->route('presensi.index')->with('error', 'Token tidak valid atau sudah kadaluarsa.');
         }
 
-        Cache::forget('token_'.$token);
-
-        $timezone = 'Asia/Makassar';
-
-        $now = Carbon::now($timezone);
-
-        // $pagiMulai = Carbon::createFromTimeString('08:00:00', $timezone);
-        // $pagiSelesai = Carbon::createFromTimeString('09:00:00', $timezone);
-
-        // $siangMulai = Carbon::createFromTimeString('14:00:00', $timezone);
-        // $siangSelesai = Carbon::createFromTimeString('15:00:00', $timezone);
-
-        // $sesi = null;
-
-        // if ($now->between($pagiMulai, $pagiSelesai)) $sesi = 'pagi';
-        // if ($now->between($siangMulai, $siangSelesai)) $sesi = 'siang';
-
-        // $validatedRequest = $request->validate([
-        //     'nama_karyawan' => 'required|string|max:255',
-        //     'jenis_presensi' => 'required|string|in:pagi,siang',
-        //     'tanggal' => 'required|date',
-        //     'ip_address' => 'required|string',
-        // ]);
-
-        if ($name != auth()->user()->name) {
-            return redirect()->route('presensi.qr'); // temp
-        }
+        Cache::forget('token_' . $name . '_' . $token);
 
         Presensi::create([
             'nama_karyawan' => $name,
             'jenis_presensi' => 'pagi',
-            'tanggal' => $now,
+            'tanggal' => now('Asia/Makassar'),
             'ip_address' => $request->ip(),
         ]);
 
-        return redirect()->route('filament.admin.resources.presensi.index');
+        return redirect()->route('presensi.scanned')->with('success', 'Presensi berhasil dilakukan.');
+    }
+
+    public function scanCheck()
+    {
+        $status = Presensi::where('nama_karyawan', Auth::user()->name)
+            ->where('jenis_presensi', 'pagi')
+            ->whereDate('tanggal', now('Asia/Makassar')->toDateString())
+            ->exists();
+
+        return response()->json([
+            'is_presence' => $status,
+        ]);
+    }
+
+    public function scanned()
+    {
+        // $getToday = Presensi::where('nama_karyawan', Auth::user()->name)
+        //     ->where('jenis_presensi', 'pagi')
+        //     ->whereDate('tanggal', now('Asia/Makassar')->toDateString())
+        //     ->exists();
+
+        // if (!$getToday) {
+        //     return redirect()->route('presensi.index')->with('error', 'Anda belum melakukan presensi hari ini.');
+        // }
+
+        return view('Presensi.scanned');
     }
 }

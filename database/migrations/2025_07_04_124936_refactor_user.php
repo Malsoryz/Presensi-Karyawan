@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->after('password', function (Blueprint $table) {
-                $table->text('address');
-                $table->date('birth_date');
-                $table->enum('gender', ['male', 'female']);
-                $table->string('phone_number');
+                $table->text('address')->nullable();
+                $table->date('birth_date')->nullable();
+                $table->enum('gender', ['male', 'female'])->nullable();
+                $table->string('phone_number')->nullable();
             });
         });
     }
