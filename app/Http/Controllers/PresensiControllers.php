@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Presensi;
+use App\Models\Config;
 use Carbon\Carbon;
 
 class PresensiControllers extends Controller
@@ -33,7 +34,6 @@ class PresensiControllers extends Controller
         Presensi::create([
             'nama_karyawan' => $name,
             'jenis_presensi' => 'pagi',
-            'tanggal' => now('Asia/Makassar'),
             'ip_address' => $request->ip(),
         ]);
 
@@ -43,13 +43,14 @@ class PresensiControllers extends Controller
     public function scanCheck()
     {
         $timezone = 'Asia/Makassar';
-        $pagiMulai = Carbon::createFromTimeString('08:00:00');
-        $pagiSelesai = Carbon::createFromTimeString('09:00:00');
-        $siangMulai = Carbon::createFromTimeString('14:00:00');
-        $siangSelesai = Carbon::createFromTimeString('15:00:00');
+        $now = now($timezone);
+        $pagiMulai = Carbon::createFromTimeString('08:00:00', $timezone);
+        $pagiSelesai = Carbon::createFromTimeString('09:00:00', $timezone);
+        $siangMulai = Carbon::createFromTimeString('14:00:00', $timezone);
+        $siangSelesai = Carbon::createFromTimeString('15:00:00', $timezone);
 
-        $sesiPagi = now()->between($pagiMulai, $pagiSelesai);
-        $sesiSiang = now()->between($siangMulai, $siangSelesai);
+        $sesiPagi = $now->between($pagiMulai, $pagiSelesai);
+        $sesiSiang = $now->between($siangMulai, $siangSelesai);
 
         $sesi = null;
         if ($sesiPagi) $sesi = 'pagi';
@@ -57,18 +58,38 @@ class PresensiControllers extends Controller
 
         $isSesiValid = $sesi !== null;
 
-        $status = Presensi::where('nama_karyawan', Auth::user()->name)
-            ->where('jenis_presensi', 'pagi')
-            ->whereDate('tanggal', now('Asia/Makassar')->toDateString())
-            ->exists();
+        $status;
+
+        if ($now->between($pagiMulai, $siangMulai, false)) {
+            $status = Presensi::where('nama_karyawan', Auth::user()->name)
+                ->where('jenis_presensi', 'pagi')
+                ->whereDate('tanggal', $now->toDateString())
+                ->exists();
+        } else {
+            $status = Presensi::where('nama_karyawan', Auth::user()->name)
+                ->where('jenis_presensi', 'pagi')
+                ->whereDate('tanggal', $now->toDateString())
+                ->exists();
+        }
+
+        // if (now()->gte($siangMulai) || now()->lt($pagiMulai)) {
+        //     $status = Presensi::where('nama_karyawan', Auth::user()->name)
+        //         ->where('jenis_presensi', 'siang')
+        //         ->whereDate('tanggal', now('Asia/Makassar')->toDateString())
+        //         ->exists();
+        // }
+
+        // if ($isSesiValid) {
+        //     $status = Presensi::where('nama_karyawan', Auth::user()->name)
+        //         ->where('jenis_presensi', 'pagi')
+        //         ->whereDate('tanggal', now('Asia/Makassar')->toDateString())
+        //         ->exists();
+        // }
 
         return response()->json([
             'is_presence' => $status,
+            'is_time_valid' => $isSesiValid,
+            'session' => $sesi,
         ]);
-    }
-
-    public function presence()
-    {
-        return view('Presensi.presence');
     }
 }
