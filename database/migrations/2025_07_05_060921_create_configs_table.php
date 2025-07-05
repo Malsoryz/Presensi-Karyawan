@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('presensi', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_karyawan', length: 50);
-            $table->enum('jenis_presensi', ['pagi', 'siang']);
-            $table->timestampTz('tanggal')->useCurrent();
-            $table->string('ip_address', length: 25);
+        Schema::create('app_configs', function (Blueprint $table) {
+            $table->string('key')->primary();
+            $table->text('value')->nullable();
+            $table->string('category')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('presensi');
+        Schema::dropIfExists('configs');
     }
 };
