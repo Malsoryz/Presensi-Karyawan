@@ -28,8 +28,8 @@ function cekPresensi() {
             const isPresence = response.data.is_presence;
             if (isPresence && currentRoute === 'presensi.index' && !isAlreadyRedirecting) {
                 isAlreadyRedirecting = true;
-                window.location.href = "{{ route('presensi.scanned') }}";
-            } else if (!isPresence && currentRoute === 'presensi.scanned' && !isAlreadyRedirecting) {
+                window.location.href = "{{ route('presensi.presence') }}";
+            } else if (!isPresence && currentRoute === 'presensi.presence' && !isAlreadyRedirecting) {
                 isAlreadyRedirecting = true;
                 window.location.href = "{{ route('presensi.index') }}";
             }
@@ -39,7 +39,7 @@ function cekPresensi() {
         });
 }
 
-setInterval(cekPresensi, 5000);
+setInterval(cekPresensi, 3000);
 
 setTimeout(() => {
     if (!isAlreadyRedirecting) {

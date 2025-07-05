@@ -13,8 +13,8 @@ Route::get('/presensi', [PresensiControllers::class, 'index'])
 Route::get('/presensi/store/{name}/{token}', [PresensiControllers::class, 'store'])
     ->name('presensi.store')
     ->middleware('auth');
-Route::get('/presensi/scanned', [PresensiControllers::class, 'scanned'])
-    ->name('presensi.scanned')
+Route::get('/presensi/scanned', [PresensiControllers::class, 'presence'])
+    ->name('presensi.presence')
     ->middleware('auth');
 Route::get('/presensi/scan-check', [PresensiControllers::class, 'scanCheck'])
     ->name('presensi.scanCheck')

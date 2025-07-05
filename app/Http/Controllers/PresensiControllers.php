@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Presensi;
+use Carbon\Carbon;
 
 class PresensiControllers extends Controller
 {
@@ -36,11 +37,26 @@ class PresensiControllers extends Controller
             'ip_address' => $request->ip(),
         ]);
 
-        return redirect()->route('presensi.scanned')->with('success', 'Presensi berhasil dilakukan.');
+        return redirect()->route('presensi.presence')->with('success', 'Presensi berhasil dilakukan.');
     }
 
     public function scanCheck()
     {
+        $timezone = 'Asia/Makassar';
+        $pagiMulai = Carbon::createFromTimeString('08:00:00');
+        $pagiSelesai = Carbon::createFromTimeString('09:00:00');
+        $siangMulai = Carbon::createFromTimeString('14:00:00');
+        $siangSelesai = Carbon::createFromTimeString('15:00:00');
+
+        $sesiPagi = now()->between($pagiMulai, $pagiSelesai);
+        $sesiSiang = now()->between($siangMulai, $siangSelesai);
+
+        $sesi = null;
+        if ($sesiPagi) $sesi = 'pagi';
+        if ($sesiSiang) $sesi = 'siang';
+
+        $isSesiValid = $sesi !== null;
+
         $status = Presensi::where('nama_karyawan', Auth::user()->name)
             ->where('jenis_presensi', 'pagi')
             ->whereDate('tanggal', now('Asia/Makassar')->toDateString())
@@ -51,8 +67,8 @@ class PresensiControllers extends Controller
         ]);
     }
 
-    public function scanned()
+    public function presence()
     {
-        return view('Presensi.scanned');
+        return view('Presensi.presence');
     }
 }
