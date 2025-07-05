@@ -12,7 +12,6 @@
             <span>
                 “ Nothing worth having comes easy. ” <br>
                 — Theodore Roosevelt <br>
-                {!! route('presensi.store', ['name' => $name, 'token' => $token]) !!}
             </span>
         </div>
     </div>

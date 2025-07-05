@@ -12,14 +12,6 @@ class PresensiControllers extends Controller
 {
     public function index()
     {
-        // $getToday = Presensi::where('nama_karyawan', Auth::user()->name)
-        //     ->where('jenis_presensi', 'pagi')
-        //     ->whereDate('tanggal', now('Asia/Makassar')->toDateString())
-        //     ->exists();
-        // if ($getToday) {
-        //     return redirect()->route('presensi.scanned')->with('info', 'Anda sudah melakukan presensi hari ini.');
-        // }
-
         $token = Str::uuid();
         $name = Auth::user()->name;
         Cache::put('token_' . $name . '_' . $token, true, now()->addMinutes(1));
@@ -61,15 +53,6 @@ class PresensiControllers extends Controller
 
     public function scanned()
     {
-        // $getToday = Presensi::where('nama_karyawan', Auth::user()->name)
-        //     ->where('jenis_presensi', 'pagi')
-        //     ->whereDate('tanggal', now('Asia/Makassar')->toDateString())
-        //     ->exists();
-
-        // if (!$getToday) {
-        //     return redirect()->route('presensi.index')->with('error', 'Anda belum melakukan presensi hari ini.');
-        // }
-
         return view('Presensi.scanned');
     }
 }
