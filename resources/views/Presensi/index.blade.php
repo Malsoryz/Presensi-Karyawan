@@ -49,6 +49,35 @@
 
 @section('scripts')
 <script>
-    // You can add any additional scripts here if needed
+
+let isAlreadyRedirected = false;
+
+function presenceCheck() {
+    axios.get("{{  route('presensi.scanCheck') }}")
+        .then(response => {
+            const isPresence = response.data.is_presence;
+            const isTimeValid = response.data.is_time_valid;
+
+            if (isPresence) {
+                isAlreadyRedirected = true;
+                window.location.href = "{{ route('presensi.presence') }}";
+            } else if (!isPresence && isTimeValid) {
+                isAlreadyRedirected = true;
+                window.location.href = "{{ route('presensi.index') }}";
+            } else if (!isPresence && !isTimeValid) {
+                isAlreadyRedirected = true;
+                window.location.href = "{{ route('presensi.late') }}";
+            }
+        })
+}
+
+setInterval(presenceCheck, 3000);
+
+setTimeout(() => {
+    if (!isAlreadyRedirecting) {
+        location.reload();
+    }
+}, 60000);
+
 </script>
 @endsection

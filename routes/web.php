@@ -13,12 +13,16 @@ Route::get('/presensi', [PresensiControllers::class, 'index'])
 Route::get('/presensi/store/{name}/{token}', [PresensiControllers::class, 'store'])
     ->name('presensi.store')
     ->middleware('auth');
-Route::get('/presensi/scanned', [PresensiControllers::class, 'presence'])
-    ->name('presensi.presence')
-    ->middleware('auth');
 Route::get('/presensi/scan-check', [PresensiControllers::class, 'scanCheck'])
     ->name('presensi.scanCheck')
     ->middleware('auth');
+
+Route::get('/presensi/presence', function (){
+    return view('Presensi.presence');
+})->name('presensi.presence')->middleware('auth');
+Route::get('/presensi/late', function (){
+    return view('Presensi.late');
+})->name('presensi.late')->middleware('auth');
 
 Route::get('login', function () {
     return redirect()->route('filament.admin.auth.login');
