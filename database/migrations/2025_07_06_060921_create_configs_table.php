@@ -12,10 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('app_configs', function (Blueprint $table) {
-            $table->string('key')->primary();
+            $table->id();
+            $table->string('name')->unique();
             $table->text('value')->nullable();
-            $table->string('category')->nullable();
-            $table->timestamps();
         });
     }
 

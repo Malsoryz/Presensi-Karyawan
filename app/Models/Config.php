@@ -8,12 +8,23 @@ class Config extends Model
 {
     protected $table = 'app_configs';
 
-    protected $primaryKey = 'key';
-    protected $keyType = 'string';
+    public $timestamps = false;
 
     protected $fillable = [
-        'key',
+        'name',
         'value',
-        'category',
     ];
+
+    public static function getConfig(string $name): ?string
+    {
+        return self::where('name', $name)->value('value');
+    }
+
+    public static function setConfig(string $name, string $value): bool
+    {
+        return self::updateOrCreate(
+            ['name' => $name],
+            ['value' => $value]
+        ) ? true : false;
+    }
 }
