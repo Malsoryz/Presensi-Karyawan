@@ -15,12 +15,16 @@ class Config extends Model
         'value',
     ];
 
-    public static function getConfig(string $name): ?string
+    public static function get(string $name, $default = null): ?string
     {
+        if ($name === null) {
+            return $default;
+        }
+
         return self::where('name', $name)->value('value');
     }
 
-    public static function setConfig(string $name, string $value): bool
+    public static function set(string $name, $value): bool
     {
         return self::updateOrCreate(
             ['name' => $name],
