@@ -13,13 +13,17 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ColumnGroup;
+
+// use App\Infolists\Components\VerticalTabs\Tabs;
 
 class UserResource extends Resource
 {
@@ -32,8 +36,9 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Tabs::make('User Forms')
+                    ->contained(false)
                     ->tabs([
-                        Tabs\Tab::make('Profile')
+                        Tab::make('Profile')
                             ->schema([
                                 TextInput::make('name')
                                     ->label('Nama')
@@ -61,7 +66,7 @@ class UserResource extends Resource
                                     ->autosize()
                                     ->disableGrammarly(),
                             ]),
-                        Tabs\Tab::make('Credential')
+                        Tab::make('Credential')
                             ->schema([
                                 TextInput::make('password')
                                     ->label('Password')
@@ -69,9 +74,35 @@ class UserResource extends Resource
                                     ->password()
                                     ->revealable()
                                     ->minLength(8)
+                                    ->visibleOn('create'),
+
+                                // untuk mengubah password
+                                Placeholder::make('Change password')
+                                    ->visibleOn('edit'),
+                                TextInput::make('password')
+                                    ->label('New password')
+                                    ->password()
+                                    ->revealable()
+                                    ->minLength(8)
+                                    ->same('password_confirmation')
+                                    ->visibleOn('edit'),
+                                TextInput::make('password_confirmation')
+                                    ->label('Retype password')
+                                    ->password()
+                                    ->revealable()
+                                    ->minLength(8)
+                                    ->same('password')
+                                    ->visibleOn('edit'),
+                            ]),
+                        Tab::make('Jabatan')
+                            ->schema([
+
+                            ]),
+                        Tab::make('Data presensi')
+                            ->schema([
+
                             ])
                     ])
-                    ->contained(false),
             ]);
     }
 
