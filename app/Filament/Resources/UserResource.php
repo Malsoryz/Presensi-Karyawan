@@ -94,14 +94,23 @@ class UserResource extends Resource
                                     ->same('password')
                                     ->visibleOn('edit'),
                             ]),
-                        Tab::make('Jabatan')
+                        Tab::make('Data Karyawan')
                             ->schema([
-
+                                TextInput::make('jabatan')
+                                    ->label('Jabatan'),
+                                TextInput::make('departmen')
+                                    ->label('Departmen'),
+                                DatePicker::make('tanggal_masuk_sebagai_karyawan')
+                                    ->label('Tanggal masuk sebagai karyawan'),
+                                TextInput::make('rekening_bank')
+                                    ->label('Rekening bank'),
+                                TextInput::make('gaji_pokok_bulanan')
+                                    ->label('Gaji pokok bulanan')
+                                    ->numeric(),
+                                TextInput::make('tunjangan_kehadiran_harian')
+                                    ->label('Tunjangan kehadiran harian')
+                                    ->numeric(),
                             ]),
-                        Tab::make('Data presensi')
-                            ->schema([
-
-                            ])
                     ])
             ]);
     }
@@ -116,16 +125,16 @@ class UserResource extends Resource
                         ->searchable(),
                     TextColumn::make('email')
                         ->label('Email'),
-                    TextColumn::make('address')
-                        ->label('Alamat')
-                        ->wrap(),
-                    TextColumn::make('birth_date')
-                        ->label('Tanggal lahir')
-                        ->date(),
-                    TextColumn::make('gender')
-                        ->label('Jenis kelamin'),
-                    TextColumn::make('phone_number')
-                        ->label('No Telepon'),
+                    // TextColumn::make('address')
+                    //     ->label('Alamat')
+                    //     ->wrap(),
+                    // TextColumn::make('birth_date')
+                    //     ->label('Tanggal lahir')
+                    //     ->date(),
+                    // TextColumn::make('gender')
+                    //     ->label('Jenis kelamin'),
+                    // TextColumn::make('phone_number')
+                    //     ->label('No Telepon'),
                 ]),
             ])
             ->defaultSort('name')

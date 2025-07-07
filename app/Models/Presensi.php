@@ -14,6 +14,7 @@ class Presensi extends Model
         'nama_karyawan',
         'jenis_presensi',
         'tanggal',
+        'status',
         'ip_address',
     ];
 }

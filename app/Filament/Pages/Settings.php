@@ -48,6 +48,9 @@ class Settings extends Page implements HasForms
                                         'default' => 2,
                                     ])
                                     ->schema([
+                                        TextInput::make('data.timezone')
+                                            ->label('Timezone')
+                                            ->columnSpan(['default' => 2]),
                                         TimePicker::make('data.presensi_pagi_mulai')
                                             ->label('Pagi Mulai')
                                             ->native(false)
@@ -137,6 +140,10 @@ class Settings extends Page implements HasForms
                                             ->label('Ambang batas keterlambatan')
                                             ->suffix('Kali')
                                     ])
+                            ]),
+                        Tabs\Tab::make('Hari libur')
+                            ->schema([
+                                
                             ])
                     ]),
                 Actions::make([

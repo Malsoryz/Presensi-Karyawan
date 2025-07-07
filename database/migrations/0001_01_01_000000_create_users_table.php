@@ -21,6 +21,12 @@ return new class extends Migration
             $table->date('birth_date')->nullable();
             $table->enum('gender', ['male', 'female'])->nullable();
             $table->string('phone_number')->nullable();
+            $table->enum('jabatan', ['karyawan', 'admin'])->nullable();
+            $table->string('departmen')->nullable();
+            $table->date('tanggal_masuk_sebagai_karyawan')->nullable();
+            $table->string('rekening_bank')->nullable();
+            $table->string('gaji_pokok_bulanan')->nullable();
+            $table->string('tunjangan_kehadiran_harian')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
