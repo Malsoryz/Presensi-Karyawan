@@ -16,6 +16,13 @@ return new class extends Migration
             $table->string('nama_karyawan', length: 50);
             $table->enum('jenis_presensi', ['pagi', 'siang']);
             $table->timestampTz('tanggal')->useCurrent();
+            $table->enum('status', [
+                'masuk',
+                'terlambat',
+                'ijin',
+                'sakit',
+                'tidak_masuk'
+            ]);
             $table->string('ip_address', length: 25);
         });
     }
