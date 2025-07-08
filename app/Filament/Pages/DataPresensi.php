@@ -26,15 +26,20 @@ class DataPresensi extends Page implements HasTable
                 TextColumn::make('nama_karyawan')
                     ->label('Nama'),
                 TextColumn::make('total_masuk')
-                    ->label('Masuk'),
+                    ->label('Masuk')
+                    ->color('success'),
                 TextColumn::make('total_terlambat')
-                    ->label('Terlambat'),
+                    ->label('Terlambat')
+                    ->color('gray'),
                 TextColumn::make('total_ijin')
-                    ->label('Ijin'),
+                    ->label('Ijin')
+                    ->color('gray'),
                 TextColumn::make('total_sakit')
-                    ->label('Sakit'),
+                    ->label('Sakit')
+                    ->color('gray'),
                 TextColumn::make('total_tidak_masuk')
-                    ->label('Tidak masuk'),
+                    ->label('Tidak masuk')
+                    ->color('danger'),
             ])
             ->filters([
 

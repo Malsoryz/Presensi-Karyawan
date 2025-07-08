@@ -43,6 +43,10 @@ class Settings extends Page implements HasForms
                     ->tabs([
                         Tabs\Tab::make('Jadwal')
                             ->schema([
+                                Section::make('Hari kerja')
+                                    ->schema([
+                                        
+                                    ]),
                                 Section::make('Presensi')
                                     ->columns([
                                         'default' => 2,
@@ -73,6 +77,9 @@ class Settings extends Page implements HasForms
                                             ->columnSpan(['default' => 1]),
                                     ]),
                                 Section::make('Jam kerja')
+                                    ->columns([
+                                        'default' => 3,
+                                    ])
                                     ->schema([
                                         TimePicker::make('data.jam_mulai_kerja')
                                             ->label('Kerja mulai')
@@ -89,7 +96,8 @@ class Settings extends Page implements HasForms
                                         TextInput::make('data.toleransi_presensi')
                                             ->numeric()
                                             ->label('Toleransi presensi')
-                                            ->suffix('Menit'),
+                                            ->suffix('Menit')
+                                            ->columnSpan(3),
                                     ])
                             ]),
                         Tabs\Tab::make('Wi-Fi')
