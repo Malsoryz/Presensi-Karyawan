@@ -17,11 +17,13 @@ class Config extends Model
 
     public static function get(string $name, $default = null): ?string
     {
-        if ($name === null) {
+        $result = self::where('name', $name)->value('value');
+
+        if ($result == null) {
             return $default;
         }
 
-        return self::where('name', $name)->value('value');
+        return $result;
     }
 
     public static function set(string $name, $value): bool
