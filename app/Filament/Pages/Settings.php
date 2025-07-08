@@ -82,6 +82,10 @@ class Settings extends Page implements HasForms
                                             ->label('Selesai istirahat')
                                             ->native(false)
                                             ->displayFormat('H:i:s'),
+                                        TimePicker::make('data.jam_pulang_kerja')
+                                            ->label('Pulang kerja')
+                                            ->native(false)
+                                            ->displayFormat('H:i:s'),
                                         TextInput::make('data.toleransi_presensi')
                                             ->numeric()
                                             ->label('Toleransi presensi')

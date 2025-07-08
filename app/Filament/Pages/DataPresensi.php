@@ -21,7 +21,7 @@ class DataPresensi extends Page implements HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(Presensi::getCalculatedAll())
+            ->query(Presensi::getTotalQuery())
             ->columns([
                 TextColumn::make('nama_karyawan')
                     ->label('Nama'),
