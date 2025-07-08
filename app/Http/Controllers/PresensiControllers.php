@@ -16,11 +16,13 @@ class PresensiControllers extends Controller
     {
         $checked = $this->check();
 
-        if ($checked['status']) {
-            return redirect()->route('presensi.info', ['status' => 'telah presensi']);
-        } elseif (!$checked['status'] && !$checked['is_session_valid']) {
-            return redirect()->route('presensi.info', ['status' => 'telat presensi']);
+        if ($checked['is_presence']) {
+            return redirect()->route('presensi.info', ['presence' => true]);
+        } elseif (!$checked['is_presence'] && !$checked['is_session_valid']) {
+            return redirect()->route('presensi.info', ['presence' => false]);
         }
+
+        $collection = Presensi::getTotal()->limit(3)->get();
 
         $token = Str::uuid();
         $name = Auth::user()->name;
@@ -28,6 +30,8 @@ class PresensiControllers extends Controller
         return view('Presensi.index', [
             'name' => $name,
             'token' => $token,
+            'collection' => $collection,
+            'status' => $checked['presence_status'],
         ]);
     }
 
@@ -53,7 +57,7 @@ class PresensiControllers extends Controller
             Presensi::create([
                 'nama_karyawan' => $name,
                 'jenis_presensi' => $checked['session'],
-                'status' => 'masuk',
+                'status' => $checked['presence_status'],
                 'ip_address' => $request->ip(),
             ]);
         }
@@ -66,20 +70,28 @@ class PresensiControllers extends Controller
         $checked = $this->check();
 
         return response()->json([
-            'is_presence' => $checked['status'],
+            'is_presence' => $checked['is_presence'],
             'is_time_valid' => $checked['is_session_valid'],
         ]);
     }
 
     public function info(Request $request)
     {
-        $status = $request->get('status');
-
-        if ($status === null) {
+        $presence = $request->get('presence');
+        
+        if (!$presence) {
             return redirect()->route('presensi.index');
         }
 
-        return view('Presensi.info', ['status' => $status]);
+        $checked = $this->check();
+
+        if (!$checked['is_presence']) {
+            return redirect()->route('presensi.index');
+        }
+
+        $message = ($presence) ? 'telah presensi' : 'telat presensi';
+
+        return view('Presensi.info', ['status' => $message]);
     }
 
     private function check(): array
@@ -100,6 +112,8 @@ class PresensiControllers extends Controller
         );
         $waktuToleransi = Config::get('toleransi_presensi', 0);
 
+        $sesiPagiAsli = $now->between($pagiMulai, $pagiSelesai);
+        $sesiSiangAsli = $now->between($siangMulai, $siangSelesai);
         $sesiPagi = $now->between($pagiMulai, $pagiSelesai->addMinute((int) $waktuToleransi));
         $sesiSiang = $now->between($siangMulai, $siangSelesai->addMinute((int) $waktuToleransi));
 
@@ -107,26 +121,35 @@ class PresensiControllers extends Controller
         if ($sesiPagi) $sesi = 'pagi';
         if ($sesiSiang) $sesi = 'siang';
 
-        $isSesiValid = $sesi !== null;
+        $isSessionValid = $sesi !== null;
 
-        $status;
+        $isPresence;
 
         if ($now->between($pagiMulai, $siangMulai, false)) {
-            $status = Presensi::where('nama_karyawan', Auth::user()->name)
+            $isPresence = Presensi::where('nama_karyawan', Auth::user()->name)
                 ->where('jenis_presensi', 'pagi')
                 ->whereDate('tanggal', $now->toDateString())
                 ->exists();
         } else {
-            $status = Presensi::where('nama_karyawan', Auth::user()->name)
+            $isPresence = Presensi::where('nama_karyawan', Auth::user()->name)
                 ->where('jenis_presensi', 'siang')
                 ->whereDate('tanggal', $now->toDateString())
                 ->exists();
         }
 
+        $presenceStatus = null;
+
+        if ($sesiPagiAsli || $sesiSiangAsli) {
+            $presenceStatus = 'masuk';
+        } elseif (!$sesiPagiAsli && $sesiPagi || !$sesiSiangAsli && $sesiSiang) {
+            $presenceStatus = 'terlambat';
+        }
+
         return [
-            'status' => $status,
+            'is_presence' => $isPresence,
             'session' => $sesi,
-            'is_session_valid' => $isSesiValid
+            'is_session_valid' => $isSessionValid,
+            'presence_status' => $presenceStatus,
         ];
     }
 }
