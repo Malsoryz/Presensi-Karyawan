@@ -12,6 +12,7 @@
             <span>
                 “ Nothing worth having comes easy. ” <br>
                 — Theodore Roosevelt <br>
+                {{ $status }}
             </span>
         </div>
     </div>
@@ -21,26 +22,26 @@
         <thead>
             <tr>
                 <th></th>
-                <th>Name</th>
-                <th>Job</th>
-                <th>Favorite Color</th>
-                <th>Bla</th>
-                <th>Bla</th>
-                <th>Bla</th>
+                <th>Nama</th>
+                <th>Masuk</th>
+                <th>Terlambat</th>
+                <th>Ijin</th>
+                <th>Sakit</th>
+                <th>Tidak masuk</th>
             </tr>
         </thead>
         <tbody>
-            @for ($i = 0; $i < 5; $i++)
+            @foreach ($collection as $presensi)
                 <tr>
-                    <th>{{ $i }}</th>
-                    <td>Dummy</td>
-                    <td>Anything</td>
-                    <td>Anything</td>
-                    <td>Anything</td>
-                    <td>Anything</td>
-                    <td>Anything</td>
+                    <th>{{ $loop->iteration }}</th>
+                    <td>{{ $presensi->nama_karyawan }}</td>
+                    <td>{{ $presensi->total_masuk }}</td>
+                    <td>{{ $presensi->total_terlambat }}</td>
+                    <td>{{ $presensi->total_ijin }}</td>
+                    <td>{{ $presensi->total_sakit }}</td>
+                    <td>{{ $presensi->total_tidak_masuk }}</td>
                 </tr>
-            @endfor
+            @endforeach
         </tbody>
     </table>
     </div>
