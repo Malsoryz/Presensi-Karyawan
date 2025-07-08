@@ -8,6 +8,7 @@ use Filament\Tables\Table;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 
 class DataPresensi extends Page implements HasTable
 {
@@ -17,24 +18,22 @@ class DataPresensi extends Page implements HasTable
 
     protected static string $view = 'filament.pages.data-presensi';
 
-    public ?array $data = [];
-
     public function table(Table $table): Table
     {
         return $table
-            ->query(Presensi::query())
+            ->query(Presensi::getCalculatedAll())
             ->columns([
-                TextColumn::make('data.name')
+                TextColumn::make('nama_karyawan')
                     ->label('Nama'),
-                TextColumn::make('data.masuk')
+                TextColumn::make('total_masuk')
                     ->label('Masuk'),
-                TextColumn::make('data.terlambat')
+                TextColumn::make('total_terlambat')
                     ->label('Terlambat'),
-                TextColumn::make('data.ijin')
+                TextColumn::make('total_ijin')
                     ->label('Ijin'),
-                TextColumn::make('data.sakit')
+                TextColumn::make('total_sakit')
                     ->label('Sakit'),
-                TextColumn::make('data.tidak_masuk')
+                TextColumn::make('total_tidak_masuk')
                     ->label('Tidak masuk'),
             ])
             ->filters([
@@ -46,5 +45,10 @@ class DataPresensi extends Page implements HasTable
             ->bulkActions([
 
             ]);
+    }
+
+    public function getTableRecordKey(Model $record): string
+    {
+        return $record->nama_karyawan;
     }
 }

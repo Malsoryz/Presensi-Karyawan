@@ -126,8 +126,7 @@ class Settings extends Page implements HasForms
                                         TextInput::make('data.potongan_tidak_masuk')
                                             ->label('Potongan tidak masuk')
                                             ->numeric()
-                                            ->suffix('%')
-                                            ->readonly(),
+                                            ->suffix('%'),
                                         TextInput::make('data.potongan_telat')
                                             ->label('Potongan telat')
                                             ->numeric()
