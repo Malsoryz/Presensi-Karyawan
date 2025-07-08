@@ -52,7 +52,6 @@
 <script>
 
 let isAlreadyRedirected = false;
-const currentStatus = "{{ $status }}";
 
 function presenceCheck() {
     axios.get("{{  route('presensi.scanCheck') }}")
@@ -60,14 +59,9 @@ function presenceCheck() {
             const isPresence = response.data.is_presence;
             const isTimeValid = response.data.is_time_valid;
 
-            if (isPresence && currentStatus != 'presence') {
-                // jika telah presensi
+            if (isPresence || (!isPresence && !isTimeValid)) {
                 isAlreadyRedirected = true;
-                window.location.href = "{{ route('presensi.index', ['status' => 'presence']) }}";
-            } else if ((!isPresence && !isTimeValid) && currentStatus != 'late') {
-                // jika telat presensi
-                isAlreadyRedirected = true;
-                window.location.href = "{{ route('presensi.index', ['status' => 'late']) }}";
+                location.reload();
             }
         })
 }
