@@ -76,7 +76,7 @@ class PresensiControllers extends Controller
         $status = $request->get('status');
 
         if ($status === null) {
-            return redirect()->back();
+            return redirect()->route('presensi.index');
         }
 
         return view('Presensi.info', ['status' => $status]);
