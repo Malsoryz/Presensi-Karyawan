@@ -12,13 +12,13 @@ use Carbon\Carbon;
 
 class PresensiControllers extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $checked = $this->check();
 
         if ($checked['status']) {
             return redirect()->route('presensi.info', ['status' => 'telah presensi']);
-        } elseif (!$status && !$isSesiValid) {
+        } elseif (!$checked['status'] && !$checked['is_session_valid']) {
             return redirect()->route('presensi.info', ['status' => 'telat presensi']);
         }
 
@@ -46,13 +46,14 @@ class PresensiControllers extends Controller
         $checked = $this->check();
 
         if (!$checked['is_session_valid']) {
-            return redirect()->route('presensi.index', ['status' => 'late'])->with('error', 'Sesi presensi tidak valid!');
+            return redirect()->route('presensi.index')->with('error', 'Sesi presensi tidak valid!');
         }
 
         if ($checked['session'] === 'pagi' || $checked['session'] === 'siang') {
             Presensi::create([
                 'nama_karyawan' => $name,
                 'jenis_presensi' => $checked['session'],
+                'status' => 'masuk',
                 'ip_address' => $request->ip(),
             ]);
         }
@@ -97,9 +98,10 @@ class PresensiControllers extends Controller
         $siangSelesai = Carbon::createFromTimeString(
             Config::get('presensi_siang_selesai', '15:00:00'), $timezone
         );
+        $waktuToleransi = Config::get('toleransi_presensi', 0);
 
-        $sesiPagi = $now->between($pagiMulai, $pagiSelesai);
-        $sesiSiang = $now->between($siangMulai, $siangSelesai);
+        $sesiPagi = $now->between($pagiMulai, $pagiSelesai->addMinute((int) $waktuToleransi));
+        $sesiSiang = $now->between($siangMulai, $siangSelesai->addMinute((int) $waktuToleransi));
 
         $sesi = null;
         if ($sesiPagi) $sesi = 'pagi';

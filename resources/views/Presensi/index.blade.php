@@ -12,7 +12,6 @@
             <span>
                 “ Nothing worth having comes easy. ” <br>
                 — Theodore Roosevelt <br>
-                status {{ $status }}
             </span>
         </div>
     </div>
