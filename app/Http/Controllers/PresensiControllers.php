@@ -77,21 +77,31 @@ class PresensiControllers extends Controller
 
     public function info(Request $request)
     {
-        $presence = $request->get('presence');
-        
-        if (!$presence) {
+        if (!$request->has('presence')) {
             return redirect()->route('presensi.index');
         }
 
+        $presence = $request->get('presence');
         $checked = $this->check();
+        
+        if (!$presence && $checked['is_session_valid']) {
+            return redirect()->route('presensi.index');
+        }
 
-        if (!$checked['is_presence']) {
+        if (!$checked['is_presence'] && $checked['is_session_valid']) {
+            return redirect()->route('presensi.index');
+        }
+
+        if ($presence != $checked['is_presence']) {
             return redirect()->route('presensi.index');
         }
 
         $message = ($presence) ? 'telah presensi' : 'telat presensi';
 
-        return view('Presensi.info', ['status' => $message]);
+        return view('Presensi.info', [
+            'status' => $message,
+            // 'debug' => $checked['debug'],
+        ]);
     }
 
     private function check(): array
@@ -99,16 +109,16 @@ class PresensiControllers extends Controller
         $timezone = Config::get('timezone', 'Asia/Makassar');
         $now = now($timezone);
         $pagiMulai = Carbon::createFromTimeString(
-            Config::get('presensi_pagi_mulai', '08:00:00'), $timezone
+            Config::getTime('presensi_pagi_mulai', '08:00:00'), $timezone
         );
         $pagiSelesai = Carbon::createFromTimeString(
-            Config::get('presensi_pagi_selesai', '09:00:00'), $timezone
+            Config::getTime('presensi_pagi_selesai', '09:00:00'), $timezone
         );
         $siangMulai = Carbon::createFromTimeString(
-            Config::get('presensi_siang_mulai', '14:00:00'), $timezone
+            Config::getTime('presensi_siang_mulai', '14:00:00'), $timezone
         );
         $siangSelesai = Carbon::createFromTimeString(
-            Config::get('presensi_siang_selesai', '15:00:00'), $timezone
+            Config::getTime('presensi_siang_selesai', '15:00:00'), $timezone
         );
         $waktuToleransi = Config::get('toleransi_presensi', 0);
 
@@ -150,6 +160,21 @@ class PresensiControllers extends Controller
             'session' => $sesi,
             'is_session_valid' => $isSessionValid,
             'presence_status' => $presenceStatus,
+            'debug' => [
+                'pagiMulai' => $pagiMulai,
+                'pagiSelesai' => $pagiSelesai,
+                'siangMulai' => $siangMulai,
+                'siangSelesai' => $siangSelesai,
+                'waktuToleransi' => $waktuToleransi,
+                'sesiPagiAsli' => $sesiPagiAsli,
+                'sesiSiangAsli' => $sesiSiangAsli,
+                'sesiPagi' => $sesiPagi,
+                'sesiSiang' => $sesiSiang,
+                'sesi' => $sesi,
+                'isSessionValid' => $isSessionValid,
+                'isPresence' => $isPresence,
+                'presenceStatus' => $presenceStatus
+            ],
         ];
     }
 }
