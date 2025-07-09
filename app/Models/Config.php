@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Config extends Model
 {
@@ -24,6 +25,17 @@ class Config extends Model
         }
 
         return $result;
+    }
+
+    public static function getTime(string $name, $default = null): ?string
+    {
+        $result = self::where('name', $name)->value('value');
+
+        if ($result == null) {
+            return $default;
+        }
+
+        return Carbon::parse($result, self::get('timezone', 'Asia/Makassar'))->format('H:i:s');
     }
 
     public static function set(string $name, $value): bool
