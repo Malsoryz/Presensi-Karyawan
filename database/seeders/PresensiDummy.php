@@ -17,16 +17,19 @@ class PresensiDummy extends Seeder
         $users = DB::table('users')->select('name')->get();
 
         $status = ['masuk', 'terlambat', 'ijin', 'sakit', 'tidak_masuk'];
+        $sesiPresensi = ['pagi', 'siang'];
 
         foreach ($users as $user) {
-            for ($i = 0; $i < 40; $i++) { 
-                DB::table('presensi')->insert([
-                    'nama_karyawan' => $user->name,
-                    'jenis_presensi' => 'pagi',
-                    'tanggal' => Carbon::now('Asia/Makassar')->addDays($i),
-                    'status' => $status[array_rand($status)],
-                    'ip_address' => '192.168.1.'.$i,
-                ]);
+            foreach ($sesiPresensi as $sesi) {
+                for ($i = 0; $i < 40; $i++) { 
+                    DB::table('presensi')->insert([
+                        'nama_karyawan' => $user->name,
+                        'jenis_presensi' => $sesi,
+                        'tanggal' => Carbon::now('Asia/Makassar')->addDays($i),
+                        'status' => $status[array_rand($status)],
+                        'ip_address' => '192.168.1.'.$i,
+                    ]);
+                }
             }
         }
     }

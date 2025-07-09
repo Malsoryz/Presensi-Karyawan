@@ -4,7 +4,15 @@
 
 @section('content')
 <div class="flex gap-16">
-    <span class="text-4xl font-bold">{{ $status }}</span><br>
+    <span class="text-4xl font-bold">
+        @if (isset($status))
+            {{ $status }}
+        @endif
+    </span><br>
+    
+    @if (isset($debug))
+        <span>{{ var_dump($debug) }}</span>
+    @endif
 </div>
 @endsection
 

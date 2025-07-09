@@ -9,6 +9,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Support\Enums\Alignment;
 
 class DataPresensi extends Page implements HasTable
 {
@@ -27,19 +28,24 @@ class DataPresensi extends Page implements HasTable
                     ->label('Nama'),
                 TextColumn::make('total_masuk')
                     ->label('Masuk')
-                    ->color('success'),
+                    ->color('success')
+                    ->alignment(Alignment::Center),
                 TextColumn::make('total_terlambat')
                     ->label('Terlambat')
-                    ->color('gray'),
+                    ->color('gray')
+                    ->alignment(Alignment::Center),
                 TextColumn::make('total_ijin')
                     ->label('Ijin')
-                    ->color('gray'),
+                    ->color('gray')
+                    ->alignment(Alignment::Center),
                 TextColumn::make('total_sakit')
                     ->label('Sakit')
-                    ->color('gray'),
+                    ->color('gray')
+                    ->alignment(Alignment::Center),
                 TextColumn::make('total_tidak_masuk')
                     ->label('Tidak masuk')
-                    ->color('danger'),
+                    ->color('danger')
+                    ->alignment(Alignment::Center),
             ])
             ->filters([
 

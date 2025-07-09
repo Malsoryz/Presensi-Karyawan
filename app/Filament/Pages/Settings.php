@@ -78,26 +78,24 @@ class Settings extends Page implements HasForms
                                     ]),
                                 Section::make('Jam kerja')
                                     ->columns([
-                                        'default' => 3,
+                                        'default' => 2,
                                     ])
                                     ->schema([
                                         TimePicker::make('data.jam_mulai_kerja')
                                             ->label('Kerja mulai')
                                             ->native(false)
-                                            ->displayFormat('H:i:s'),
+                                            ->displayFormat('H:i:s')
+                                            ->columnSpan(['default' => 1]),
                                         TimePicker::make('data.jam_selesai_istirahat')
                                             ->label('Selesai istirahat')
                                             ->native(false)
-                                            ->displayFormat('H:i:s'),
-                                        TimePicker::make('data.jam_pulang_kerja')
-                                            ->label('Pulang kerja')
-                                            ->native(false)
-                                            ->displayFormat('H:i:s'),
+                                            ->displayFormat('H:i:s')
+                                            ->columnSpan(['default' => 1]),
                                         TextInput::make('data.toleransi_presensi')
                                             ->numeric()
                                             ->label('Toleransi presensi')
                                             ->suffix('Menit')
-                                            ->columnSpan(3),
+                                            ->columnSpan(2),
                                     ])
                             ]),
                         Tabs\Tab::make('Wi-Fi')
@@ -160,7 +158,7 @@ class Settings extends Page implements HasForms
                 Actions::make([
                     Actions\Action::make('save')
                         ->label('Save changes')
-                        ->action(function (array $data) {
+                        ->action(function () {
                             foreach ($this->data as $name => $value) {
                                 Config::set($name, $value);
                             }
