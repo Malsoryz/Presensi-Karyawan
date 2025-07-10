@@ -3,10 +3,14 @@
 namespace App\Filament\Pages;
 
 use App\Models\Config;
+use App\Models\HariLibur;
 use Filament\Forms\Form;
+use Filament\Tables\Table;
 use Filament\Pages\Page;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+// use Filament\Tables\Concerns\InteractsWithTable;
+// use Filament\Tables\Contracts\HasTable;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -17,9 +21,12 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Placeholder;
 
-class Settings extends Page implements HasForms
+use Filament\Tables\Columns\TextColumn;
+
+class Settings extends Page implements HasForms//, HasTable
 {
     use InteractsWithForms;
+    // use InteractsWithTable;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
@@ -27,11 +34,117 @@ class Settings extends Page implements HasForms
 
     public ?array $data = [];
 
+    public string $tabState = 'tab1';
+
     public function mount(): void
     {
         $this->form->fill([
             'data' => Config::all()->pluck('value', 'name')->toArray()
         ]);
+    }
+
+    public function jadwalFormSections()
+    {
+        return [
+            // [
+            //     'heading' => 'Hari Kerja',
+            //     'content' => $this->hariKerjaSection(),
+            //     'tag' => 'div',
+            // ],
+            [
+                'heading' => 'Presensi',
+                'content' => $this->presensiSection(),
+                'tag' => 'form',
+            ],
+            [
+                'heading' => 'Jam Kerja',
+                'content' => $this->jamKerjaSection(),
+                'tag' => 'form',
+            ],
+        ];
+    }
+
+    // public function table(Table $table)
+    // {
+    //     return $table
+    //         ->query(function () {
+    //             return collect(HariLibur::hariKerjaTahunan(now()->year));
+    //         })
+    //         ->columns([
+    //             TextColumn::make('bulan')
+    //                 ->label('Bulan'),
+    //             TextColumn::make('total_hari')
+    //                 ->label('Total Hari'),
+    //             TextColumn::make('total_hari_minggu')
+    //                 ->label('Total Hari Minggu'),
+    //             TextColumn::make('total_hari_libur_nasional')
+    //                 ->label('Total Hari Libur Nasional'),
+    //             TextColumn::make('total_hari_libur')
+    //                 ->label('Total Hari Libur'),
+    //             TextColumn::make('total_hari_kerja')
+    //                 ->label('Total Hari Kerja'),
+    //         ])
+    //         ->filters([])
+    //         ->actions([])
+    //         ->bulkActions([]);
+    // }
+
+    public function presensiSection()
+    {
+        return Form::make($this)
+            ->columns([
+                'default' => 2,
+            ])
+            ->schema([
+                TextInput::make('data.timezone')
+                    ->label('Timezone')
+                    ->columnSpan(['default' => 2]),
+                TimePicker::make('data.presensi_pagi_mulai')
+                    ->label('Pagi Mulai')
+                    ->native(false)
+                    ->displayFormat('H:i:s')
+                    ->columnSpan(['default' => 1]),
+                TimePicker::make('data.presensi_pagi_selesai')
+                    ->label('Pagi Selesai')
+                    ->native(false)
+                    ->displayFormat('H:i:s')
+                    ->columnSpan(['default' => 1]),
+                TimePicker::make('data.presensi_siang_mulai')
+                    ->label('Siang Mulai')
+                    ->native(false)
+                    ->displayFormat('H:i:s')
+                    ->columnSpan(['default' => 1]),
+                TimePicker::make('data.presensi_siang_selesai')
+                    ->label('Siang Selesai')
+                    ->native(false)
+                    ->displayFormat('H:i:s')
+                    ->columnSpan(['default' => 1]),
+            ]);
+    }
+
+    public function jamKerjaSection()
+    {
+        return Form::make($this)
+            ->columns([
+                'default' => 2,
+            ])
+            ->schema([
+                TimePicker::make('data.jam_mulai_kerja')
+                    ->label('Kerja mulai')
+                    ->native(false)
+                    ->displayFormat('H:i:s')
+                    ->columnSpan(['default' => 1]),
+                TimePicker::make('data.jam_selesai_istirahat')
+                    ->label('Selesai istirahat')
+                    ->native(false)
+                    ->displayFormat('H:i:s')
+                    ->columnSpan(['default' => 1]),
+                TextInput::make('data.toleransi_presensi')
+                    ->numeric()
+                    ->label('Toleransi presensi')
+                    ->suffix('Menit')
+                    ->columnSpan(2),
+            ]);
     }
 
     public function form(Form $form): Form
@@ -41,63 +154,6 @@ class Settings extends Page implements HasForms
                 Tabs::make('Configuration settings')
                     ->contained(false)
                     ->tabs([
-                        Tabs\Tab::make('Jadwal')
-                            ->schema([
-                                Section::make('Hari kerja')
-                                    ->schema([
-                                        
-                                    ]),
-                                Section::make('Presensi')
-                                    ->columns([
-                                        'default' => 2,
-                                    ])
-                                    ->schema([
-                                        TextInput::make('data.timezone')
-                                            ->label('Timezone')
-                                            ->columnSpan(['default' => 2]),
-                                        TimePicker::make('data.presensi_pagi_mulai')
-                                            ->label('Pagi Mulai')
-                                            ->native(false)
-                                            ->displayFormat('H:i:s')
-                                            ->columnSpan(['default' => 1]),
-                                        TimePicker::make('data.presensi_pagi_selesai')
-                                            ->label('Pagi Selesai')
-                                            ->native(false)
-                                            ->displayFormat('H:i:s')
-                                            ->columnSpan(['default' => 1]),
-                                        TimePicker::make('data.presensi_siang_mulai')
-                                            ->label('Siang Mulai')
-                                            ->native(false)
-                                            ->displayFormat('H:i:s')
-                                            ->columnSpan(['default' => 1]),
-                                        TimePicker::make('data.presensi_siang_selesai')
-                                            ->label('Siang Selesai')
-                                            ->native(false)
-                                            ->displayFormat('H:i:s')
-                                            ->columnSpan(['default' => 1]),
-                                    ]),
-                                Section::make('Jam kerja')
-                                    ->columns([
-                                        'default' => 2,
-                                    ])
-                                    ->schema([
-                                        TimePicker::make('data.jam_mulai_kerja')
-                                            ->label('Kerja mulai')
-                                            ->native(false)
-                                            ->displayFormat('H:i:s')
-                                            ->columnSpan(['default' => 1]),
-                                        TimePicker::make('data.jam_selesai_istirahat')
-                                            ->label('Selesai istirahat')
-                                            ->native(false)
-                                            ->displayFormat('H:i:s')
-                                            ->columnSpan(['default' => 1]),
-                                        TextInput::make('data.toleransi_presensi')
-                                            ->numeric()
-                                            ->label('Toleransi presensi')
-                                            ->suffix('Menit')
-                                            ->columnSpan(2),
-                                    ])
-                            ]),
                         Tabs\Tab::make('Wi-Fi')
                             ->schema([
                                 Section::make()
