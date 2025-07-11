@@ -15,6 +15,12 @@ class HariLibur extends Model
     protected $fillable = [
         'nama',
         'tanggal',
+        'bulan',
     ];
+
+    public static function getInMonth(string|int $month)
+    {
+        return self::select('tanggal')->whereMonth('tanggal', $month)->get();
+    }
 
 }
