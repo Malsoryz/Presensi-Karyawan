@@ -1,32 +1,69 @@
 <x-filament-panels::page>
     <x-filament::tabs>
         <x-filament::tabs.item
-            :active="$this->tabState === 'tab1'"
-            wire:click="$set('tabState', 'tab1')"
+            :active="$currentTab === 'tab1'"
+            wire:click="$set('currentTab', 'tab1')"
         >
-            tab1
+            Jadwal
+        </x-filament::tabs.item>
+
+        <x-filament::tabs.item
+            :active="$currentTab === 'tab2'"
+            wire:click="$set('currentTab', 'tab2')"
+        >
+            Wi-Fi
+        </x-filament::tabs.item>
+
+        <x-filament::tabs.item
+            :active="$currentTab === 'tab3'"
+            wire:click="$set('currentTab', 'tab3')"
+        >
+            Notifikasi
+        </x-filament::tabs.item>
+
+        <x-filament::tabs.item
+            :active="$currentTab === 'tab4'"
+            wire:click="$set('currentTab', 'tab4')"
+        >
+            Aturan
+        </x-filament::tabs.item>
+
+        <x-filament::tabs.item
+            :active="$currentTab === 'tab5'"
+            wire:click="$set('currentTab', 'tab5')"
+        >
+            Hari Libur
         </x-filament::tabs.item>
     </x-filament::tabs>
 
-    @if ($this->tabState === 'tab1')
-
-        {{ $this->hariKerjaTable() }}
-
-        <div class="flex flex-col gap-8">
-        @foreach ($this->jadwalFormSections() as $form)
-            <x-filament::section>
-                <x-slot name="heading">
-                    {{ $form['heading'] }}
-                </x-slot>
-
-                <{{ $form['tag'] }}>
-                    {{ $form['content'] }}
-                </{{ $form['tag'] }}>
-            </x-filament::section>
-        @endforeach
+    <div @class([
+        'hidden' => $currentTab !== 'tab1'
+    ])>
+        @livewire('tables.config.hari-kerja')
+        @livewire('forms.config.jam-kerja')
     </div>
-    @endif
 
-    {{-- {{ $this->form }} --}}
+    <div @class([
+        'hidden' => $currentTab !== 'tab2'
+    ])>
+         @livewire('forms.config.wifi')
+    </div>
+
+    <div @class([
+        'hidden' => $currentTab !== 'tab3'
+    ])>
+        @livewire('forms.config.notifikasi')
+    </div>
+
+    <div @class([
+        'hidden' => $currentTab !== 'tab4'
+    ])>
+        @livewire('forms.config.aturan')
+    </div>
+
+
+    <x-filament::button class="max-w-fit" wire:click="saveChanges">
+        Save Changes
+    </x-filament::button>
 
 </x-filament-panels::page>
