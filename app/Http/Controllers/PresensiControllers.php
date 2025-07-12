@@ -10,13 +10,15 @@ use App\Models\Presensi;
 use App\Models\Config;
 use Carbon\Carbon;
 
+use App\Enums\StatusPresensi as SP;
+
+enum SesiPresensi: string {
+    case PAGI = 'pagi';
+    case SIANG = 'siang';
+}
+
 class PresensiControllers extends Controller
 {
-    const SESSION_PAGI = 'pagi';
-    const SESSION_SIANG = 'siang';
-    const STATUS_MASUK = 'masuk';
-    const STATUS_TERLAMBAT = 'terlambat';
-
     public function index()
     {
         $checked = $this->check();
@@ -109,75 +111,70 @@ class PresensiControllers extends Controller
         ]);
     }
 
+    public function test()
+    {
+        return var_dump($this->check());
+    }
+
     private function check(): array
     {
+        // user
+        $userName = Auth::user()->name;
+
+        // dapatkan waktu sekarang dan timezone
         $timezone = Config::get('timezone', 'Asia/Makassar');
         $now = now($timezone);
+        $today = $now->toDateString();
 
-        $pagiMulai = Carbon::createFromTimeString(Config::getTime('presensi_pagi_mulai', '08:00:00'), $timezone);
-        $pagiSelesai = Carbon::createFromTimeString(Config::getTime('presensi_pagi_selesai', '09:00:00'), $timezone);
-        $siangMulai = Carbon::createFromTimeString(Config::getTime('presensi_siang_mulai', '14:00:00'), $timezone);
-        $siangSelesai = Carbon::createFromTimeString(Config::getTime('presensi_siang_selesai', '15:00:00'), $timezone);
+        // arrow function
+        $cftsFromConfig = fn (string $name, string $default) => Carbon::createFromTimeString(Config::getTime($name, $default), $timezone);
+
+        // jam presensi
+        $pagiMulai = $cftsFromConfig('presensi_pagi_mulai', '08:00:00');
+        $pagiSelesai = $cftsFromConfig('presensi_pagi_selesai', '09:00:00');
+        $siangMulai = $cftsFromConfig('presensi_siang_mulai', '14:00:00');
+        $siangSelesai = $cftsFromConfig('presensi_siang_selesai', '15:00:00');
         $toleransi = (int) Config::get('toleransi_presensi', 0);
 
-        $pagiSelesaiToleransi = $pagiSelesai->copy()->addMinutes($toleransi);
-        $siangSelesaiToleransi = $siangSelesai->copy()->addMinutes($toleransi);
+        // waktu presensi
+        $isPagiPresensiSession = $now->between($pagiMulai, $pagiSelesai->copy()->addMinutes($toleransi)); // pagi
+        $isSiangPresensiSession = $now->between($siangMulai, $siangSelesai->copy()->addMinutes($toleransi)); // siang
 
-        $isPagiSession = $now->between($pagiMulai, $pagiSelesaiToleransi);
-        $isSiangSession = $now->between($siangMulai, $siangSelesaiToleransi);
+        $isPresensiSession = ($isPagiPresensiSession || $isSiangPresensiSession); // untuk mengetahui apakah masih bisa presensi # 1
 
-        $session = null;
-        if ($isPagiSession) $session = self::SESSION_PAGI;
-        if ($isSiangSession) $session = self::SESSION_SIANG;
+        $isAfterPagi = $now->between($pagiSelesai->copy()->addMinutes($toleransi), $siangMulai);
+        $isAfterSiang = $now->gt($siangSelesai) || $now->lt($pagiMulai);
 
-        $isSessionValid = $session !== null;
+        $statusPresensi = SP::TIDAK_MASUK; // Status Presensi # 2 perlu diambil ->value
+        if ($isPagiPresensiSession || $isSiangPresensiSession) {
+            $statusPresensi = SP::MASUK;
+        }
+        if ($isAfterPagi || $isAfterSiang) {
+            $statusPresensi = SP::TERLAMBAT;
+        }
 
-        $userName = Auth::user()->name;
-        $today = $now->toDateString();
-        $isPresence = false;
-
+        $isPresence = false; // apakah sudah presensi, default value nya false # 3
         if ($now->between($pagiMulai, $siangMulai, false)) {
             $isPresence = Presensi::where('nama_karyawan', $userName)
-                ->where('jenis_presensi', self::SESSION_PAGI)
+                ->where('jenis_presensi', SesiPresensi::PAGI->value)
                 ->whereDate('tanggal', $today)
                 ->exists();
         } else {
             $isPresence = Presensi::where('nama_karyawan', $userName)
-                ->where('jenis_presensi', self::SESSION_SIANG)
+                ->where('jenis_presensi', SesiPresensi::SIANG->value)
                 ->whereDate('tanggal', $today)
                 ->exists();
         }
 
-        $isPagiAsli = $now->between($pagiMulai, $pagiSelesai);
-        $isSiangAsli = $now->between($siangMulai, $siangSelesai);
-
-        $presenceStatus = null;
-        if ($isPagiAsli || $isSiangAsli) {
-            $presenceStatus = self::STATUS_MASUK;
-        } elseif ((!$isPagiAsli && $isPagiSession) || (!$isSiangAsli && $isSiangSession)) {
-            $presenceStatus = self::STATUS_TERLAMBAT;
-        }
+        $session = null; // mendapatkan sesi sekarang, default value null # 4
+        if ($isPagiPresensiSession) $session = SesiPresensi::PAGI->value;
+        if ($isSiangPresensiSession) $session = SesiPresensi::SIANG->value;
 
         return [
+            'is_presence_session' => $isPresensiSession,
+            'status_presensi' => $statusPresensi->value,
             'is_presence' => $isPresence,
-            'session' => $session,
-            'is_session_valid' => $isSessionValid,
-            'presence_status' => $presenceStatus,
-            'debug' => [
-                // 'pagiMulai' => $pagiMulai,
-                // 'pagiSelesai' => $pagiSelesai,
-                'siangMulai' => $siangMulai,
-                'siangSelesai' => $siangSelesai,
-                // 'waktuToleransi' => $waktuToleransi,
-                // 'sesiPagiAsli' => $sesiPagiAsli,
-                'sesiSiangAsli' => $isSiangSession,
-                // 'sesiPagi' => $isPagiSession,
-                'sesiSiang' => $isSiangAsli,
-                // 'sesi' => $session,
-                // 'isSessionValid' => $isSessionValid,
-                // 'isPresence' => $isPresence,
-                // 'presenceStatus' => $presenceStatus
-            ],
+            'presence_session' => $session,
         ];
     }
 }
