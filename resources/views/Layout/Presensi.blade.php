@@ -19,7 +19,15 @@
         @endif
         @yield('scripts')
     </head>
-    <body class="flex justify-center items-center min-h-screen w-full">
-        @yield('content')
+    <body class="min-h-screen w-full">
+        <header class="py-4 px-8 absolute">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="btn btn-soft">Logout</button>
+            </form>
+        </header>
+        <div class="flex justify-center items-center min-h-screen">
+            @yield('content')
+        </div>
     </body>
 </html>

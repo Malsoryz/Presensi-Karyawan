@@ -42,6 +42,7 @@ class UserDummy extends Seeder
                 'name' => $user['name'],
                 'email' => $user['email'],
                 'password' => Hash::make('defaultpass'),
+                'jabatan' => 'karyawan'
             ]);
         }
     }

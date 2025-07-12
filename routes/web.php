@@ -3,10 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PresensiControllers;
 use App\Http\Controllers\HariLiburControllers;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return redirect()->route('presensi.index');
-});
+})->name('root');
 
 Route::get('/presensi', [PresensiControllers::class, 'index'])
     ->name('presensi.index')
@@ -21,20 +22,10 @@ Route::get('/presensi/info', [PresensiControllers::class, 'info'])
     ->name('presensi.info')
     ->middleware('auth');
 
-Route::get('/harilibur', function () {
-    $url = 'https://api-harilibur.vercel.app/api';
-
-    $response = Http::get($url, [
-        // 'month' => 3,
-        'year' => now()->year,
-    ])->json();
-
-    $listHariLibur = array_filter($response, function($res) {
-        return $res['is_national_holiday'] === true;
-    });
-
-    return $listHariLibur;
-});
+Route::post('logout', function () {
+    Auth::logout();
+    return redirect()->route('login');
+})->name('logout');
 
 Route::get('login', function () {
     return redirect()->route('filament.admin.auth.login');
