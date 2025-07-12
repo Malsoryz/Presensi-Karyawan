@@ -31,13 +31,18 @@ class HariLibur extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         $defaultMonth = request()->get('month') ?? 1;
+        $allMonthOptions = [];
+        for ($i = 1; $i <= 12; $i++) { 
+            $allMonthOptions[(string)$i] = Carbon::createFromDate(null, $i, null)->translatedFormat('F');
+        }
 
         return $table
             ->paginated(false)
             ->query(HL::query()->orderBy('tanggal'))
             ->columns([
                 TextColumn::make('bulan')
-                    ->label('Bulan'),
+                    ->label('Bulan')
+                    ->formatStateUsing(fn (string $state) => Carbon::createFromDate(null, $state, null)->translatedFormat('F')),
                 TextColumn::make('nama')
                     ->label('Nama Hari Libur'),
                 TextColumn::make('tanggal')
@@ -45,21 +50,8 @@ class HariLibur extends Component implements HasForms, HasTable
             ])
             ->filters([
                 SelectFilter::make('bulan')
-                    ->default(Carbon::createFromDate(null, $defaultMonth, null)->translatedFormat('F'))
-                    ->options([
-                        'January' => 'Januari',
-                        'February' => 'Februari',
-                        'March' => 'Maret',
-                        'April' => 'April',
-                        'May' => 'Mei',
-                        'June' => 'Juni',
-                        'July' => 'Juli',
-                        'August' => 'Agustus',
-                        'September' => 'September',
-                        'October' => 'Oktober',
-                        'November' => 'November',
-                        'December' => 'Desember'
-                    ])
+                    ->default($defaultMonth)
+                    ->options($allMonthOptions)
             ])
             ->actions([
                 //

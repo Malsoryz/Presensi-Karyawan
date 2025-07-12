@@ -42,7 +42,8 @@ class Settings extends Page implements HasForms
                     ->contained(false)
                     ->persistTabInQueryString('tab')
                     ->tabs([
-                        Tabs\Tab::make('Jadwal')
+                        Tabs\Tab::make('Hari Kerja')
+                            ->id('hari-kerja')
                             ->schema([
                                 View::make('components.tables.hari-kerja'),
                                 Section::make()
@@ -97,6 +98,7 @@ class Settings extends Page implements HasForms
                                     ]),
                             ]),
                         Tabs\Tab::make('Wi-Fi')
+                            ->id('wifi')
                             ->schema([
                                 Section::make()
                                     ->schema([
@@ -111,6 +113,7 @@ class Settings extends Page implements HasForms
                                     ])
                             ]),
                         Tabs\Tab::make('Notifikasi')
+                            ->id('notifikasi')
                             ->schema([
                                 Section::make()
                                     ->schema([
@@ -127,6 +130,7 @@ class Settings extends Page implements HasForms
                                     ])
                             ]),
                         Tabs\Tab::make('Aturan')
+                            ->id('aturan')
                             ->columns(['default' => 2])
                             ->schema([
                                 Section::make()
@@ -149,6 +153,7 @@ class Settings extends Page implements HasForms
                                     ])
                             ]),
                         Tabs\Tab::make('Hari libur')
+                            ->id('hari-libur')
                             ->schema([
                                 View::make('components.tables.hari-libur'),
                             ])
@@ -165,5 +170,4 @@ class Settings extends Page implements HasForms
                 ])
             ]);
         }
-
 }

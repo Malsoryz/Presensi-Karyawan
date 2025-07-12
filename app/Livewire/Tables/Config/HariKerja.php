@@ -26,6 +26,12 @@ class HariKerja extends Component implements HasForms, HasTable
         return $table
             ->paginated(false)
             ->query(HK::query())
+            ->recordUrl(
+                fn (HK $record): string => route('filament.admin.pages.settings', [
+                    'tab' => '-hari-libur-tab',
+                    'month' => $record->bulan,
+                ])
+            )
             ->columns([
                 TextColumn::make('bulan')
                     ->label('Bulan')
