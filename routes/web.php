@@ -5,6 +5,8 @@ use App\Http\Controllers\PresensiControllers;
 use App\Http\Controllers\HariLiburControllers;
 use Illuminate\Support\Facades\Auth;
 
+// use App\Enums\StatusPresensi as SP;
+
 Route::get('/', function () {
     return redirect()->route('presensi.index');
 })->name('root');
@@ -30,3 +32,5 @@ Route::post('logout', function () {
 Route::get('login', function () {
     return redirect()->route('filament.admin.auth.login');
 })->name('login');
+
+Route::get('test', [PresensiControllers::class, 'test']);
