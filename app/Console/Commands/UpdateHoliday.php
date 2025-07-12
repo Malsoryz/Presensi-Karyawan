@@ -48,7 +48,7 @@ class UpdateHoliday extends Command
             HariLibur::create([
                 'nama' => $holiday['holiday_name'],
                 'tanggal' => $holiday['holiday_date'],
-                'bulan' => Carbon::parse($holiday['holiday_date'])->translatedFormat('F'),
+                'bulan' => Carbon::parse($holiday['holiday_date'])->month,
             ]);
         }
 

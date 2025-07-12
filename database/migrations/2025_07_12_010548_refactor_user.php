@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('hari_libur', function (Blueprint $table) {
-            $table->string('bulan', length: 50);
+        Schema::table('users', function (Blueprint $table) {
+            $table->enum('jabatan', ['karyawan', 'admin'])->change();
         });
     }
 
