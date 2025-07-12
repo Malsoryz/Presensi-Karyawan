@@ -8,6 +8,16 @@ use App\Models\User;
 use App\Models\Config;
 use App\Models\Presensi;
 
+use App\Enums\StatusPresensi;
+
+// gunakan enum untuk mempermudah
+// dalam mengubah value
+enum SesiPresensi: string
+{
+    case PAGI = 'pagi';
+    case SIANG = 'siang';
+}
+
 class CheckPresence extends Command
 {
     /**
@@ -31,39 +41,49 @@ class CheckPresence extends Command
     public function handle()
     {
         $timezone = Config::get('timezone', 'Asia/Makassar');
+
+        // arrow function
+        $cftsFromConfig = fn (string $name, string $default) => Carbon::createFromTimeString(Config::getTime($name, $default), $timezone);
+
+        // mendapatkan value dan setting variable untuk jam presensi
         $now = now($timezone);
 
-        $pagiMulai = Carbon::createFromTimeString(Config::getTime('presensi_pagi_mulai', '08:00:00'), $timezone);
-        $pagiSelesai = Carbon::createFromTimeString(Config::getTime('presensi_pagi_selesai', '09:00:00'), $timezone);
-        $siangMulai = Carbon::createFromTimeString(Config::getTime('presensi_siang_mulai', '14:00:00'), $timezone);
-        $siangSelesai = Carbon::createFromTimeString(Config::getTime('presensi_siang_selesai', '15:00:00'), $timezone);
+        $pagiMulai = $cftsFromConfig('presensi_pagi_mulai', '08:00:00');
+        $pagiSelesai = $cftsFromConfig('presensi_pagi_selesai', '09:00:00');
+        $siangMulai = $cftsFromConfig('presensi_siang_mulai', '14:00:00');
+        $siangSelesai = $cftsFromConfig('presensi_siang_selesai', '15:00:00');
         $toleransi = (int) Config::get('toleransi_presensi', 0);
     
+        // dengan waktu toleransi
         $pagiSelesaiToleransi = $pagiSelesai->copy()->addMinutes($toleransi);
         $siangSelesaiToleransi = $siangSelesai->copy()->addMinutes($toleransi);
     
         $isPagiSession = $now->between($pagiMulai, $pagiSelesaiToleransi);
         $isSiangSession = $now->between($siangMulai, $siangSelesaiToleransi);
     
+        // tanpa waktu toleransi
         $isPagiAsli = $now->between($pagiMulai, $pagiSelesai);
         $isSiangAsli = $now->between($siangMulai, $siangSelesai);
 
-        $presenceStatus = null;
+        // cek untuk mendapatkan status presensi antara masuk dan terlambat
+        $presenceStatus = StatusPresensi::TIDAK_MASUK->value;
         if ($isPagiAsli || $isSiangAsli) {
-            $presenceStatus = 'masuk';
-        } elseif ((!$isPagiAsli && $isPagiSession) || (!$isSiangAsli && $isSiangSession)) {
-            $presenceStatus = 'terlambat';
+            $presenceStatus = StatusPresensi::MASUK->value;
+        } 
+        if ((!$isPagiAsli && $isPagiSession) || (!$isSiangAsli && $isSiangSession)) {
+            $presenceStatus = StatusPresensi::TERLAMBAT->value;
         }
 
+        // mendapatkan sesi saat ini, null jika di luar jam presensi
         $session = null;
-        if ($isPagiSession) $session = 'pagi';
-        if ($isSiangSession) $session = 'siang';
+        if ($isPagiSession) $session = SesiPresensi::PAGI->value;
+        if ($isSiangSession) $session = SesiPresensi::SIANG->value;
 
-        $isPagi = $now->between($pagiMulai, $siangMulai) ? 'pagi' : 'siang';
+        // mendapatkan sesi jika di luar dari presensi
+        $isPagi = $now->between($pagiMulai, $siangMulai) ? SesiPresensi::PAGI->value : SesiPresensi::SIANG->value;
         
-        //get list of name
+        // mendapatkan nama user yang tidak presensi
         $users = User::pluck('name')->toArray();
-
         $presenceUsers = Presensi::whereDate('tanggal', $now->toDateString())
             ->where('jenis_presensi', '=', $isPagi)
             ->pluck('nama_karyawan')
@@ -71,47 +91,38 @@ class CheckPresence extends Command
 
         $notPresenceUsers = array_diff($users, $presenceUsers);
 
+        // test
         // $this->info(var_dump($notPresenceUsers));
-        // $this->info(var_dump($isPagi));
+        // $this->info(var_dump($presenceStatus));
 
+        // jika semua nya telah presensi
         if (count($notPresenceUsers) === 0) {
-            return $this->info('Tidak ada users yang tidak presensi hari ini');
+            return $this->info('Semua Users telah melakukan presensi');
         }
 
-        if ($presenceStatus === 'masuk') {
+        // memberitahu siapa saja yang belum presensi
+        $this->info('Belum melakukan presensi:');
+        foreach ($notPresenceUsers as $user) {
+            $this->info($user);
+        }
+
+        // beritahu status yang akan di dapatkan saat ini
+        if ($presenceStatus === StatusPresensi::MASUK->value) {
             return $this->info('bisa melakukan presensi');
-        } elseif ($presenceStatus === 'terlambat') {
-            return $this->info('bisa melakukan presensi tapi dianggap terlambat');
+        } elseif ($presenceStatus === StatusPresensi::TERLAMBAT->value) {
+            return $this->info('bisa melakukan presensi, tapi dianggap terlambat');
         }
 
+        // jika sama sekali tidak presensi
         foreach ($notPresenceUsers as $user) {
             $this->info("$user tidak masuk hari ini.");
 
             Presensi::create([
                 'nama_karyawan' => $user,
                 'jenis_presensi' => $isPagi,
-                'status' => 'tidak_masuk',
+                'status' => StatusPresensi::TIDAK_MASUK->value,
                 'ip_address' => '0',
             ]);
         }
-
-        // $isSessionValid = $session !== null;
-
-        // $userName = Auth::user()->name;
-        // $today = $now->toDateString();
-        // $isPresence = false;
-
-        // if ($now->between($pagiMulai, $siangMulai, false)) {
-        //     $isPresence = Presensi::where('nama_karyawan', $userName)
-        //         ->where('jenis_presensi', self::SESSION_PAGI)
-        //         ->whereDate('tanggal', $today)
-        //         ->exists();
-        // } else {
-        //     $isPresence = Presensi::where('nama_karyawan', $userName)
-        //         ->where('jenis_presensi', self::SESSION_SIANG)
-        //         ->whereDate('tanggal', $today)
-        //         ->exists();
-        // }
-
     }
 }
