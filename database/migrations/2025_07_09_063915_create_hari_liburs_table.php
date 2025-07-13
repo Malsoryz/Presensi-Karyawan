@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('hari_libur', function (Blueprint $table) {
             $table->id();
+            $table->tinyInteger('bulan');
             $table->string('nama', length: 255);
             $table->date('tanggal');
         });
