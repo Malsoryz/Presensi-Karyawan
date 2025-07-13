@@ -21,11 +21,11 @@ class PresensiDummy extends Seeder
 
         foreach ($users as $user) {
             foreach ($sesiPresensi as $sesi) {
-                for ($i = 0; $i < 40; $i++) { 
+                for ($i = 1; $i <= 40; $i++) { 
                     DB::table('presensi')->insert([
                         'nama_karyawan' => $user->name,
                         'jenis_presensi' => $sesi,
-                        'tanggal' => Carbon::now('Asia/Makassar')->addDays($i),
+                        'tanggal' => Carbon::now('Asia/Makassar')->subDays($i),
                         'status' => $status[array_rand($status)],
                         'ip_address' => '192.168.1.'.$i,
                     ]);
