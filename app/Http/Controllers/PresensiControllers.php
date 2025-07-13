@@ -13,7 +13,7 @@ use Carbon\Carbon;
 use App\Enums\StatusPresensi as SP;
 
 enum SesiPresensi: string {
-    case INVALID = 'invalid';
+    case NONE = 'none';
     case PAGI = 'pagi';
     case SIANG = 'siang';
 }
@@ -57,9 +57,10 @@ class PresensiControllers extends Controller
 
         $status = $presensi['presence_status'];
         $presenceDateTime = Presensi::where('nama_karyawan', $name)
-            ->where('jenis_presensi', $presensi['presence_session']->value)
+            ->where('jenis_presensi', $presensi['presence_type']->value)
             ->whereDate('tanggal', $now->toDateString())
-            ->first()->value('tanggal');
+            ->first()
+            ->value('tanggal');
         $presenceTime = Carbon::parse($presenceDateTime)->format('H:i:s');
 
         return view('Presensi.info', [
@@ -85,10 +86,10 @@ class PresensiControllers extends Controller
             return redirect()->route('presensi.index')->with('error', 'Sesi presensi tidak valid!');
         }
 
-        if ($presensi['presence_session'] !== SesiPresensi::INVALID) {
+        if ($presensi['presence_type'] !== SesiPresensi::NONE) {
             Presensi::create([
                 'nama_karyawan' => $name,
-                'jenis_presensi' => $presensi['presence_session']->value,
+                'jenis_presensi' => $presensi['presence_type']->value,
                 'status' => $presensi['presence_status'],
                 'ip_address' => $request->ip(),
             ]);
@@ -180,11 +181,12 @@ class PresensiControllers extends Controller
             $statusPresensi = SP::TIDAK_MASUK;
         }
         
-        $session = SesiPresensi::INVALID; // mendapatkan sesi sekarang, default value null # 4
-        if ($now->between($pagiMulai, $siangMulai)) $session = SesiPresensi::PAGI;
-        if ($now->between($siangMulai, $pulangKerja)) $session = SesiPresensi::SIANG;
+        $sessionType = SesiPresensi::NONE; // mendapatkan sesi sekarang, default value null # 4
+        if ($now->between($pagiMulai, $siangMulai)) $sessionType = SesiPresensi::PAGI;
+        if ($now->between($siangMulai, $pulangKerja)) $sessionType = SesiPresensi::SIANG;
 
         // cek apakah sudah presensi hari ini # 3
+        $session = $now->lt($siangMulai) ? SesiPresensi::PAGI : SesiPresensi::SIANG;        
         $isPresence = Presensi::where('nama_karyawan', $userName)
                 ->where('jenis_presensi', $session->value)
                 ->whereDate('tanggal', $today)
@@ -194,7 +196,7 @@ class PresensiControllers extends Controller
             'is_presence_session' => $isPresensiSession,
             'presence_status' => $statusPresensi,
             'is_presence' => $isPresence,
-            'presence_session' => $session,
+            'presence_type' => $sessionType,
             'timezone' => $timezone,
         ];
     }
