@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use App\Enums\StatusPresensi as SP;
 
 enum SesiPresensi: string {
+    case INVALID = 'invalid';
     case PAGI = 'pagi';
     case SIANG = 'siang';
 }
@@ -21,50 +22,74 @@ class PresensiControllers extends Controller
 {
     public function index()
     {
-        $checked = $this->check();
+        // $presensi = $this->check();
 
-        if ($checked['is_presence']) {
-            return redirect()->route('presensi.info', ['presence' => true]);
-        } elseif (!$checked['is_presence'] && !$checked['is_session_valid']) {
-            return redirect()->route('presensi.info', ['presence' => false]);
+        // $collection = Presensi::getTotal()->limit(3)->get();
+
+        // $token = Str::uuid();
+        // $name = Auth::user()->name;
+        // Cache::put("token_{$name}_{$token}", true, now()->addMinutes(1));
+        // return view('Presensi.index', [
+        //     'name' => $name,
+        //     'token' => $token,
+        //     'collection' => $collection,
+        //     'status' => $presensi['presence_status']->value,
+        // ]);
+
+        // // separator
+
+        $presensi = $this->check();
+        $now = now($presensi['timezone']);
+
+        $name = Auth::user()->name;
+        $topThree = Presensi::getTotal()->limit(3)->get();
+
+        if (!$presensi['is_presence']) {
+            $token = Str::uuid();
+            Cache::put("token_{$name}_{$token}", true, now()->addMinutes(1));
+            return view('Presensi.index', [
+                'name' => $name,
+                'token' => $token,
+                'topThreePresence' => $topThree, // ambil 3 data presensi teratas
+                'status' => SP::BELUM->value,
+            ]);
         }
 
-        $collection = Presensi::getTotal()->limit(3)->get();
+        $status = $presensi['presence_status'];
+        $presenceDateTime = Presensi::where('nama_karyawan', $name)
+            ->where('jenis_presensi', $presensi['presence_session']->value)
+            ->whereDate('tanggal', $now->toDateString())
+            ->first()->value('tanggal');
+        $presenceTime = Carbon::parse($presenceDateTime)->format('H:i:s');
 
-        $token = Str::uuid();
-        $name = Auth::user()->name;
-        Cache::put('token_' . $name . '_' . $token, true, now()->addMinutes(1));
-        return view('Presensi.index', [
-            'name' => $name,
-            'token' => $token,
-            'collection' => $collection,
-            'status' => $checked['presence_status'],
+        return view('Presensi.info', [
+            'status' => $status->value,
+            'presenceTime' => $presenceTime,
         ]);
     }
 
     public function store(Request $request, string $name, string $token)
     {
-        if (!Cache::has('token_' . $name . '_' . $token)) {
+        if (!Cache::has("token_{$name}_{$token}")) {
             return redirect()->route('presensi.index')->with('error', 'Token tidak valid atau sudah kadaluarsa.');
         }
-
-        Cache::forget('token_' . $name . '_' . $token);
+        Cache::forget("token_{$name}_{$token}");
 
         if ($name != Auth::user()->name) {
             return redirect()->route('presensi.index')->with('error', 'Tidak bisa melakukan presensi untuk orang lain.');
         }
 
-        $checked = $this->check();
+        $presensi = $this->check();
 
-        if (!$checked['is_session_valid']) {
+        if (!$presensi['is_presence_session']) {
             return redirect()->route('presensi.index')->with('error', 'Sesi presensi tidak valid!');
         }
 
-        if ($checked['session'] === 'pagi' || $checked['session'] === 'siang') {
+        if ($presensi['presence_session'] !== SesiPresensi::INVALID) {
             Presensi::create([
                 'nama_karyawan' => $name,
-                'jenis_presensi' => $checked['session'],
-                'status' => $checked['presence_status'],
+                'jenis_presensi' => $presensi['presence_session']->value,
+                'status' => $presensi['presence_status'],
                 'ip_address' => $request->ip(),
             ]);
         }
@@ -72,16 +97,7 @@ class PresensiControllers extends Controller
         return redirect()->route('presensi.info', ['status' => 'telah presensi']);
     }
 
-    public function scanCheck()
-    {
-        $checked = $this->check();
-
-        return response()->json([
-            'is_presence' => $checked['is_presence'],
-            'is_time_valid' => $checked['is_session_valid'],
-        ]);
-    }
-
+    
     public function info(Request $request)
     {
         if (!$request->has('presence')) {
@@ -94,11 +110,11 @@ class PresensiControllers extends Controller
         if (!$presence && $checked['is_session_valid']) {
             return redirect()->route('presensi.index');
         }
-
+        
         if (!$checked['is_presence'] && $checked['is_session_valid']) {
             return redirect()->route('presensi.index');
         }
-
+        
         if ($presence != $checked['is_presence']) {
             return redirect()->route('presensi.index');
         }
@@ -111,6 +127,16 @@ class PresensiControllers extends Controller
         ]);
     }
 
+    public function scanCheck()
+    {
+        $checked = $this->check();
+
+        return response()->json([
+            'is_presence' => $checked['is_presence'],
+            'is_time_valid' => $checked['is_session_valid'],
+        ]);
+    }
+    
     public function test()
     {
         return var_dump($this->check());
@@ -135,46 +161,41 @@ class PresensiControllers extends Controller
         $siangMulai = $cftsFromConfig('presensi_siang_mulai', '14:00:00');
         $siangSelesai = $cftsFromConfig('presensi_siang_selesai', '15:00:00');
         $toleransi = (int) Config::get('toleransi_presensi', 0);
+        $pulangKerja = Carbon::createFromTimeString('17:00:00', $timezone);
 
         // waktu presensi
-        $isPagiPresensiSession = $now->between($pagiMulai, $pagiSelesai->copy()->addMinutes($toleransi)); // pagi
-        $isSiangPresensiSession = $now->between($siangMulai, $siangSelesai->copy()->addMinutes($toleransi)); // siang
-
-        $isPresensiSession = ($isPagiPresensiSession || $isSiangPresensiSession); // untuk mengetahui apakah masih bisa presensi # 1
+        $isPresensiSession = $now->between($pagiMulai, $pulangKerja); // satu hari kerja. untuk mengetahui apakah masih bisa presensi # 1
 
         $isAfterPagi = $now->between($pagiSelesai->copy()->addMinutes($toleransi), $siangMulai);
-        $isAfterSiang = $now->gt($siangSelesai) || $now->lt($pagiMulai);
+        $isAfterSiang = $now->between($siangSelesai->copy()->addMinutes($toleransi), $pulangKerja);
 
-        $statusPresensi = SP::TIDAK_MASUK; // Status Presensi # 2 perlu diambil ->value
-        if ($isPagiPresensiSession || $isSiangPresensiSession) {
+        $statusPresensi = SP::BELUM; // Status Presensi # 2 perlu diambil ->value
+        if ($isPresensiSession) {
             $statusPresensi = SP::MASUK;
         }
         if ($isAfterPagi || $isAfterSiang) {
             $statusPresensi = SP::TERLAMBAT;
         }
-
-        $isPresence = false; // apakah sudah presensi, default value nya false # 3
-        if ($now->between($pagiMulai, $siangMulai, false)) {
-            $isPresence = Presensi::where('nama_karyawan', $userName)
-                ->where('jenis_presensi', SesiPresensi::PAGI->value)
-                ->whereDate('tanggal', $today)
-                ->exists();
-        } else {
-            $isPresence = Presensi::where('nama_karyawan', $userName)
-                ->where('jenis_presensi', SesiPresensi::SIANG->value)
-                ->whereDate('tanggal', $today)
-                ->exists();
+        if ($now->gt($pulangKerja)) {
+            $statusPresensi = SP::TIDAK_MASUK;
         }
+        
+        $session = SesiPresensi::INVALID; // mendapatkan sesi sekarang, default value null # 4
+        if ($now->between($pagiMulai, $siangMulai)) $session = SesiPresensi::PAGI;
+        if ($now->between($siangMulai, $pulangKerja)) $session = SesiPresensi::SIANG;
 
-        $session = null; // mendapatkan sesi sekarang, default value null # 4
-        if ($isPagiPresensiSession) $session = SesiPresensi::PAGI->value;
-        if ($isSiangPresensiSession) $session = SesiPresensi::SIANG->value;
+        // cek apakah sudah presensi hari ini # 3
+        $isPresence = Presensi::where('nama_karyawan', $userName)
+                ->where('jenis_presensi', $session->value)
+                ->whereDate('tanggal', $today)
+                ->exists();
 
         return [
             'is_presence_session' => $isPresensiSession,
-            'status_presensi' => $statusPresensi->value,
+            'presence_status' => $statusPresensi,
             'is_presence' => $isPresence,
             'presence_session' => $session,
+            'timezone' => $timezone,
         ];
     }
 }

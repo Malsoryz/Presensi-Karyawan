@@ -31,7 +31,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($collection as $presensi)
+            @foreach ($topThreePresence as $presensi)
                 <tr>
                     <th>{{ $loop->iteration }}</th>
                     <td>{{ $presensi->nama_karyawan }}</td>
