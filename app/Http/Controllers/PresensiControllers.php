@@ -75,7 +75,7 @@ class PresensiControllers extends Controller
 
         $presensi = $this->check();
 
-        if ($presensi['presence_session'] !== SP::SESI_PRESENSI ) {
+        if ($presensi['presence_session'] !== SPI::SESI_PRESENSI ) {
             return redirect()->route('presensi.index')->with('error', 'Sesi presensi tidak valid!');
         }
 
@@ -88,7 +88,7 @@ class PresensiControllers extends Controller
             ]);
         }
 
-        return redirect()->route('presensi.info', ['status' => 'telah presensi']);
+        return redirect()->route('presensi.index');
     }
 
     
@@ -123,7 +123,7 @@ class PresensiControllers extends Controller
 
     public function scanCheck()
     {
-        $checked = $this->check();
+        $presensi = $this->check();
 
         return response()->json([
             'is_presence' => $presensi['is_presence'],

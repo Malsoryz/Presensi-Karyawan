@@ -20,9 +20,6 @@ Route::get('/presensi/store/{name}/{token}', [PresensiControllers::class, 'store
 Route::get('/presensi/scan-check', [PresensiControllers::class, 'scanCheck'])
     ->name('presensi.scanCheck')
     ->middleware('auth');
-Route::get('/presensi/info', [PresensiControllers::class, 'info'])
-    ->name('presensi.info')
-    ->middleware('auth');
 
 Route::post('logout', function () {
     Auth::logout();

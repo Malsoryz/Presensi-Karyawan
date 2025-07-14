@@ -12,6 +12,7 @@
             <span>
                 “ Nothing worth having comes easy. ” <br>
                 — Theodore Roosevelt <br>
+                {{ route('presensi.store', ['name' => $name, 'token' => $token]) }} <br>
                 {{ $status }} <br>
                 {{ $presenceSession }}
             </span>
@@ -52,16 +53,11 @@
 @section('scripts')
 <script>
 
-let isAlreadyRedirected = false;
-
 function presenceCheck() {
     axios.get("{{  route('presensi.scanCheck') }}")
         .then(response => {
             const isPresence = response.data.is_presence;
-            const presenceSession = "{{ $presenceSession }}";
-
-            if (isPresence && presenceSession !== 'sesi presensi') {
-                isAlreadyRedirected = true;
+            if (isPresence) {
                 location.reload();
             }
         })
@@ -69,11 +65,7 @@ function presenceCheck() {
 
 setInterval(presenceCheck, 3000);
 
-setTimeout(() => {
-    if (!isAlreadyRedirecting) {
-        location.reload();
-    }
-}, 60000);
+setTimeout(() => location.reload(), 60000);
 
 </script>
 @endsection
