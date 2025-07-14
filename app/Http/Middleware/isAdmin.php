@@ -19,7 +19,7 @@ class isAdmin
         $getCurrentUser = Auth::user();
 
         if ($getCurrentUser->jabatan !== 'admin') {
-            return redirect()->route('root');
+            return abort(404);
         }
 
         return $next($request);

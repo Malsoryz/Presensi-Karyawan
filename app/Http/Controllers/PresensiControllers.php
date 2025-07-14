@@ -11,50 +11,42 @@ use App\Models\Config;
 use Carbon\Carbon;
 
 use App\Enums\StatusPresensi as SP;
-
-enum SesiPresensi: string {
-    case NONE = 'none';
-    case PAGI = 'pagi';
-    case SIANG = 'siang';
-}
+use App\Enums\JenisPresensi as JP;
+use App\Enums\SesiPresensi as SPI;
 
 class PresensiControllers extends Controller
 {
     public function index()
     {
-        // $presensi = $this->check();
-
-        // $collection = Presensi::getTotal()->limit(3)->get();
-
-        // $token = Str::uuid();
-        // $name = Auth::user()->name;
-        // Cache::put("token_{$name}_{$token}", true, now()->addMinutes(1));
-        // return view('Presensi.index', [
-        //     'name' => $name,
-        //     'token' => $token,
-        //     'collection' => $collection,
-        //     'status' => $presensi['presence_status']->value,
-        // ]);
-
-        // // separator
-
         $presensi = $this->check();
         $now = now($presensi['timezone']);
 
         $name = Auth::user()->name;
         $topThree = Presensi::getTotal()->limit(3)->get();
 
-        if (!$presensi['is_presence']) {
+        // jika belum mulai
+        if ($presensi['presence_session'] === SPI::BELUM_MULAI) {
+            return view('presensi.info', [
+                'presenceSession' => SPI::BELUM_MULAI->value,
+            ]);
+        }
+
+        // jika di saat sesi presensi berlangsung tapi belum presensi
+        if (!$presensi['is_presence'] && $presensi['presence_session'] === SPI::SESI_PRESENSI) {
             $token = Str::uuid();
             Cache::put("token_{$name}_{$token}", true, now()->addMinutes(1));
-            return view('Presensi.index', [
+            return view('presensi.index', [
                 'name' => $name,
                 'token' => $token,
                 'topThreePresence' => $topThree, // ambil 3 data presensi teratas
                 'status' => SP::BELUM->value,
+                'presenceSession' => SPI::SESI_PRESENSI->value,
             ]);
         }
 
+        // jika telah presensi atau sesi presensi sudah berakhir
+        // yang artinya di sini adalah default nya
+        // SesiPresensi::SELESAI atau selesai
         $status = $presensi['presence_status'];
         $presenceDateTime = Presensi::where('nama_karyawan', $name)
             ->where('jenis_presensi', $presensi['presence_type']->value)
@@ -63,9 +55,10 @@ class PresensiControllers extends Controller
             ->value('tanggal');
         $presenceTime = Carbon::parse($presenceDateTime)->format('H:i:s');
 
-        return view('Presensi.info', [
+        return view('presensi.info', [
             'status' => $status->value,
             'presenceTime' => $presenceTime,
+            'presenceSession' => SPI::SELESAI->value,
         ]);
     }
 
@@ -82,11 +75,11 @@ class PresensiControllers extends Controller
 
         $presensi = $this->check();
 
-        if (!$presensi['is_presence_session']) {
+        if ($presensi['presence_session'] !== SP::SESI_PRESENSI ) {
             return redirect()->route('presensi.index')->with('error', 'Sesi presensi tidak valid!');
         }
 
-        if ($presensi['presence_type'] !== SesiPresensi::NONE) {
+        if ($presensi['presence_type'] !== JP::NONE) {
             Presensi::create([
                 'nama_karyawan' => $name,
                 'jenis_presensi' => $presensi['presence_type']->value,
@@ -122,7 +115,7 @@ class PresensiControllers extends Controller
 
         $message = ($presence) ? 'telah presensi' : 'telat presensi';
 
-        return view('Presensi.info', [
+        return view('presensi.info', [
             'status' => $message,
             // 'debug' => $checked['debug'],
         ]);
@@ -133,8 +126,7 @@ class PresensiControllers extends Controller
         $checked = $this->check();
 
         return response()->json([
-            'is_presence' => $checked['is_presence'],
-            'is_time_valid' => $checked['is_session_valid'],
+            'is_presence' => $presensi['is_presence'],
         ]);
     }
     
@@ -165,13 +157,15 @@ class PresensiControllers extends Controller
         $pulangKerja = Carbon::createFromTimeString('17:00:00', $timezone);
 
         // waktu presensi
-        $isPresensiSession = $now->between($pagiMulai, $pulangKerja); // satu hari kerja. untuk mengetahui apakah masih bisa presensi # 1
+        $presensiSession = SPI::BELUM_MULAI; // satu hari kerja. untuk mengetahui apakah masih bisa presensi # 1
+        if ($now->between($pagiMulai, $pulangKerja)) $presensiSession = SPI::SESI_PRESENSI;
+        if ($now->gt($pulangKerja)) $presensiSession = SPI::SELESAI;
 
         $isAfterPagi = $now->between($pagiSelesai->copy()->addMinutes($toleransi), $siangMulai);
         $isAfterSiang = $now->between($siangSelesai->copy()->addMinutes($toleransi), $pulangKerja);
 
         $statusPresensi = SP::BELUM; // Status Presensi # 2 perlu diambil ->value
-        if ($isPresensiSession) {
+        if ($presensiSession) {
             $statusPresensi = SP::MASUK;
         }
         if ($isAfterPagi || $isAfterSiang) {
@@ -181,22 +175,32 @@ class PresensiControllers extends Controller
             $statusPresensi = SP::TIDAK_MASUK;
         }
         
-        $sessionType = SesiPresensi::NONE; // mendapatkan sesi sekarang, default value null # 4
-        if ($now->between($pagiMulai, $siangMulai)) $sessionType = SesiPresensi::PAGI;
-        if ($now->between($siangMulai, $pulangKerja)) $sessionType = SesiPresensi::SIANG;
+        $sessionType = JP::NONE; // mendapatkan sesi sekarang, default value null # 4
+        if ($now->between($pagiMulai, $siangMulai)) $sessionType = JP::PAGI;
+        if ($now->between($siangMulai, $pulangKerja)) $sessionType = JP::SIANG;
 
         // cek apakah sudah presensi hari ini # 3
-        $session = $now->lt($siangMulai) ? SesiPresensi::PAGI : SesiPresensi::SIANG;        
+        $session = $now->lt($siangMulai) ? JP::PAGI : JP::SIANG;        
         $isPresence = Presensi::where('nama_karyawan', $userName)
                 ->where('jenis_presensi', $session->value)
                 ->whereDate('tanggal', $today)
                 ->exists();
 
         return [
-            'is_presence_session' => $isPresensiSession,
+            // sesi presensi nya, atau status waktu presensi
+            // contohnya BELUM, SESI_PRESENSI dan SELESAI
+            'presence_session' => $presensiSession,
+
+            // status presensi atau misalnya
+            // MASUK, IJIN, dan dll
             'presence_status' => $statusPresensi,
+
+            // apakah sudah presensi?
             'is_presence' => $isPresence,
+
+            //tipe presensi, pagi atau siang, tapi default nya none
             'presence_type' => $sessionType,
+
             'timezone' => $timezone,
         ];
     }
