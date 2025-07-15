@@ -22,7 +22,7 @@ class PresensiControllers extends Controller
         $presensi = $this->check();
         $now = now($presensi['timezone']);
 
-        $name = Auth::user()->name;
+        $name = Auth::guard('web')->guard('web')->user()->name;
         $topThree = Presensi::getTotal()->limit(3)->get();
 
         // jika belum mulai
@@ -70,7 +70,7 @@ class PresensiControllers extends Controller
         }
         Cache::forget("token_{$name}_{$token}");
 
-        if ($name != Auth::user()->name) {
+        if ($name != Auth::guard('web')->guard('web')->user()->name) {
             return redirect()->route('presensi.index')->with('error', 'Tidak bisa melakukan presensi untuk orang lain.');
         }
 
@@ -145,7 +145,7 @@ class PresensiControllers extends Controller
     private function check(): array
     {
         // user
-        $userName = Auth::user()->name;
+        $userName = Auth::guard('web')->guard('web')->user()->name;
 
         // dapatkan waktu sekarang dan timezone
         $timezone = Config::get('timezone', 'Asia/Makassar');
