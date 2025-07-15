@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PresensiControllers;
+use App\Http\Controllers\PresensiTestControllers;
 use App\Http\Controllers\HariLiburControllers;
+use App\Http\Controllers\PresensiTestController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 
@@ -55,4 +57,4 @@ Route::get('/scan-qr', function () {
     return view('scan-qr', compact('backgroundImage'));
 });
 
-
+Route::get('/presensi-test', [PresensiTestController::class, 'index']);

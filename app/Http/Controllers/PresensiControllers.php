@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use App\Enums\StatusPresensi as SP;
 use App\Enums\JenisPresensi as JP;
 use App\Enums\SesiPresensi as SPI;
+use BaconQrCode\Encoder\QrCode;
 
 class PresensiControllers extends Controller
 {
@@ -75,7 +76,7 @@ class PresensiControllers extends Controller
 
         $presensi = $this->check();
 
-        if ($presensi['presence_session'] !== SPI::SESI_PRESENSI ) {
+        if ($presensi['presence_session'] !== SPI::SESI_PRESENSI) {
             return redirect()->route('presensi.index')->with('error', 'Sesi presensi tidak valid!');
         }
 
@@ -91,7 +92,7 @@ class PresensiControllers extends Controller
         return redirect()->route('presensi.index');
     }
 
-    
+
     public function info(Request $request)
     {
         if (!$request->has('presence')) {
@@ -100,15 +101,15 @@ class PresensiControllers extends Controller
 
         $presence = $request->get('presence');
         $checked = $this->check();
-        
+
         if (!$presence && $checked['is_session_valid']) {
             return redirect()->route('presensi.index');
         }
-        
+
         if (!$checked['is_presence'] && $checked['is_session_valid']) {
             return redirect()->route('presensi.index');
         }
-        
+
         if ($presence != $checked['is_presence']) {
             return redirect()->route('presensi.index');
         }
@@ -129,7 +130,13 @@ class PresensiControllers extends Controller
             'is_presence' => $presensi['is_presence'],
         ]);
     }
-    
+
+    public function showQrPage()
+    {
+        $qr = QrCode::size(256)->generate(url('/presensi/scan'));
+        return view('presensi.qr', compact('qr'));
+    }
+
     public function test()
     {
         return var_dump($this->check());
@@ -146,7 +153,7 @@ class PresensiControllers extends Controller
         $today = $now->toDateString();
 
         // arrow function
-        $cftsFromConfig = fn (string $name, string $default) => Carbon::createFromTimeString(Config::getTime($name, $default), $timezone);
+        $cftsFromConfig = fn(string $name, string $default) => Carbon::createFromTimeString(Config::getTime($name, $default), $timezone);
 
         // jam presensi
         $pagiMulai = $cftsFromConfig('presensi_pagi_mulai', '08:00:00');
@@ -174,17 +181,17 @@ class PresensiControllers extends Controller
         if ($now->gt($pulangKerja)) {
             $statusPresensi = SP::TIDAK_MASUK;
         }
-        
+
         $sessionType = JP::NONE; // mendapatkan sesi sekarang, default value null # 4
         if ($now->between($pagiMulai, $siangMulai)) $sessionType = JP::PAGI;
         if ($now->between($siangMulai, $pulangKerja)) $sessionType = JP::SIANG;
 
         // cek apakah sudah presensi hari ini # 3
-        $session = $now->lt($siangMulai) ? JP::PAGI : JP::SIANG;        
+        $session = $now->lt($siangMulai) ? JP::PAGI : JP::SIANG;
         $isPresence = Presensi::where('nama_karyawan', $userName)
-                ->where('jenis_presensi', $session->value)
-                ->whereDate('tanggal', $today)
-                ->exists();
+            ->where('jenis_presensi', $session->value)
+            ->whereDate('tanggal', $today)
+            ->exists();
 
         return [
             // sesi presensi nya, atau status waktu presensi
