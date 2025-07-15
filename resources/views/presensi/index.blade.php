@@ -57,7 +57,6 @@
             <h2>Scan QR Code untuk Presensi</h2>
 
             <div class="qr-code">
-
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ url('/presensi/scan') }}" alt="QR Code">
             </div>
 
@@ -69,18 +68,17 @@
         </div>
     </div>
 
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const jam = String(now.getHours()).padStart(2, '0');
+            const menit = String(now.getMinutes()).padStart(2, '0');
+            const detik = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${jam}:${menit}:${detik}`;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
 </body>
-<script>
-    function updateClock() {
-        const now = new Date();
-        const jam = String(now.getHours()).padStart(2, '0');
-        const menit = String(now.getMinutes()).padStart(2, '0');
-        const detik = String(now.getSeconds()).padStart(2, '0');
-        document.getElementById('clock').textContent = `${jam}:${menit}:${detik}`;
-    }
-
-    setInterval(updateClock, 1000);
-    updateClock();
-</script>
-
 </html>
