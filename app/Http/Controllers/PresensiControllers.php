@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Presensi;
 use App\Models\Config;
+use App\Models\HariLibur as HL;
 use Carbon\Carbon;
 
 use App\Enums\StatusPresensi as SP;
@@ -20,6 +21,19 @@ class PresensiControllers extends Controller
     {
         $presensi = $this->check();
         $now = now($presensi['timezone']);
+        $today = $now->toDateString();
+
+        $hariLibur = HL::whereDate('tanggal', $today)->get();
+        $isHariLibur = HL::whereDate('tanggal', $today)->exists();
+        
+        // cek untuk mengetahui apakah libur atau hari minggu
+        if ($now->isSunday() || $isHariLibur) {
+            return view('presensi.info', [
+                'presenceSession' => SPI::LIBUR->value,
+                'hariLibur' => $hariLibur,
+                'hari' => $now->format('l'),
+            ]);
+        }
 
         $name = Auth::guard('web')->user()->name;
         $topThree = Presensi::getTotal()->limit(3)->get();

@@ -1,33 +1,32 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Livewire\Volt\Volt;
 use App\Http\Controllers\PresensiControllers;
-use App\Http\Controllers\HariLiburControllers;
-use Illuminate\Support\Facades\Auth;
 
-// use App\Enums\StatusPresensi as SP;
+// Route::get('/home', function () {
+//     return view('welcome');
+// })->name('home');
 
-Route::get('/', function () {
-    return redirect()->route('presensi.index');
-})->name('root');
+Route::redirect('/', '/presensi');
 
-Route::get('/presensi', [PresensiControllers::class, 'index'])
-    ->name('presensi.index')
-    ->middleware('auth');
-Route::get('/presensi/store/{name}/{token}', [PresensiControllers::class, 'store'])
-    ->name('presensi.store')
-    ->middleware('auth');
-Route::get('/presensi/scan-check', [PresensiControllers::class, 'scanCheck'])
-    ->name('presensi.scanCheck')
-    ->middleware('auth');
+// Route::view('dashboard', 'dashboard')
+//     ->middleware(['auth', 'verified'])
+//     ->name('dashboard');
 
-Route::post('logout', function () {
-    Auth::logout();
-    return redirect()->route('login');
-})->name('logout');
+Route::middleware(['auth'])->group(function () {
+    // Route::redirect('settings', 'settings/profile');
 
-Route::get('login', function () {
-    return redirect()->route('filament.admin.auth.login');
-})->name('login');
+    // Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
+    // Volt::route('settings/password', 'settings.password')->name('settings.password');
+    // Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 
-Route::get('test', [PresensiControllers::class, 'test']);
+    Route::get('/presensi', [PresensiControllers::class, 'index'])
+        ->name('presensi.index');
+    Route::get('/presensi/store/{name}/{token}', [PresensiControllers::class, 'store'])
+        ->name('presensi.store');
+    Route::get('/presensi/scan-check', [PresensiControllers::class, 'scanCheck'])
+        ->name('presensi.scanCheck');
+});
+
+require __DIR__.'/auth.php';

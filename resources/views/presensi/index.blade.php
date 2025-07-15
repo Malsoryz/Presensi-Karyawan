@@ -1,4 +1,4 @@
-@extends('Layout.Presensi')
+@extends('components.layouts.presensi')
 
 @section('title', 'Presensi QR Code')
 
@@ -54,7 +54,7 @@
 <script>
 
 function presenceCheck() {
-    axios.get("{{  route('presensi.scanCheck') }}")
+    axios.get("{{ route('presensi.scanCheck') }}")
         .then(response => {
             const isPresence = response.data.is_presence;
             if (isPresence) {
