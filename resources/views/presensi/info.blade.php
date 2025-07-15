@@ -1,4 +1,4 @@
-@extends('Layout.Presensi')
+@extends('components.layouts.presensi')
 
 @section('title', 'Presensi QR Code')
 
@@ -15,6 +15,17 @@
 
         @if (isset($presenceSession))
             {{ $presenceSession }}
+        @endif
+
+        @if (isset($hariLibur))
+            @foreach ($hariLibur as $libur)
+                {{ $libur->nama }} <br>
+                {{ $libur->tanggal }}
+            @endforeach
+        @endif
+
+        @if (isset($hari))
+            {{ $hari }}
         @endif
     </span><br>
     
