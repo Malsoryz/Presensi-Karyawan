@@ -9,14 +9,17 @@ use Carbon\Carbon;
 use App\Console\Commands\UpdateHoliday;
 use App\Console\Commands\CheckPresence;
 
-function getExpiredTime(string $time)
-{
-    $toleransi = (int) Config::get('toleransi_presensi', 0);
-    return Carbon::createFromFormat('Y-m-d H:i:s', $time)
-        ->addMinutes($toleransi)
-        ->addMinute()
-        ->format('H:i');
+if (!function_exists('getExpiredTime')) {
+    function getExpiredTime(string $time)
+    {
+        $toleransi = (int) Config::get('toleransi_presensi', 0);
+        return Carbon::createFromFormat('Y-m-d H:i:s', $time)
+            ->addMinutes($toleransi)
+            ->addMinute()
+            ->format('H:i');
+    }
 }
+
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());

@@ -1,79 +1,86 @@
-@extends('Layout.Presensi')
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Presensi QR Code</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-@section('title', 'Presensi QR Code')
+    <style>
+        body {
+            background: #f0f4f8;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
 
-@section('content')
-<div class="flex gap-16">
-    <div class="flex gap-16 flex-col">
-        <div class="p-2 rounded-md bg-white">
-            {!! QrCode::size(256)->generate(route('presensi.store', ['name' => $name, 'token' => $token])) !!}
-        </div>
-        <div>
-            <span>
-                “ Nothing worth having comes easy. ” <br>
-                — Theodore Roosevelt <br>
-                {{ $status }} <br>
-                {{ $presenceSession }}
-            </span>
-        </div>
-    </div>
-    <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
-    <table class="table">
-        <!-- head -->
-        <thead>
-            <tr>
-                <th></th>
-                <th>Nama</th>
-                <th>Masuk</th>
-                <th>Terlambat</th>
-                <th>Ijin</th>
-                <th>Sakit</th>
-                <th>Tidak masuk</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($topThreePresence as $presensi)
-                <tr>
-                    <th>{{ $loop->iteration }}</th>
-                    <td>{{ $presensi->nama_karyawan }}</td>
-                    <td>{{ $presensi->total_masuk }}</td>
-                    <td>{{ $presensi->total_terlambat }}</td>
-                    <td>{{ $presensi->total_ijin }}</td>
-                    <td>{{ $presensi->total_sakit }}</td>
-                    <td>{{ $presensi->total_tidak_masuk }}</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-    </div>
-</div>
-@endsection
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-@section('scripts')
-<script>
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
 
-let isAlreadyRedirected = false;
+        .qr-code {
+            margin: 20px 0;
+        }
 
-function presenceCheck() {
-    axios.get("{{  route('presensi.scanCheck') }}")
-        .then(response => {
-            const isPresence = response.data.is_presence;
-            const presenceSession = "{{ $presenceSession }}";
+        .info {
+            text-align: left;
+            margin-top: 20px;
+        }
 
-            if (isPresence && presenceSession !== 'sesi presensi') {
-                isAlreadyRedirected = true;
-                location.reload();
+        .info p {
+            margin: 6px 0;
+        }
+
+        @media (max-width: 500px) {
+            .card {
+                padding: 20px;
             }
-        })
-}
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2>Scan QR Code untuk Presensi</h2>
 
-setInterval(presenceCheck, 3000);
+            <div class="qr-code">
 
-setTimeout(() => {
-    if (!isAlreadyRedirecting) {
-        location.reload();
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ url('/presensi/scan') }}" alt="QR Code">
+            </div>
+
+            <div class="info">
+                <p><strong>Tanggal:</strong> {{ \Carbon\Carbon::now()->format('d M Y') }}</p>
+                <p><strong>Jam:</strong> <span id="clock">--:--:--</span></p>
+                <p><strong>Status:</strong> Menunggu scan...</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script>
+    function updateClock() {
+        const now = new Date();
+        const jam = String(now.getHours()).padStart(2, '0');
+        const menit = String(now.getMinutes()).padStart(2, '0');
+        const detik = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('clock').textContent = `${jam}:${menit}:${detik}`;
     }
-}, 60000);
 
+    setInterval(updateClock, 1000);
+    updateClock();
 </script>
-@endsection
+
+</html>
