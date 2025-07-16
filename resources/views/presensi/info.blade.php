@@ -12,7 +12,7 @@
                 <x-heroicon-o-check-circle class="text-green-400 w-24 h-24"/>
             </div><br>
             <span class="block text-center text-3xl">
-                Anda telah melakukan presensi walaupun anda {{ $status }}.
+                {{ $status->message() }}
             </span><br>
             <span class="block text-center">{{ $presenceTime }}</span>
         </div>

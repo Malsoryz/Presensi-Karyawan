@@ -70,7 +70,7 @@ class PresensiControllers extends Controller
 
         return view('presensi.info', [
             'presenceSession' => SPI::SELESAI->value,
-            'status' => $presensi['presence_status']->value,
+            'status' => $presensi['presence_status'],
             'presenceTime' => $presenceTime,
         ]);
     }
