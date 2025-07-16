@@ -7,14 +7,14 @@
 
     <div class="flex flex-col gap-4 items-center">
 
-        <div class="card p-4 bg-base-300/20 isolate rounded-xl shadow-xl backdrop-blur-lg border border-base-content/5">
+        <div class="card p-4 glassmorphism">
             <div class="p-2 rounded-md bg-white max-w-fit w-fit min-w-fit">
                 {!! QrCode::size(256)->generate(route('presensi.store', ['name' => $name, 'token' => $token])) !!}
             </div>
         </div>
 
-        <div class="card p-4 bg-base-300/20 isolate rounded-xl shadow-xl backdrop-blur-lg border border-base-content/5">
-            <span class="text-white text-shadow-sm/20 mix-blend-difference break-words max-w-68">
+        <div class="card p-4 glassmorphism">
+            <span class="text-white glassmorphism-text break-words max-w-68">
                 “ Nothing worth having comes easy. ” <br>
                 — Theodore Roosevelt <br>
             </span>
@@ -22,29 +22,29 @@
     </div>
 
     {{-- table --}}
-    <div class="card p-4 overflow-x-auto border border-base-content/5 bg-base-300/20 isolate rounded-xl shadow-xl backdrop-blur-lg">
+    <div class="card p-4 overflow-x-auto glassmorphism">
         <table class="table table-lg">
             <thead>
                 <tr>
-                    <th class="text-white text-shadow-sm/20 mix-blend-difference">No.</th>
-                    <th class="text-white text-shadow-sm/20 mix-blend-difference">Nama</th>
-                    <th class="text-white text-shadow-sm/20 mix-blend-difference">Masuk</th>
-                    <th class="text-white text-shadow-sm/20 mix-blend-difference">Terlambat</th>
-                    <th class="text-white text-shadow-sm/20 mix-blend-difference">Ijin</th>
-                    <th class="text-white text-shadow-sm/20 mix-blend-difference">Sakit</th>
-                    <th class="text-white text-shadow-sm/20 mix-blend-difference">Tidak masuk</th>
+                    <th class="text-white glassmorphism-text">No.</th>
+                    <th class="text-white glassmorphism-text">Nama</th>
+                    <th class="text-white glassmorphism-text">Masuk</th>
+                    <th class="text-white glassmorphism-text">Terlambat</th>
+                    <th class="text-white glassmorphism-text">Ijin</th>
+                    <th class="text-white glassmorphism-text">Sakit</th>
+                    <th class="text-white glassmorphism-text">Tidak masuk</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($topThreePresence as $presensi)
                     <tr>
-                        <th class="text-white text-shadow-sm/20 mix-blend-difference">{{ $loop->iteration }}</th>
-                        <td class="text-white text-shadow-sm/20 mix-blend-difference">{{ $presensi->nama_karyawan }}</td>
-                        <td class="text-center text-green-400 text-shadow-sm/20 mix-blend-difference">{{ $presensi->total_masuk }}</td>
-                        <td class="text-center text-white text-shadow-sm/20 mix-blend-difference">{{ $presensi->total_terlambat }}</td>
-                        <td class="text-center text-white text-shadow-sm/20 mix-blend-difference">{{ $presensi->total_ijin }}</td>
-                        <td class="text-center text-white text-shadow-sm/20 mix-blend-difference">{{ $presensi->total_sakit }}</td>
-                        <td class="text-center text-red-400 text-shadow-sm/20 mix-blend-difference">{{ $presensi->total_tidak_masuk }}</td>
+                        <th class="text-white glassmorphism-text">{{ $loop->iteration }}</th>
+                        <td class="text-white glassmorphism-text">{{ $presensi->nama_karyawan }}</td>
+                        <td class="text-center text-green-400 glassmorphism-text">{{ $presensi->total_masuk }}</td>
+                        <td class="text-center text-white glassmorphism-text">{{ $presensi->total_terlambat }}</td>
+                        <td class="text-center text-white glassmorphism-text">{{ $presensi->total_ijin }}</td>
+                        <td class="text-center text-white glassmorphism-text">{{ $presensi->total_sakit }}</td>
+                        <td class="text-center text-red-400 glassmorphism-text">{{ $presensi->total_tidak_masuk }}</td>
                     </tr>
                 @endforeach
             </tbody>

@@ -67,3 +67,11 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+.glassmorphism {
+    @apply bg-base-300/20 isolate shadow-xl backdrop-blur-lg border border-base-content/5;
+}
+
+.glassmorphism-text {
+    @apply text-shadow-sm/20 mix-blend-difference;
+}
