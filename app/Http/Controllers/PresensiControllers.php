@@ -36,7 +36,7 @@ class PresensiControllers extends Controller
         }
 
         $name = Auth::guard('web')->user()->name;
-        $topThree = Presensi::getTotal()->limit(3)->get();
+        $topThree = Presensi::getTotal()->get();
 
         // jika belum mulai
         if ($presensi['presence_session'] === SPI::BELUM_MULAI) {

@@ -3,52 +3,57 @@
 @section('title', 'Presensi QR Code')
 
 @section('content')
-<div class="flex gap-16">
-    <div class="flex gap-16 flex-col">
-        <div class="p-2 rounded-md bg-white">
-            {!! QrCode::size(256)->generate(route('presensi.store', ['name' => $name, 'token' => $token])) !!}
+<div class="flex flex-row gap-4">
+
+    <div class="flex flex-col gap-4 items-center">
+
+        <div class="card p-4 bg-base-300/20 isolate rounded-xl shadow-xl backdrop-blur-lg border border-base-content/5">
+            <div class="p-2 rounded-md bg-white max-w-fit w-fit min-w-fit">
+                {!! QrCode::size(256)->generate(route('presensi.store', ['name' => $name, 'token' => $token])) !!}
+            </div>
         </div>
-        <div>
-            <span>
+
+        <div class="card p-4 bg-base-300/20 isolate rounded-xl shadow-xl backdrop-blur-lg border border-base-content/5">
+            <span class="text-white text-shadow-sm/20 mix-blend-difference break-words max-w-68">
                 “ Nothing worth having comes easy. ” <br>
                 — Theodore Roosevelt <br>
-                {{ route('presensi.store', ['name' => $name, 'token' => $token]) }} <br>
-                {{ $status }} <br>
-                {{ $presenceSession }}
             </span>
         </div>
     </div>
-    <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
-    <table class="table">
-        <!-- head -->
-        <thead>
-            <tr>
-                <th></th>
-                <th>Nama</th>
-                <th>Masuk</th>
-                <th>Terlambat</th>
-                <th>Ijin</th>
-                <th>Sakit</th>
-                <th>Tidak masuk</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($topThreePresence as $presensi)
+
+    {{-- table --}}
+    <div class="card p-4 overflow-x-auto border border-base-content/5 bg-base-300/20 isolate rounded-xl shadow-xl backdrop-blur-lg">
+        <table class="table table-lg">
+            <thead>
                 <tr>
-                    <th>{{ $loop->iteration }}</th>
-                    <td>{{ $presensi->nama_karyawan }}</td>
-                    <td>{{ $presensi->total_masuk }}</td>
-                    <td>{{ $presensi->total_terlambat }}</td>
-                    <td>{{ $presensi->total_ijin }}</td>
-                    <td>{{ $presensi->total_sakit }}</td>
-                    <td>{{ $presensi->total_tidak_masuk }}</td>
+                    <th class="text-white text-shadow-sm/20 mix-blend-difference">No.</th>
+                    <th class="text-white text-shadow-sm/20 mix-blend-difference">Nama</th>
+                    <th class="text-white text-shadow-sm/20 mix-blend-difference">Masuk</th>
+                    <th class="text-white text-shadow-sm/20 mix-blend-difference">Terlambat</th>
+                    <th class="text-white text-shadow-sm/20 mix-blend-difference">Ijin</th>
+                    <th class="text-white text-shadow-sm/20 mix-blend-difference">Sakit</th>
+                    <th class="text-white text-shadow-sm/20 mix-blend-difference">Tidak masuk</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach ($topThreePresence as $presensi)
+                    <tr>
+                        <th class="text-white text-shadow-sm/20 mix-blend-difference">{{ $loop->iteration }}</th>
+                        <td class="text-white text-shadow-sm/20 mix-blend-difference">{{ $presensi->nama_karyawan }}</td>
+                        <td class="text-center text-green-400 text-shadow-sm/20 mix-blend-difference">{{ $presensi->total_masuk }}</td>
+                        <td class="text-center text-white text-shadow-sm/20 mix-blend-difference">{{ $presensi->total_terlambat }}</td>
+                        <td class="text-center text-white text-shadow-sm/20 mix-blend-difference">{{ $presensi->total_ijin }}</td>
+                        <td class="text-center text-white text-shadow-sm/20 mix-blend-difference">{{ $presensi->total_sakit }}</td>
+                        <td class="text-center text-red-400 text-shadow-sm/20 mix-blend-difference">{{ $presensi->total_tidak_masuk }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 </div>
 @endsection
+
+
 
 @section('scripts')
 <script>

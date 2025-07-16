@@ -19,11 +19,14 @@
         @endif
         @yield('scripts')
     </head>
-    <body class="min-h-screen w-full">
+    <body 
+        style="background-image: url('{{ asset('images/unsplash.jpg') }}');" 
+        class="min-h-screen w-full bg-fixed bg-center bg-cover"
+        >
         <header class="py-4 px-8 absolute">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="btn btn-soft">Logout</button>
+                <button type="submit" class="btn btn-soft">Log out <x-tabler-logout /></button>
             </form>
         </header>
         <div class="flex justify-center items-center min-h-screen">

@@ -3,34 +3,44 @@
 @section('title', 'Presensi QR Code')
 
 @section('content')
-<div class="flex gap-16">
-    <span class="text-4xl font-bold">
-        @if (isset($status))
-            {{ $status }}
-        @endif
+<div>
+    <div class="flex flex-col items-center gap-4 card p-4 bg-base-300/20 isolate rounded-xl shadow-xl backdrop-blur-lg border border-base-content/5">
+        <x-heroicon-o-check-circle class="text-green-400"/>
+        <x-heroicon-o-exclamation-circle class="text-red-400"/>
+        <x-heroicon-o-exclamation-triangle class="text-yellow-400"/>
 
-        @if (isset($presenceTime))
-            {{ $presenceTime }}
-        @endif
+        <div>
+            @if (isset($status))
+                {{ $status }}
+            @endif
+        </div>
 
-        @if (isset($presenceSession))
-            {{ $presenceSession }}
-        @endif
+        <div>
+            @if (isset($presenceTime))
+                {{ $presenceTime }}
+            @endif
+        </div>
 
-        @if (isset($hariLibur))
-            @foreach ($hariLibur as $libur)
-                {{ $libur->nama }} <br>
+        <div>
+            @if (isset($presenceSession))
+                {{ $presenceSession }}
+            @endif
+        </div>
+
+        <div>
+            @if (isset($hariLibur))
+                @foreach ($hariLibur as $libur)
+              
+            </div>  {{ $libur->nama }} <br>
                 {{ $libur->tanggal }}
             @endforeach
         @endif
 
-        @if (isset($hari))
-            {{ $hari }}
-        @endif
-    </span><br>
-    
-    @if (isset($debug))
-        <span>{{ var_dump($debug) }}</span>
-    @endif
+        <div>
+            @if (isset($hari))
+                {{ $hari }}
+            @endif
+        </div>
+    </div>
 </div>
 @endsection
