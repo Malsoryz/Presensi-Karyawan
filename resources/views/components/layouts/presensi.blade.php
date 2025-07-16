@@ -24,9 +24,12 @@
         class="min-h-screen w-full bg-fixed bg-center bg-cover"
         >
         <header class="py-4 px-8 absolute">
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ route('logout') }}" class="flex flex-row gap-2">
                 @csrf
                 <button type="submit" class="btn btn-soft">Log out <x-tabler-logout /></button>
+                <div>
+                    <span class="btn btn-soft">{{ auth()->user()->name }}</span>
+                </div>
             </form>
         </header>
         <div class="flex justify-center items-center min-h-screen">

@@ -3,44 +3,19 @@
 @section('title', 'Presensi QR Code')
 
 @section('content')
-<div>
-    <div class="flex flex-col items-center gap-4 card p-4 bg-base-300/20 isolate rounded-xl shadow-xl backdrop-blur-lg border border-base-content/5">
-        <x-heroicon-o-check-circle class="text-green-400"/>
-        <x-heroicon-o-exclamation-circle class="text-red-400"/>
-        <x-heroicon-o-exclamation-triangle class="text-yellow-400"/>
 
-        <div>
-            @if (isset($status))
-                {{ $status }}
-            @endif
+
+@if (isset($presenceSession))
+    @if ($presenceSession == 'selesai' && isset($status, $presenceTime))
+        <div class="card p-4 glassmorphism flex flex-col items-center max-w-120">
+            <div>
+                <x-heroicon-o-check-circle class="text-green-400 w-24 h-24"/>
+            </div><br>
+            <span class="block text-center text-3xl">
+                Anda telah melakukan presensi walaupun anda {{ $status }}.
+            </span><br>
+            <span class="block text-center">{{ $presenceTime }}</span>
         </div>
-
-        <div>
-            @if (isset($presenceTime))
-                {{ $presenceTime }}
-            @endif
-        </div>
-
-        <div>
-            @if (isset($presenceSession))
-                {{ $presenceSession }}
-            @endif
-        </div>
-
-        <div>
-            @if (isset($hariLibur))
-                @foreach ($hariLibur as $libur)
-              
-            </div>  {{ $libur->nama }} <br>
-                {{ $libur->tanggal }}
-            @endforeach
-        @endif
-
-        <div>
-            @if (isset($hari))
-                {{ $hari }}
-            @endif
-        </div>
-    </div>
-</div>
+    @endif
+@endif
 @endsection

@@ -50,18 +50,17 @@ class PresensiControllers extends Controller
             $token = Str::uuid();
             Cache::put("token_{$name}_{$token}", true, now()->addMinutes(1));
             return view('presensi.index', [
+                'presenceSession' => SPI::SESI_PRESENSI->value,
                 'name' => $name,
                 'token' => $token,
                 'topThreePresence' => $topThree, // ambil 3 data presensi teratas
                 'status' => SP::BELUM->value,
-                'presenceSession' => SPI::SESI_PRESENSI->value,
             ]);
         }
 
         // jika telah presensi atau sesi presensi sudah berakhir
         // yang artinya di sini adalah default nya
         // SesiPresensi::SELESAI atau selesai
-        $status = $presensi['presence_status'];
         $presenceDateTime = Presensi::where('nama_karyawan', $name)
             ->where('jenis_presensi', $presensi['presence_type']->value)
             ->whereDate('tanggal', $now->toDateString())
@@ -70,9 +69,9 @@ class PresensiControllers extends Controller
         $presenceTime = Carbon::parse($presenceDateTime)->format('H:i:s');
 
         return view('presensi.info', [
-            'status' => $status->value,
-            'presenceTime' => $presenceTime,
             'presenceSession' => SPI::SELESAI->value,
+            'status' => $presensi['presence_status']->value,
+            'presenceTime' => $presenceTime,
         ]);
     }
 
