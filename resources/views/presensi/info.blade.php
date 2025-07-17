@@ -37,7 +37,7 @@
 @endsection
 
 @section('scripts')
-@if (isset($presenceStartTime, $now))
+@if ($presenceSession->value == 'belum mulai' && isset($presenceStartTime, $now))
 <script>
     const now = new Date("{{ $now->format('Y-m-d H:i:s') }}").getTime();
     const presenceStartTime = new Date("{{ $presenceStartTime->format('Y-m-d H:i:s') }}").getTime();
