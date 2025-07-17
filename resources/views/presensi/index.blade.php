@@ -8,9 +8,11 @@
     <div class="flex flex-col gap-4 items-center">
 
         <div class="card p-4 glassmorphism">
-            <div class="p-2 rounded-md bg-white max-w-fit w-fit min-w-fit">
-                {!! QrCode::size(256)->generate(route('presensi.store', ['name' => $name, 'token' => $token])) !!}
-            </div>
+            @if (isset($token, $name))
+                <div class="p-2 rounded-md bg-white max-w-fit w-fit min-w-fit">
+                    {!! QrCode::size(256)->generate(route('presensi.store', ['name' => $name, 'token' => $token])) !!}
+                </div>
+            @endif
         </div>
 
         <div class="card p-4 glassmorphism">

@@ -75,3 +75,7 @@ select:focus[data-flux-control] {
 .glassmorphism-text {
     @apply text-shadow-sm/20 mix-blend-difference;
 }
+
+strong {
+    @apply font-bold;
+}

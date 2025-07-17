@@ -17,7 +17,6 @@
             <style>
             </style>
         @endif
-        @yield('scripts')
     </head>
     <body 
         style="background-image: url('{{ asset('images/unsplash.jpg') }}');" 
@@ -35,5 +34,6 @@
         <div class="flex justify-center items-center min-h-screen">
             @yield('content')
         </div>
+        @yield('scripts')
     </body>
 </html>
