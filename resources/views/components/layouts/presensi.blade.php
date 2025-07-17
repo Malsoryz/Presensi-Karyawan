@@ -31,7 +31,7 @@
                 </div>
             </form>
         </header>
-        <div class="flex justify-center items-center min-h-screen">
+        <div class="flex justify-center flex-col items-center min-h-screen">
             @yield('content')
         </div>
         @yield('scripts')

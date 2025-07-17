@@ -4,6 +4,8 @@
 
 @section('content')
 @if (isset($presenceSession))
+
+@if (Agent::isDesktop())
     <div class="flex flex-row gap-4">
         <div class="flex flex-col gap-4 items-center">
             <div class="card p-4 glassmorphism">
@@ -70,6 +72,25 @@
             </table>
         </div>
     </div>
+@endif
+
+@if (Agent::isPhone())
+    <div class="flex flex-col flex-2 justify-center items-center">
+        <div class="card p-4 glassmorphism">
+            <span class="text-white glassmorphism-text break-words max-w-68">
+                “ Nothing worth having comes easy. ” <br>
+                — Theodore Roosevelt <br>
+            </span>
+        </div>
+    </div>
+
+    <div class="flex flex-col flex-1 justify-center items-center">
+        <a class="btn btn-secondary">
+            Presensi
+        </a>
+    </div>
+@endif
+
 @endif
 @endsection
 

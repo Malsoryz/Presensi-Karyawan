@@ -9,6 +9,7 @@
         "php": "^8.2",
         "blade-ui-kit/blade-heroicons": "^2.6",
         "filament/filament": "^3.3",
+        "jenssegers/agent": "^2.6",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "livewire/flux": "^2.0",
