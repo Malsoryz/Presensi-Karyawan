@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Presensi;
+use Dom\Text;
 use Filament\Pages\Page;
 use Filament\Tables\Table;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -14,6 +15,8 @@ use Filament\Support\Enums\Alignment;
 class DataPresensi extends Page implements HasTable
 {
     use InteractsWithTable;
+
+   
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
@@ -62,4 +65,5 @@ class DataPresensi extends Page implements HasTable
     {
         return $record->nama_karyawan;
     }
+
 }

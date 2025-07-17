@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Pages\DataPresensi;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
+use Dflydev\DotAccessData\Data;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -22,6 +24,8 @@ use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ColumnGroup;
+
+use function Livewire\after;
 
 // use App\Infolists\Components\VerticalTabs\Tabs;
 
@@ -54,6 +58,12 @@ class UserResource extends Resource
                                     ->label('Email')
                                     ->required()
                                     ->email(),
+
+                                Textarea::make('address')
+                                    ->label('Alamat')
+                                    ->autosize()
+                                    ->disableGrammarly(),
+
                                 DatePicker::make('birth_date')
                                     ->label('Date of birth'),
                                 Radio::make('gender')
@@ -66,11 +76,8 @@ class UserResource extends Resource
                                 TextInput::make('phone_number')
                                     ->label('No Telepon')
                                     ->numeric()
-                                    ->inputMode('tel'),
-                                Textarea::make('address')
-                                    ->label('Alamat')
-                                    ->autosize()
-                                    ->disableGrammarly(),
+                                    ->inputMode('tel')
+                                
                             ]),
                         Tab::make('Credential')
                             ->schema([
@@ -129,19 +136,43 @@ class UserResource extends Resource
                     TextColumn::make('name')
                         ->label('Nama')
                         ->searchable(),
+
                     TextColumn::make('email')
                         ->label('Email'),
-                    // TextColumn::make('address')
-                    //     ->label('Alamat')
-                    //     ->wrap(),
-                    // TextColumn::make('birth_date')
-                    //     ->label('Tanggal lahir')
-                    //     ->date(),
-                    // TextColumn::make('gender')
-                    //     ->label('Jenis kelamin'),
-                    // TextColumn::make('phone_number')
-                    //     ->label('No Telepon'),
+
+                    TextColumn::make('address')
+                        ->label('Alamat')
+                        ->wrap(),
+                    
+                    TextColumn::make('birth_date')
+                        ->label('Tanggal lahir')
+                        ->date(),
+
+                    TextColumn::make('gender')
+                        ->label('Jenis kelamin'),
+
+                    TextColumn::make('phone_number')
+                        ->label('No Telepon'),
                 ]),
+                // ColumnGroup::make('Data Karyawan', [
+                //     TextColumn::make('jabatan')
+                //     ->label('Jabatan'),
+
+                //     TextColumn::make('departmen')
+                //     ->label('Department'),
+
+                //     TextColumn::make('tanggal_masuk_sebagai_karyawan')
+                //     ->label('Tanggal Masuk'),
+
+                //     TextColumn::make('rekening_bank')
+                //     ->label('Rekening Bank'),
+
+                //     TextColumn::make('gaji_pokok_bulanan')
+                //     ->label('Gaji Pokok Bulanan'),
+
+                //     TextColumn::make('tunjangan_kehadiran_harian')
+                //     ->label('Tunjangan Hadir Harian')
+                // ]),
             ])
             ->defaultSort('name')
             ->filters([
@@ -161,7 +192,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            
         ];
     }
 

@@ -24,6 +24,7 @@ return new class extends Migration
                 'tidak_masuk'
             ]);
             $table->string('ip_address', length: 25);
+            
         });
     }
 

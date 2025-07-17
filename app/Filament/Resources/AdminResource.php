@@ -7,7 +7,10 @@ use App\Filament\Resources\AdminResource\RelationManagers;
 use App\Models\Admin;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\Tabs\Tab;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -34,7 +37,7 @@ class AdminResource extends Resource
                 Tabs::make('Tabs')
                 ->contained(false)
                 ->tabs([
-                    Tabs\Tab::make('Admin')
+                    Tabs\Tab::make('Admin')->label('Profile')
                     ->schema([
                         TextInput::make('name')
                             ->label('Nama')
@@ -46,22 +49,56 @@ class AdminResource extends Resource
                             ->required()
                             ->placeholder('Masukan Email'),
 
+                        Radio::make('gender')
+                            ->options([
+                                'male'=>'laki-laki',
+                                'female'=>'wanita',
+                            ])
+                            ->inline()
+                            ->inlineLabel(false),
+                        
+                        TextInput::make('telepon')
+                            ->label('No. Telepon')
+                            ->required()
+                            ->numeric()
+                            ->inputMode('tel')
+                            ->placeholder('Masukkan No. Telepon'),
+
+                        Textarea::make('alamat')
+                            ->label('Alamat')
+                            ->autosize(),
+
+                        
+                    ]),
+                    Tabs\Tab::make('kredensial')
+                    ->schema([
                         TextInput::make('password')
                             ->label('Password')
                             ->required()
                             ->password()
                             ->revealable()
                             ->minLength('8')
-                            ->placeholder('Masukan Password'),
+                            ->placeholder('Masukan Password')
+                            ->visibleOn('create'),
 
-                        // TextInput::make('telepon')
-                        //     ->label('No. Telepon')
-                        //     ->required()
-                        //     ->numeric()
-                        //     ->inputMode('tel')
-                        //     ->placeholder('Masukkan No. Telepon')
-                        
+                            //untuk edit page
+                            TextInput::make('password')
+                            ->label('New Password')
+                            ->password()
+                            ->required()
+                            ->minLength('8')
+                            ->same('new_password')
+                            ->visibleOn('edit'),
+
+                            TextInput::make('new_password')
+                            ->label('Retype Password')
+                            ->password()
+                            ->required()
+                            ->minLength('8')
+                            ->same('password')
+                            ->visibleOn('edit')
                     ])
+
 
                 ])
                 
@@ -80,8 +117,14 @@ class AdminResource extends Resource
                 TextColumn::make('email')
                 ->label('Email'),
 
-                // TextColumn::make('telepon')
-                // ->label('No. Telepon')
+                TextColumn::make('gender')
+                ->label('Gender'),
+
+                TextColumn::make('telepon')
+                ->label('No. Telepon'),
+
+                TextColumn::make('alamat')
+                ->label('Alamat')
             ])
             ->filters([
                 //

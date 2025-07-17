@@ -44,4 +44,10 @@ class Presensi extends Model
                 DB::raw('SUM(CASE WHEN status = "tidak_masuk" THEN 1 ELSE 0 END) as total_tidak_masuk'),
             )->groupBy('nama_karyawan')->orderByDesc('total_masuk');
     }
+
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
+
+    
 }
