@@ -12,9 +12,9 @@
             </div><br>
             <span class="block text-white text-center text-3xl glassmorphism-text">
                 {{ $status->message() }}
-            </span><br>
-            @if (isset($presenceTime))
-                <span class="block text-white text-center glassmorphism-text">pada {{ $presenceTime }}</span>
+            </span>
+            @if (isset($presenceTime) && in_array($status, ['masuk', 'terlambat']))
+                <br><span class="block text-white text-center glassmorphism-text">pada {{ $presenceTime }}</span>
             @endif
         </div>
     @endif

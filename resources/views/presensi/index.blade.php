@@ -25,25 +25,45 @@
             <table class="table table-lg">
                 <thead>
                     <tr>
-                        <th class="text-white glassmorphism-text">No.</th>
-                        <th class="text-white glassmorphism-text">Nama</th>
-                        <th class="text-white glassmorphism-text">Masuk</th>
-                        <th class="text-white glassmorphism-text">Terlambat</th>
-                        <th class="text-white glassmorphism-text">Ijin</th>
-                        <th class="text-white glassmorphism-text">Sakit</th>
-                        <th class="text-white glassmorphism-text">Tidak masuk</th>
+                        @foreach (['No.', 'Nama', 'Masuk', 'Terlambat', 'Ijin', 'Sakit', 'Tidak Masuk'] as $columnHeader)
+                            <th @class([
+                                'text-white',
+                                'glassmorphism-text',
+                                'rounded-md',
+                                'hover:bg-base-100/20',
+                            ])>
+                                {{ $columnHeader }}
+                            </th>
+                        @endforeach
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($topThreePresence as $presensi)
-                        <tr>
-                            <th class="text-white glassmorphism-text">{{ $loop->iteration }}</th>
-                            <td class="text-white glassmorphism-text">{{ $presensi->nama_karyawan }}</td>
+                        <tr @class([
+                            'rounded-md',
+                            'bg-base-100/10' => $name === $presensi->nama_karyawan,
+                            'hover:bg-base-100/20',
+                        ])>
+                            <th @class([
+                                'rounded-l-md',
+                                'text-white' => !($name === $presensi->nama_karyawan),
+                                'text-orange-300' => $name === $presensi->nama_karyawan,
+                                'glassmorphism-text',
+                            ])>
+                                {{ $loop->iteration }}
+                            </th>
+                            <td @class([
+                                'text-white' => !($name === $presensi->nama_karyawan),
+                                'text-orange-300' => $name === $presensi->nama_karyawan,
+                                'glassmorphism-text'
+                            ])>
+                                {{ $presensi->nama_karyawan }}
+                            </td>
                             <td class="text-center text-green-400 glassmorphism-text">{{ $presensi->total_masuk }}</td>
                             <td class="text-center text-white glassmorphism-text">{{ $presensi->total_terlambat }}</td>
                             <td class="text-center text-white glassmorphism-text">{{ $presensi->total_ijin }}</td>
                             <td class="text-center text-white glassmorphism-text">{{ $presensi->total_sakit }}</td>
-                            <td class="text-center text-red-400 glassmorphism-text">{{ $presensi->total_tidak_masuk }}</td>
+                            <td class="rounded-r-md text-center text-red-400 glassmorphism-text">{{ $presensi->total_tidak_masuk }}</td>
                         </tr>
                     @endforeach
                 </tbody>
