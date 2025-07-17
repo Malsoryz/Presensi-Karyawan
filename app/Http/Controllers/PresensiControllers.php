@@ -27,11 +27,13 @@ class PresensiControllers extends Controller
         $isHariLibur = HL::whereDate('tanggal', $today)->exists();
         
         // cek untuk mengetahui apakah libur atau hari minggu
+        // if ($now->isSunday() || $isHariLibur) {
         if ($now->isSunday() || $isHariLibur) {
             return view('presensi.info', [
-                'presenceSession' => SPI::LIBUR->value,
+                'presenceSession' => SPI::LIBUR,
                 'hariLibur' => $hariLibur,
                 'hari' => $now->format('l'),
+                'status' => SP::BELUM,
             ]);
         }
 
@@ -41,7 +43,10 @@ class PresensiControllers extends Controller
         // jika belum mulai
         if ($presensi['presence_session'] === SPI::BELUM_MULAI) {
             return view('presensi.info', [
-                'presenceSession' => SPI::BELUM_MULAI->value,
+                'presenceSession' => SPI::BELUM_MULAI,
+                'status' => SP::BELUM,
+                'presenceStartTime' => $presensi['presence_start_time'],
+                'now' => $now,
             ]);
         }
 
@@ -50,11 +55,11 @@ class PresensiControllers extends Controller
             $token = Str::uuid();
             Cache::put("token_{$name}_{$token}", true, now()->addMinutes(1));
             return view('presensi.index', [
-                'presenceSession' => SPI::SESI_PRESENSI->value,
+                'presenceSession' => SPI::SESI_PRESENSI,
                 'name' => $name,
                 'token' => $token,
                 'topThreePresence' => $topThree, // ambil 3 data presensi teratas
-                'status' => SP::BELUM->value,
+                'status' => SP::BELUM,
             ]);
         }
 
@@ -68,9 +73,14 @@ class PresensiControllers extends Controller
             ->value('tanggal');
         $presenceTime = Carbon::parse($presenceDateTime)->format('H:i:s');
 
+        $presensiUser = Presensi::where([
+            'nama_karyawan' => $name,
+            'jenis_presensi' => $presensi['presence_type'],
+        ])->whereDate('tanggal', $today)->first();
+
         return view('presensi.info', [
-            'presenceSession' => SPI::SELESAI->value,
-            'status' => $presensi['presence_status'],
+            'presenceSession' => SPI::SELESAI,
+            'status' => SP::tryFrom($presensiUser->status),
             'presenceTime' => $presenceTime,
         ]);
     }
@@ -200,6 +210,8 @@ class PresensiControllers extends Controller
                 ->exists();
 
         return [
+            'presence_start_time' => Carbon::parse($pagiMulai),
+
             // sesi presensi nya, atau status waktu presensi
             // contohnya BELUM, SESI_PRESENSI dan SELESAI
             'presence_session' => $presensiSession,
