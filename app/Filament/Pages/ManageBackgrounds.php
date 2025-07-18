@@ -5,37 +5,59 @@ namespace App\Filament\Pages;
 use App\Models\Background;
 use App\Models\Config;
 
+use Filament\Support\Enums\MaxWidth;
+
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
 use Filament\Notifications\Notification;
 
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
+use Filament\Pages\Page;
+
+use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 
-use Filament\Pages\Page;
-use Filament\Forms\Get;
-use Filament\Actions\Action;
+use Filament\Tables\Table;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\ViewColumn;
 
+use Filament\Forms\Get;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Checkbox;
 
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
-class ManageBackgrounds extends Page implements HasForms, /*HasTable,*/ HasActions
+class ManageBackgrounds extends Page implements HasForms, HasTable, HasActions
 {
     use InteractsWithForms;
-    // use InteractsWithTable;
+    use InteractsWithTable;
     use InteractsWithActions;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static string $view = 'filament.pages.manage-backgrounds';
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->paginated(false)
+            ->query(Background::query())
+            ->columns([
+                Stack::make([
+                    ViewColumn::make('image_path')->view('tables.columns.show-image-column'),
+                ]),
+            ])
+            ->contentGrid([
+                'default' => 4,
+            ]);
+    }
 
     public function createAction(): Action
     {
