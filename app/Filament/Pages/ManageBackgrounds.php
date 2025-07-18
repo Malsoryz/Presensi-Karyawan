@@ -19,6 +19,7 @@ use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 
 use Filament\Tables\Table;
+use Filament\Tables\Actions\Action as TableAction;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\Layout\Stack;
@@ -31,6 +32,8 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Checkbox;
+
+use Illuminate\Database\Eloquent\Model;
 
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
@@ -47,11 +50,25 @@ class ManageBackgrounds extends Page implements HasForms, HasTable, HasActions
     public function table(Table $table): Table
     {
         return $table
+            ->heading('Backgrounds')
+            ->description('List dari background yang tersimpan.')
             ->paginated(false)
             ->query(Background::query())
             ->columns([
                 Stack::make([
-                    ViewColumn::make('image_path')->view('tables.columns.show-image-column'),
+                    ViewColumn::make('image_path')
+                        ->view('filament.components.tables.columns.image-column')
+                        ->action(
+                            TableAction::make('view')
+                                ->modalSubmitAction(false)
+                                ->modalHeading(fn (Model $record) => 'View ('.$record->name.')')
+                                ->modalContent(function (Model $record) {
+                                    return view('filament.components.tables.actions.image-modal-content', [
+                                        'imagePath' => $record->image_path,
+                                        'name' => $record->name,
+                                    ]);
+                                }),
+                        ),
                 ]),
             ])
             ->contentGrid([
