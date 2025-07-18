@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('backgrounds', function (Blueprint $table) {
             $table->id();
             $table->string('name', length: 255)->unique();
-            $table->string('image_path', length: 255)->nullable();
+            $table->string('image_path', length: 255);
+            $table->boolean('special_friday')->default(false);
             $table->timestamps();
         });
     }
