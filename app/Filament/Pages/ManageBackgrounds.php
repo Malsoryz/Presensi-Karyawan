@@ -6,6 +6,9 @@ use App\Models\Background;
 use App\Models\Config;
 
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+
+use Filament\Notifications\Notification;
 
 use Filament\Pages\Page;
 use Filament\Forms\Get;
@@ -14,6 +17,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Checkbox;
 
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
@@ -34,6 +38,8 @@ class ManageBackgrounds extends Page implements HasForms
                     ->label('Background Name')
                     ->required()
                     ->maxLength(255),
+                Checkbox::make('special_friday')
+                    ->label("Spesial jum'at"),
                 FileUpload::make('image_path')
                     ->label('Background Image')
                     ->required()
@@ -55,6 +61,30 @@ class ManageBackgrounds extends Page implements HasForms
                 $this->dispatch('backgroundAdded', [
                     'message' => 'Background added successfully!',
                 ]);
+            });
+    }
+
+    public function deleteAction(Background $data): Action
+    {
+        return Action::make('delete')
+            ->label('Delete')
+            ->icon('heroicon-o-trash')
+            ->color('danger')
+            ->requiresConfirmation()
+            ->modalIcon('heroicon-o-trash')
+            ->modalHeading('Delete background?')
+            ->modalDescription('Are you sure you\'d like to delete this background? This cannot be undone.')
+            ->action(function () {
+                if ($data->image_path && Storage::disk('public')->exists($data->image_path)) {
+                    Storage::disk('public')->delete($data->image_path);
+                }
+
+                Background::where('name', $data->name)->delete();
+
+                Notification::make()
+                    ->title('Deleted successfully.')
+                    ->success()
+                    ->send();
             });
     }
 
