@@ -24,6 +24,10 @@ return new class extends Migration
                 'tidak_masuk'
             ]);
             $table->string('ip_address', length: 25);
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
         });
     }
 

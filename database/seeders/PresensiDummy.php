@@ -14,7 +14,7 @@ class PresensiDummy extends Seeder
      */
     public function run(): void
     {
-        $users = DB::table('users')->select('name')->where('name', '!=', 'Admin')->get();
+        $users = DB::table('users')->select('id', 'name')->where('jabatan', '!=', 'admin')->get();
 
         $status = ['masuk', 'terlambat', 'ijin', 'sakit', 'tidak_masuk'];
         $sesiPresensi = ['pagi', 'siang'];
@@ -28,6 +28,7 @@ class PresensiDummy extends Seeder
                         'tanggal' => Carbon::now('Asia/Makassar')->subDays($i),
                         'status' => $status[array_rand($status)],
                         'ip_address' => '192.168.1.'.$i,
+                        'user_id' => $user->id,
                     ]);
                 }
             }

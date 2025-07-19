@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\User;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,6 +21,11 @@ class Presensi extends Model
         'status',
         'ip_address',
     ];
+
+    public function user()
+    {
+        return $this->belongTo(User::class);
+    }
 
     public static function getTotalQuery()
     {
