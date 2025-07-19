@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Presensi;
+use App\Enums\StatusPresensi;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -48,6 +49,16 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'remember_token',
     ];
+
+    public function isAdmin(): bool
+    {
+        return $this->jabatan === 'admin';
+    }
+
+    public function getStatus(): StatusPresensi
+    {
+        return StatusPresensi::tryFrom($this->status);
+    }
 
     /**
      * Get the attributes that should be cast.
