@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-use Illuminate\View\ComponentAttributeBag;
+use App\Enums\Icons;
 
 enum StatusPresensi: string {
     case BELUM = 'belum';
@@ -24,23 +24,15 @@ enum StatusPresensi: string {
         };
     }
 
-    public function icon($extraClass = null): string
+    public function icon($extraClass = null)
     {
-        $defaultClass = 'w-24 h-24';
-        $class = "$defaultClass $extraClass";
         return match ($this) {
-            StatusPresensi::MASUK, 
-            StatusPresensi::TERLAMBAT => view('e60dd9d2c3a62d619c9acb38f20d5aa5::icon.check-circle', [
-                'attributes' => new ComponentAttributeBag(['class' => "text-green-400 $class"])
-            ])->render(),
-            StatusPresensi::BELUM, 
-            StatusPresensi::IJIN, 
-            StatusPresensi::SAKIT => view('e60dd9d2c3a62d619c9acb38f20d5aa5::icon.information-circle', [
-                'attributes' => new ComponentAttributeBag(['class' => "text-blue-400 $class"])
-            ])->render(),
-            StatusPresensi::TIDAK_MASUK => view('e60dd9d2c3a62d619c9acb38f20d5aa5::icon.exclamation-circle', [
-                'attributes' => new ComponentAttributeBag(['class' => "text-red-400 $class"])
-            ])->render(),
+            StatusPresensi::MASUK,
+            StatusPresensi::TERLAMBAT => Icons::Check->render($extraClass),
+            StatusPresensi::BELUM,
+            StatusPresensi::IJIN,
+            StatusPresensi::SAKIT => Icons::Info->render($extraClass),
+            StatusPresensi::TIDAK_MASUK => Icons::Error->render($extraClass),
         };
     }
 }
