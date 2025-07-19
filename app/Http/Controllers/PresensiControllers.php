@@ -37,7 +37,7 @@ class PresensiControllers extends Controller
             ]);
         }
 
-        $name = Auth::guard('web')->user()->name;
+        $name = Auth::user()->name;
         $topThree = Presensi::getTotal()->limit(5)->get();
 
         // jika belum mulai
@@ -92,7 +92,7 @@ class PresensiControllers extends Controller
         }
         Cache::forget("token_{$name}_{$token}");
 
-        if ($name != Auth::guard('web')->user()->name) {
+        if ($name != Auth::user()->name) {
             return redirect()->route('presensi.index')->with('error', 'Tidak bisa melakukan presensi untuk orang lain.');
         }
 
@@ -161,7 +161,7 @@ class PresensiControllers extends Controller
     private function check(): array
     {
         // user
-        $userName = Auth::guard('web')->user()->name;
+        $userName = Auth::user()->name;
 
         // dapatkan waktu sekarang dan timezone
         $timezone = Config::get('timezone', 'Asia/Makassar');
