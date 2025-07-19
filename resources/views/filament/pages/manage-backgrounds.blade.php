@@ -1,6 +1,9 @@
 <x-filament-panels::page>
 
-    <x-filament::section collapsible>
+    <x-filament::section 
+        collapsible
+        :collapsed="$this->getBackgrounds()->isEmpty()"
+    >
         <x-slot name="heading">
             Backgrounds
         </x-slot>
@@ -15,9 +18,9 @@
                         icon="heroicon-o-photo"
                         class="text-gray-700 h-32 w-32"
                     />
-                    <span class="text-gray-700">
+                    <h4 class="fi-ta-empty-state-heading text-base font-semibold leading-6 text-gray-950 dark:text-white">
                         Tidak ada background.
-                    </span>
+                    </h4>
                 </div>
             @else
                 @foreach ($this->getBackgrounds() as $background)
@@ -33,7 +36,10 @@
         </x-filament::grid>
     </x-filament::section>
 
-    <x-filament::section collapsible>
+    <x-filament::section
+        collapsible
+        :collapsed="$this->getBackgrounds(true)->isEmpty()"
+    >
         <x-slot name="heading">
             Special Friday Backgrounds
         </x-slot>
@@ -48,9 +54,9 @@
                         icon="heroicon-o-photo"
                         class="text-gray-700 h-32 w-32"
                     />
-                    <span class="text-gray-700">
+                    <h4 class="fi-ta-empty-state-heading text-base font-semibold leading-6 text-gray-950 dark:text-white">
                         Tidak ada background untuk jum'at.
-                    </span>
+                    </h4>
                 </div>
             @else
                 @foreach ($this->getBackgrounds(true) as $background)
