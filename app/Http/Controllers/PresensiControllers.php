@@ -20,8 +20,15 @@ class PresensiControllers extends Controller
     public function index()
     {
         $presensi = $this->check();
+        $user = $presensi['user']; // Mendapatkan USER
         $now = now($presensi['timezone']);
         $today = $now->toDateString();
+
+        if ($user->isAdmin()) {
+            return view('presensi.info', [
+                'message' => 'Anda adalah admin, anda tidak perlu melakukan presensi.',
+            ]);
+        }
 
         $hariLibur = HL::whereDate('tanggal', $today)->get();
         $isHariLibur = HL::whereDate('tanggal', $today)->exists();
@@ -37,9 +44,6 @@ class PresensiControllers extends Controller
             ]);
         }
 
-        $name = Auth::user()->name;
-        $topThree = Presensi::getTotal()->limit(5)->get();
-
         // jika belum mulai
         if ($presensi['presence_session'] === SPI::BELUM_MULAI) {
             return view('presensi.info', [
@@ -49,14 +53,15 @@ class PresensiControllers extends Controller
                 'now' => $now,
             ]);
         }
-
+        
         // jika di saat sesi presensi berlangsung tapi belum presensi
         if (!$presensi['is_presence'] && $presensi['presence_session'] === SPI::SESI_PRESENSI) {
             $token = Str::uuid();
-            Cache::put("token_{$name}_{$token}", true, now()->addMinutes(1));
+            Cache::put("token_{$user->name}_{$token}", true, now()->addMinutes(1));
+            $topThree = Presensi::getTotal()->limit(5)->get();
             return view('presensi.index', [
                 'presenceSession' => SPI::SESI_PRESENSI,
-                'name' => $name,
+                'name' => $user->name,
                 'token' => $token,
                 'topThreePresence' => $topThree, // ambil 3 data presensi teratas
                 'status' => SP::BELUM,
@@ -66,7 +71,7 @@ class PresensiControllers extends Controller
         // jika telah presensi atau sesi presensi sudah berakhir
         // yang artinya di sini adalah default nya
         // SesiPresensi::SELESAI atau selesai
-        $presenceDateTime = Presensi::where('nama_karyawan', $name)
+        $presenceDateTime = Presensi::where('nama_karyawan', $user->name)
             ->where('jenis_presensi', $presensi['presence_type']->value)
             ->whereDate('tanggal', $now->toDateString())
             ->first()
@@ -74,7 +79,7 @@ class PresensiControllers extends Controller
         $presenceTime = Carbon::parse($presenceDateTime)->format('H:i:s');
 
         $presensiUser = Presensi::where([
-            'nama_karyawan' => $name,
+            'nama_karyawan' => $user->name,
             'jenis_presensi' => $presensi['presence_type'],
         ])->whereDate('tanggal', $today)->first();
 
@@ -103,7 +108,7 @@ class PresensiControllers extends Controller
         }
 
         if ($presensi['presence_type'] !== JP::NONE) {
-            Presensi::create([
+            Auth::user()->presensis()->create([
                 'nama_karyawan' => $name,
                 'jenis_presensi' => $presensi['presence_type']->value,
                 'status' => $presensi['presence_status'],
@@ -112,36 +117,6 @@ class PresensiControllers extends Controller
         }
 
         return redirect()->route('presensi.index');
-    }
-
-    
-    public function info(Request $request)
-    {
-        if (!$request->has('presence')) {
-            return redirect()->route('presensi.index');
-        }
-
-        $presence = $request->get('presence');
-        $checked = $this->check();
-        
-        if (!$presence && $checked['is_session_valid']) {
-            return redirect()->route('presensi.index');
-        }
-        
-        if (!$checked['is_presence'] && $checked['is_session_valid']) {
-            return redirect()->route('presensi.index');
-        }
-        
-        if ($presence != $checked['is_presence']) {
-            return redirect()->route('presensi.index');
-        }
-
-        $message = ($presence) ? 'telah presensi' : 'telat presensi';
-
-        return view('presensi.info', [
-            'status' => $message,
-            // 'debug' => $checked['debug'],
-        ]);
     }
 
     public function scanCheck()
@@ -161,12 +136,11 @@ class PresensiControllers extends Controller
     private function check(): array
     {
         // user
-        $userName = Auth::user()->name;
+        $user = Auth::user();
 
         // dapatkan waktu sekarang dan timezone
         $timezone = Config::get('timezone', 'Asia/Makassar');
         $now = now($timezone);
-        $today = $now->toDateString();
 
         // arrow function
         $cftsFromConfig = fn (string $name, string $default) => Carbon::createFromTimeString(Config::getTime($name, $default), $timezone);
@@ -203,10 +177,10 @@ class PresensiControllers extends Controller
         if ($now->between($siangMulai, $pulangKerja)) $sessionType = JP::SIANG;
 
         // cek apakah sudah presensi hari ini # 3
-        $session = $now->lt($siangMulai) ? JP::PAGI : JP::SIANG;        
-        $isPresence = Presensi::where('nama_karyawan', $userName)
+        $session = $now->lt($siangMulai) ? JP::PAGI : JP::SIANG;       
+        $isPresence = Presensi::where('nama_karyawan', $user->name)
                 ->where('jenis_presensi', $session->value)
-                ->whereDate('tanggal', $today)
+                ->whereDate('tanggal', $now->toDateString())
                 ->exists();
 
         return [
@@ -227,6 +201,7 @@ class PresensiControllers extends Controller
             'presence_type' => $sessionType,
 
             'timezone' => $timezone,
+            'user' => $user,
         ];
     }
 }
