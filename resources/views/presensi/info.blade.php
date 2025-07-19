@@ -9,7 +9,7 @@
         @if (isset($status))
             {!! $status->icon('drop-shadow-sm/20') !!}
         @else
-            {!! \App\Enums\Icons::Info->render() !!}
+            {!! \App\Enums\Icons::Info->render('drop-shadow-sm/20') !!}
         @endif
     </div><br>
     <span class="block text-white text-center text-3xl glassmorphism-text">
