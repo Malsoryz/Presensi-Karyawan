@@ -107,7 +107,7 @@ class PresensiControllers extends Controller
             return redirect()->route('presensi.index')->with('error', 'Sesi presensi tidak valid!');
         }
 
-        if ($presensi['presence_type'] !== JP::NONE) {
+        if ($presensi['presence_type'] !== JP::NONE || !Auth::user()->isAdmin()) {
             Auth::user()->presensis()->create([
                 'nama_karyawan' => $name,
                 'jenis_presensi' => $presensi['presence_type']->value,
