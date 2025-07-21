@@ -16,6 +16,11 @@ class Config extends Model
         'value',
     ];
 
+    public static function timezone(): ?string
+    {
+        return self::where('name', 'timezone')->value('value');
+    }
+
     public static function get(string $name, $default = null): ?string
     {
         $result = self::where('name', $name)->value('value');

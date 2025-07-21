@@ -55,8 +55,8 @@ class ManageBackgrounds extends Page implements HasForms, HasActions
             ->form([
                 TextInput::make('name')
                     ->label('Background Name')
-                    ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->dehydrated(false),
                 Checkbox::make('special_friday')
                     ->label("Spesial jum'at"),
                 FileUpload::make('image_path')
@@ -68,7 +68,7 @@ class ManageBackgrounds extends Page implements HasForms, HasActions
                     ->visibility('public')
                     ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file, Get $get): string{
-                        $name = $get('name') ?? 'background';
+                        $name = $get('name') ?? $file->getClientOriginalName();
                         $slug = Str::slug($name, '-');
                         $timestamp = now(Config::get('timezone', 'Asia/Makassar'))->format('YmdHis');
                         $extension = $file->getClientOriginalExtension();
@@ -77,9 +77,10 @@ class ManageBackgrounds extends Page implements HasForms, HasActions
             ])
             ->action(function (array $data, Background $background) {
                 $background->create($data);
-                $this->dispatch('backgroundAdded', [
-                    'message' => 'Background added successfully!',
-                ]);
+                Notification::make()
+                    ->title('Image successfully added.')
+                    ->success()
+                    ->send();
             });
     }
 
@@ -99,7 +100,7 @@ class ManageBackgrounds extends Page implements HasForms, HasActions
                     Storage::disk('public')->delete($background->image_path);
                 }
 
-                Background::where('name', $background->name)->delete();
+                Background::where('id', $background->id)->delete();
 
                 Notification::make()
                     ->title('Deleted successfully.')
