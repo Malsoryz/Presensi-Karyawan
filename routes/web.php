@@ -29,4 +29,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('presensi.scanCheck');
 });
 
+Route::get('/test', function () {
+    return view('presensi');
+});
+
 require __DIR__.'/auth.php';

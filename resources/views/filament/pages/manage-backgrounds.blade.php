@@ -13,15 +13,13 @@
 
         <x-filament::grid default="{{ $this->getBackgrounds()->isEmpty() ? 1 : 4 }}" direction="column">
             @if ($this->getBackgrounds()->isEmpty())
-                <div class="w-full h-auto flex flex-col justify-center items-center">
-                    <x-filament::icon
-                        icon="heroicon-o-photo"
-                        class="text-gray-700 h-32 w-32"
-                    />
-                    <h4 class="fi-ta-empty-state-heading text-base font-semibold leading-6 text-gray-950 dark:text-white">
+                <x-filament-tables::empty-state
+                    icon="heroicon-o-photo"
+                >
+                    <x-slot name="heading">
                         Tidak ada background.
-                    </h4>
-                </div>
+                    </x-slot>
+                </x-filament-tables::empty-state>
             @else
                 @foreach ($this->getBackgrounds() as $background)
                     <x-filament::grid.column>
@@ -44,20 +42,18 @@
             Special Friday Backgrounds
         </x-slot>
         <x-slot name="description">
-            Background spesial untuk jum'at.
+            Background khusus untuk jum'at.
         </x-slot>
 
         <x-filament::grid default="{{ $this->getBackgrounds(true)->isEmpty() ? 1 : 4 }}" direction="column">
             @if ($this->getBackgrounds(true)->isEmpty())
-                <div class="w-full h-auto flex flex-col justify-center items-center">
-                    <x-filament::icon
-                        icon="heroicon-o-photo"
-                        class="text-gray-700 h-32 w-32"
-                    />
-                    <h4 class="fi-ta-empty-state-heading text-base font-semibold leading-6 text-gray-950 dark:text-white">
-                        Tidak ada background untuk jum'at.
-                    </h4>
-                </div>
+                <x-filament-tables::empty-state
+                    icon="heroicon-o-photo"
+                >
+                    <x-slot name="heading">
+                        Tidak ada background khusus untuk jum'at.
+                    </x-slot>
+                </x-filament-tables::empty-state>
             @else
                 @foreach ($this->getBackgrounds(true) as $background)
                     <x-filament::grid.column>
