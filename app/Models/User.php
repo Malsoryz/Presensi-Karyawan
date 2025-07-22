@@ -52,10 +52,10 @@ class User extends Authenticatable //implements FilamentUser
         'remember_token',
     ];
 
-    public function isAdmin(): bool
-    {
-        return $this->jabatan === 'admin';
-    }
+    // public function isAdmin(): bool
+    // {
+    //     return $this->jabatan === 'admin';
+    // }
 
     public function getStatus(): StatusPresensi
     {
