@@ -2,28 +2,30 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\User;
+use App\Enums\User\Jabatan;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
-use App\Models\User;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
+
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-use Filament\Forms\Components\Tabs\Tab;
+use Filament\Resources\Resource;
+
+use Filament\Forms;
+use Filament\Forms\Form;
 use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Placeholder;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ColumnGroup;
 
-// use App\Infolists\Components\VerticalTabs\Tabs;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 
 class UserResource extends Resource
 {
@@ -35,7 +37,7 @@ class UserResource extends Resource
 
     protected static ?string $navigationGroup = 'Users';
 
-    protected static ?string $navigationLabel = 'Karyawan';
+    protected static ?string $navigationLabel = 'List';
 
     public static function form(Form $form): Form
     {
@@ -125,27 +127,21 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                ColumnGroup::make('Profil', [
-                    TextColumn::make('name')
-                        ->label('Nama')
-                        ->searchable(),
-                    TextColumn::make('email')
-                        ->label('Email'),
-                    // TextColumn::make('address')
-                    //     ->label('Alamat')
-                    //     ->wrap(),
-                    // TextColumn::make('birth_date')
-                    //     ->label('Tanggal lahir')
-                    //     ->date(),
-                    // TextColumn::make('gender')
-                    //     ->label('Jenis kelamin'),
-                    // TextColumn::make('phone_number')
-                    //     ->label('No Telepon'),
-                ]),
+                TextColumn::make('name')
+                    ->label('Nama')
+                    ->searchable(),
+                TextColumn::make('email')
+                    ->label('Email'),
+                TextColumn::make('address')
+                    ->label('Alamat')
+                    ->wrap(),
+                TextColumn::make('jabatan')
+                    ->label('Role')
             ])
             ->defaultSort('name')
             ->filters([
-                //
+                SelectFilter::make('jabatan')
+                    ->options(Jabatan::toSelectItem())
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
