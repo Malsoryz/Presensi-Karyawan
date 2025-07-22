@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\Presensi;
+use App\Models\Jabatan;
+use App\Models\Tipe;
 use App\Enums\StatusPresensi;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -14,7 +16,7 @@ use Illuminate\Support\Str;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable //implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -32,12 +34,12 @@ class User extends Authenticatable implements FilamentUser
         'birth_date',
         'gender',
         'phone_number',
-        'jabatan',
         'departmen',
+        'tanggal_masuk',
         'tanggal_masuk_sebagai_karyawan',
         'rekening_bank',
-        'gaji_pokok_bulanan',
-        'tunjangan_kehadiran_harian'
+        'jabatan_id',
+        'tipe_id',
     ];
 
     /**
@@ -78,6 +80,16 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Presensi::class);
     }
 
+    public function jabatan()
+    {
+        return $this->belongsTo(Jabatan::class);
+    }
+
+    public function tipe()
+    {
+        return $this->belongsTo(Tipe::class);
+    }
+
     /**
      * Get the user's initials
      */
@@ -89,9 +101,9 @@ class User extends Authenticatable implements FilamentUser
             ->implode('');
     }
 
-    public function canAccessPanel(Panel $panel): bool
-    {
-        return $this->jabatan === 'admin';
-    }
+    // public function canAccessPanel(Panel $panel): bool
+    // {
+    //     return $this->jabatan === 'admin';
+    // }
 }
 
