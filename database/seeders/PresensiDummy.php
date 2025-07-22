@@ -14,7 +14,7 @@ class PresensiDummy extends Seeder
      */
     public function run(): void
     {
-        $users = DB::table('users')->select('id', 'name')->where('jabatan', '!=', 'admin')->get();
+        $users = DB::table('users')->select('id', 'name')->get();
 
         $status = ['masuk', 'terlambat', 'ijin', 'sakit', 'tidak_masuk'];
         $sesiPresensi = ['pagi', 'siang'];

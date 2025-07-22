@@ -18,7 +18,6 @@ class AdminDummy extends Seeder
             'name' => 'Admin',
             'email' => 'admin@example.com',
             'password' => Hash::make('admin123'),
-            'jabatan' => 'admin'
         ]);
     }
 }
