@@ -25,13 +25,22 @@ return new class extends Migration
             $table->date('birth_date')->nullable();
             $table->enum('gender', Gender::toArray())->nullable(); //changes
             $table->string('phone_number')->nullable();
-            $table->enum('jabatan', Jabatan::toArray())->default(Jabatan::Hr); //changes
-            $table->enum('tipe', Tipe::toArray())->nullable(); //changes
             $table->string('departmen')->nullable();
+            $table->date('tanggal_masuk')->nullable();
             $table->date('tanggal_masuk_sebagai_karyawan')->nullable();
             $table->string('rekening_bank')->nullable();
-            $table->string('gaji_pokok_bulanan')->nullable();
-            $table->string('tunjangan_kehadiran_harian')->nullable();
+            $table->unsignedBigInteger('jabatan_id')->nullable();
+            $table->foreign('jabatan_id')
+                ->references('id')
+                ->on('jabatan')
+                ->nullOnDelete()
+                ->cascadeOnUpdate();
+            $table->unsignedBigInteger('tipe_id')->nullable();
+            $table->foreign('tipe_id')
+                ->references('id')
+                ->on('tipe')
+                ->nullOnDelete()
+                ->cascadeOnUpdate();
             $table->rememberToken();
             $table->timestamps();
         });
