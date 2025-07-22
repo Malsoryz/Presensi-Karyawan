@@ -16,31 +16,39 @@ class Config extends Model
         'value',
     ];
 
-    public static function timezone(): ?string
+    public static function timezone($default = null): ?string
     {
-        return self::where('name', 'timezone')->value('value');
+        return self::where('name', 'timezone')->value('value') ?? $default;
     }
 
     public static function get(string $name, $default = null): ?string
     {
-        $result = self::where('name', $name)->value('value');
-
-        if ($result == null) {
-            return $default;
-        }
-
-        return $result;
+        return self::where('name', $name)->value('value') ?? $default;
     }
 
-    public static function getTime(string $name, $default = null): ?string
+    public static function getTime(string $name, $default = null): Carbon
     {
         $result = self::where('name', $name)->value('value');
-
+        
         if ($result == null) {
             return $default;
         }
+        
+        return Carbon::createFromTimeString($result, self::timezone());
+    }
 
-        return Carbon::parse($result, self::get('timezone', 'Asia/Makassar'))->format('H:i:s');
+    public static function presencesTime(): array
+    {
+        return [
+            'pagiMulai' => self::getTime('presensi_pagi_mulai', '08:00:00'),
+            'pagiSelesai' => self::getTime('presensi_pagi_selesai', '09:00:00'),
+            'siangMulai' => self::getTime('presensi_siang_mulai', '14:00:00'),
+            'siangSelesai' => self::getTime('presensi_siang_selesai', '15:00:00'),
+            'toleransi' => (int) self::get('toleransi_presensi', 0),
+            'timezone' => self::timezone(),
+            'mulaiKerja' => self::getTime('jam_mulai_kerja', '08:00:00'),
+            'pulangKerja' => Carbon::createFromTimeString('17:00:00', self::timezone()),
+        ];
     }
 
     public static function set(string $name, $value): bool

@@ -138,43 +138,35 @@ class PresensiControllers extends Controller
         // user
         $user = Auth::user();
 
-        // dapatkan waktu sekarang dan timezone
-        $timezone = Config::get('timezone', 'Asia/Makassar');
+        // dekonstruksi array dari model
+        extract(Config::presencesTime());
+
         $now = now($timezone);
 
-        // arrow function
-        $cftsFromConfig = fn (string $name, string $default) => Carbon::createFromTimeString(Config::getTime($name, $default), $timezone);
-
-        // jam presensi
-        $pagiMulai = $cftsFromConfig('presensi_pagi_mulai', '08:00:00');
-        $pagiSelesai = $cftsFromConfig('presensi_pagi_selesai', '09:00:00');
-        $siangMulai = $cftsFromConfig('presensi_siang_mulai', '14:00:00');
-        $siangSelesai = $cftsFromConfig('presensi_siang_selesai', '15:00:00');
-        $toleransi = (int) Config::get('toleransi_presensi', 0);
-        $pulangKerja = Carbon::createFromTimeString('17:00:00', $timezone);
-
-        // waktu presensi
-        $presensiSession = SPI::BELUM_MULAI; // satu hari kerja. untuk mengetahui apakah masih bisa presensi # 1
-        if ($now->between($pagiMulai, $pulangKerja)) $presensiSession = SPI::SESI_PRESENSI;
-        if ($now->gt($pulangKerja)) $presensiSession = SPI::SELESAI;
+        // satu hari kerja. untuk mengetahui apakah masih bisa presensi # 1
+        $presensiSession = match (true) {
+            $now->between($pagiMulai, $pulangKerja) => SPI::SESI_PRESENSI,
+            $now->gt($pulangKerja) => SPI::SELESAI,
+            default => SPI::BELUM_MULAI,
+        };
 
         $isAfterPagi = $now->between($pagiSelesai->copy()->addMinutes($toleransi), $siangMulai);
         $isAfterSiang = $now->between($siangSelesai->copy()->addMinutes($toleransi), $pulangKerja);
 
-        $statusPresensi = SP::BELUM; // Status Presensi # 2 perlu diambil ->value
-        if ($presensiSession) {
-            $statusPresensi = SP::MASUK;
-        }
-        if ($isAfterPagi || $isAfterSiang) {
-            $statusPresensi = SP::TERLAMBAT;
-        }
-        if ($now->gt($pulangKerja)) {
-            $statusPresensi = SP::TIDAK_MASUK;
-        }
+        // Status Presensi # 2 perlu diambil ->value
+        $statusPresensi = match (true) {
+            $presensiSession => SP::MASUK,
+            $isAfterPagi || $isAfterSiang => SP::TERLAMBAT,
+            $now->gt($pulangKerja) => SP::TIDAK_MASUK,
+            default => SP::BELUM,
+        };
         
-        $sessionType = JP::NONE; // mendapatkan sesi sekarang, default value null # 4
-        if ($now->between($pagiMulai, $siangMulai)) $sessionType = JP::PAGI;
-        if ($now->between($siangMulai, $pulangKerja)) $sessionType = JP::SIANG;
+        // mendapatkan sesi sekarang, default value null # 4
+        $sessionType = match (true) {
+            $now->between($pagiMulai, $siangMulai) => JP::PAGI,
+            $now->between($siangMulai, $pulangKerja) => JP::SIANG,
+            default => JP::NONE,
+        };
 
         // cek apakah sudah presensi hari ini # 3
         $session = $now->lt($siangMulai) ? JP::PAGI : JP::SIANG;       
