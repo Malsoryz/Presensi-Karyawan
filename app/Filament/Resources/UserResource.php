@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Models\User;
-use App\Enums\User\Jabatan;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 
@@ -137,8 +136,7 @@ class UserResource extends Resource
             ])
             ->defaultSort('name')
             ->filters([
-                SelectFilter::make('jabatan')
-                    ->options(Jabatan::toSelectItem())
+                
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
