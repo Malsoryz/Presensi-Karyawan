@@ -44,7 +44,7 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Tabs::make('User Forms')
-                    ->contained(false)
+                    // ->contained(false)
                     ->tabs([
                         Tab::make('Profile')
                             ->schema([
@@ -130,13 +130,10 @@ class UserResource extends Resource
                 TextColumn::make('name')
                     ->label('Nama')
                     ->searchable(),
+                TextColumn::make('jabatan')
+                    ->label('Role'),
                 TextColumn::make('email')
                     ->label('Email'),
-                TextColumn::make('address')
-                    ->label('Alamat')
-                    ->wrap(),
-                TextColumn::make('jabatan')
-                    ->label('Role')
             ])
             ->defaultSort('name')
             ->filters([
