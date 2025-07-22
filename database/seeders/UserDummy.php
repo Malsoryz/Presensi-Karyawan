@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Enums\User\Jabatan;
+
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -42,7 +44,7 @@ class UserDummy extends Seeder
                 'name' => $user['name'],
                 'email' => $user['email'],
                 'password' => Hash::make('defaultpass'),
-                'jabatan' => 'karyawan'
+                'jabatan' => Jabatan::Junior->value,
             ]);
         }
     }

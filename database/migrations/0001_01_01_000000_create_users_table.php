@@ -1,5 +1,9 @@
 <?php
 
+use App\Enums\User\Jabatan;
+use App\Enums\User\Tipe;
+use App\Enums\User\Gender;
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,9 +23,10 @@ return new class extends Migration
             $table->string('password');
             $table->text('address')->nullable();
             $table->date('birth_date')->nullable();
-            $table->enum('gender', ['male', 'female'])->nullable();
+            $table->enum('gender', Gender::toArray())->nullable(); //changes
             $table->string('phone_number')->nullable();
-            $table->enum('jabatan', ['karyawan', 'admin'])->default('admin');
+            $table->enum('jabatan', Jabatan::toArray())->default(Jabatan::Hr); //changes
+            $table->enum('tipe', Tipe::toArray())->nullable(); //changes
             $table->string('departmen')->nullable();
             $table->date('tanggal_masuk_sebagai_karyawan')->nullable();
             $table->string('rekening_bank')->nullable();
