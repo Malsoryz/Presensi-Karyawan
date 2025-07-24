@@ -23,25 +23,28 @@ class Tipe extends Component implements HasForms, HasTable
         return $table
             ->query(Tp::query())
             ->columns([
-                Tables\Columns\TextColumn::make('nama_tipe')->label('Nama Tipe')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('nama_tipe')
+                    ->label('Nama Tipe')
+                    ->sortable(),
             ])
             ->headerActions([
-                Tables\Actions\Action::make('create')
-                    ->label('Tambah Tipe')
-                    ->button()
+                Tables\Actions\CreateAction::make()
+                    ->model(Tp::class)
+                    ->label('Add Type')
                     ->modalHeading('Tambah Tipe')
                     ->form([
-                        TextInput::make('nama_tipe')->required()->label('Nama Tipe'),
-                    ])
-                    ->action(function (array $data) {
-                        Tp::create($data);
-                    }),
+                        TextInput::make('nama_tipe')
+                            ->required()
+                            ->label('Nama Tipe'),
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->modalHeading('Edit Tipe')
+                    ->modalHeading(fn (Tp $record) => 'Edit ' . $record->nama_tipe)
                     ->form([
-                        TextInput::make('nama_tipe')->required()->label('Nama Tipe'),
+                        TextInput::make('nama_tipe')
+                            ->required()
+                            ->label('Nama Tipe'),
                     ]),
                 Tables\Actions\DeleteAction::make(),
             ])

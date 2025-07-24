@@ -12,7 +12,11 @@ use Filament\Tables\Table;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Artisan;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Actions\Action;
+
+use Filament\Notifications\Notification;
 use Illuminate\Support\HtmlString;
 use Carbon\Carbon;
 
@@ -47,6 +51,20 @@ class HariKerja extends Component implements HasForms, HasTable
                 TextColumn::make('total_hari_kerja')
                     ->label('Total Hari Kerja'),
             ])
+            ->emptyStateHeading('No working days are known.')
+            ->emptyStateDescription(!HK::exists() ? 'no working days at all, try reloading.' : null)
+            ->emptyStateActions(!HK::exists() ? [
+                Action::make('reload')
+                    ->label('Reload')
+                    ->action(function () {
+                        Artisan::call('workday:update');
+                        Notification::make()
+                            ->title('Update Success!')
+                            ->body('Successfully update workday list')
+                            ->success()
+                            ->send();
+                    }),
+            ] : [])
             ->filters([
                 //
             ])
