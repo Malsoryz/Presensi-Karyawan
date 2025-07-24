@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 
+use App\Enums\User\Gender;
+
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -20,11 +22,14 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
 
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+
+use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
@@ -58,10 +63,7 @@ class UserResource extends Resource
                                 DatePicker::make('birth_date')
                                     ->label('Date of birth'),
                                 Radio::make('gender')
-                                    ->options([
-                                        'male' => 'Laki-Laki',
-                                        'female' => 'Perempuan',
-                                    ])
+                                    ->options(Gender::toSelectItem())
                                     ->inline()
                                     ->inlineLabel(false),
                                 TextInput::make('phone_number')
@@ -76,47 +78,55 @@ class UserResource extends Resource
                         Tab::make('Credential')
                             ->schema([
                                 TextInput::make('password')
-                                    ->label('Password')
-                                    ->required()
+                                    ->label(fn (string $operation) => $operation === 'create' ? 'Password' : 'New Password')
                                     ->password()
-                                    ->revealable()
-                                    ->minLength(8)
-                                    ->visibleOn('create'),
+                                    ->required(fn (string $operation) => $operation === 'create')
+                                    ->confirmed()
+                                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                                    ->dehydrated(fn ($state) => filled($state))
+                                    ->maxLength(255)
+                                    ->revealable(),
 
-                                // untuk mengubah password
-                                Placeholder::make('Change password')
-                                    ->visibleOn('edit'),
-                                TextInput::make('password')
-                                    ->label('New password')
-                                    ->password()
-                                    ->revealable()
-                                    ->minLength(8)
-                                    ->same('password_confirmation')
-                                    ->visibleOn('edit'),
                                 TextInput::make('password_confirmation')
-                                    ->label('Retype password')
+                                    ->label('Confirm Password')
                                     ->password()
-                                    ->revealable()
-                                    ->minLength(8)
-                                    ->same('password')
-                                    ->visibleOn('edit'),
+                                    ->required(fn (string $operation) => $operation === 'create')
+                                    ->visible(fn (string $operation) => in_array($operation, ['create', 'edit']))
+                                    ->maxLength(255)
+                                    ->revealable(),
                             ]),
                         Tab::make('Data Karyawan')
                             ->schema([
-                                TextInput::make('jabatan')
-                                    ->label('Jabatan'),
+                                Select::make('jabatan_id')
+                                    ->label('Jabatan')
+                                    ->relationship(name: 'jabatan', titleAttribute: 'nama')
+                                    ->disabled(fn (string $operation) => $operation === 'edit'),
                                 TextInput::make('departmen')
                                     ->label('Departmen'),
+                                Select::make('tipe_id')
+                                    ->label('Tipe')
+                                    ->relationship(name: 'tipe', titleAttribute: 'nama_tipe')
+                                    ->disabled(fn (string $operation) => $operation === 'edit'),
+                                DatePicker::make('tanggal_masuk')
+                                    ->label('Tanggal masuk')
+                                    ->visibleOn('edit')
+                                    ->disabled(fn (string $operation) => $operation === 'edit'),
                                 DatePicker::make('tanggal_masuk_sebagai_karyawan')
-                                    ->label('Tanggal masuk sebagai karyawan'),
+                                    ->label('Tanggal masuk sebagai karyawan')
+                                    ->visibleOn('edit')
+                                    ->disabled(fn (string $operation) => $operation === 'edit'),
                                 TextInput::make('rekening_bank')
                                     ->label('Rekening bank'),
                                 TextInput::make('gaji_pokok_bulanan')
                                     ->label('Gaji pokok bulanan')
-                                    ->numeric(),
+                                    ->numeric()
+                                    ->visibleOn('edit')
+                                    ->disabled(fn (string $operation) => $operation === 'edit'),
                                 TextInput::make('tunjangan_kehadiran_harian')
                                     ->label('Tunjangan kehadiran harian')
-                                    ->numeric(),
+                                    ->numeric()
+                                    ->visibleOn('edit')
+                                    ->disabled(fn (string $operation) => $operation === 'edit'),
                             ]),
                     ])
             ]);
@@ -129,7 +139,7 @@ class UserResource extends Resource
                 TextColumn::make('name')
                     ->label('Nama')
                     ->searchable(),
-                TextColumn::make('jabatan')
+                TextColumn::make('jabatan.nama')
                     ->label('Role'),
                 TextColumn::make('email')
                     ->label('Email'),
