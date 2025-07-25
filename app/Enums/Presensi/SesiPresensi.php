@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Enums;
+namespace App\Enums\Presensi;
 
 use App\Models\HariLibur as HL;
 use App\Models\Config as CFG;
 
-enum SesiPresensi: string {
-    case LIBUR = 'libur';
-    case BELUM_MULAI = 'belum mulai';
-    case SESI_PRESENSI = 'sesi presensi';
-    case SELESAI = 'selesai';
+enum SesiPresensi: int {
+    case Libur = 2;
+    case None = 0;
+    case SesiPresensi = 1;
 
     public function message(): string
     {
@@ -22,10 +21,17 @@ enum SesiPresensi: string {
             "Tidak ada presensi hari ini karena hari <strong>minggu.</strong>";
 
         return match ($this) {
-            SesiPresensi::LIBUR => $liburMessage,
-            SesiPresensi::BELUM_MULAI => 'Sesi presensi belum dimulai.',
-            SesiPresensi::SESI_PRESENSI => 'Sesi presensi sedang berlangsung.',
-            SesiPresensi::SELESAI => 'Sesi presensi telah selesai.',
+            SesiPresensi::Libur => $liburMessage,
+            SesiPresensi::None => 'Tidak ada sesi presensi.',
+            SesiPresensi::SesiPresensi => 'Sesi presensi sedang berlangsung.',
+        };
+    }
+
+    public function isSession(): bool
+    {
+        return match ($this) {
+            SesiPresensi::SesiPresensi => true,
+            default => false,
         };
     }
 }
