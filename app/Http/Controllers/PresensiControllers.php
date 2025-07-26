@@ -22,15 +22,18 @@ class PresensiControllers extends Controller
 {
     public function index(Request $request)
     {
-        $presensi = (object) $this->check();
-
+        
         // if ((Auth::check() || $request->hasCookie('user')) && $presensi->isPresence) {
-        //     session()->flash('info', 'anda telah presensi');
-        // }
-
-        // if (condition) {
-        //     # code...
-        // }
+            //     session()->flash('info', 'anda telah presensi');
+            // }
+            
+            // if (condition) {
+                //     # code...
+                // }
+                
+        if (Auth::check() || $request->hasCookie('user')) {
+            $presensi = (object) $this->check();
+        }
 
         // default view atau untuk yang belum login
         return view('presensi');
