@@ -1,4 +1,4 @@
-<x-layout title="Presensi" x-data x-init="updateUser">
+<x-layout title="Presensi" x-data x-init="$store.presensi.updateUser()">
     <x-slot name="header">
         {{-- Untuk menampilkan nama user yang login --}}
         <div class="navbar px-8 py-4 w-full fixed top-0 left-0 right-0">
@@ -40,9 +40,9 @@
                     </div>
                     <div class="card glassmorphism w-72 h-72">
                         <div 
-                            x-data="svgRefresh()" 
+                            x-data="refreshQrCode" 
                             x-init="start()" 
-                            x-html="svg"
+                            x-html="$store.presensi.qrCode"
                         ></div>
                     </div>
                     <div 
@@ -68,68 +68,60 @@
             message: '',
             isDetected: false,
             intervalId: null,
+            qrCode: '',
+            updateUser() {
+                // Cegah polling ganda
+                if (this.intervalId) return;
+
+                this.getData();
+                this.intervalId = setInterval(() => {
+                    console.log('memuat ulang');
+                    this.getData();
+                }, 3000);
+            },
+            getData() {
+                axios.get("{{ route('presensi.get-user') }}")
+                    .then(res => {
+                        if (res.data.user) {
+                            Object.assign(this.user, res.data.user);
+                        }
+                        this.message = res.data.message;
+                        this.isDetected = res.data.is_detected;
+
+                        // Hentikan polling jika terdeteksi
+                        if (this.isDetected) {
+                            console.log(`user ${this.user.name} terdeteksi`);
+                            clearInterval(this.intervalId);
+                            this.intervalId = null;
+                            console.log('Polling dihentikan karena user terdeteksi');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Gagal melakukan request: ', err);
+                    });
+            }
         }));
-    });
 
-    function updateUser() {
-        const store = Alpine.store('presensi');
-
-        // Cegah polling ganda
-        if (store.intervalId) return;
-
-        getData();
-        store.intervalId = setInterval(() => {
-            console.log('memuat ulang');
-            getData();
-        }, 3000);
-    }
-
-    function getData() {
-        const store = Alpine.store('presensi');
-
-        // Cegah polling ganda
-        axios.get("{{ route('presensi.get-user') }}")
-            .then(res => {
-                if (res.data.user) {
-                    Object.assign(store.user, res.data.user);
-                }
-                store.message = res.data.message;
-                store.isDetected = res.data.is_detected;
-                console.log('user ' + store.user.name);
-                console.log('is detected ' + store.is_detected);
-
-                // Hentikan polling jika terdeteksi
-                if (store.isDetected) {
-                    console.log('user ' + store.user.name);
-                    clearInterval(store.intervalId);
-                    store.intervalId = null;
-                    console.log('Polling dihentikan karena user terdeteksi');
-                }
-            });
-    }
-
-    function svgRefresh() {
-        return {
-            svg: '',
+        Alpine.data('refreshQrCode', () => ({
             start() {
-                console.log('Memulai membuat qr code baru');
-                this.loadSvg();
+                console.log('Membuat qr code baru');
+                this.loadQrCode();
                 setInterval(() => {
                     console.log('membuat qr code baru');
-                    this.loadSvg();
+                    this.loadQrCode();
                 }, 60000);
             },
-            loadSvg() {
+            loadQrCode() {
                 axios.get("{{ route('presensi.getqr') }}")
                     .then(res => {
-                        this.svg = res.data;
+                        Alpine.store('presensi').qrCode = res.data;
                     })
                     .catch(err => {
                         console.error('Gagal memuat svg: ', err);
                     });
             }
-        }
-    }
+        }));
+    });
 </script>
 </x-slot>
 
