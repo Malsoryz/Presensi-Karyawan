@@ -1,19 +1,6 @@
 <x-layout title="Presensi" x-data x-init="$store.presensi.updateUser()">
     <x-slot name="header">
-        {{-- Untuk menampilkan nama user yang login --}}
-        <div class="navbar px-8 py-4 w-full fixed top-0 left-0 right-0">
-            <div class="navbar-start">
-                <button class="btn btn-soft">Login</button>
-            </div>
-            <div class="navbar-end">
-                <div>
-                    <span 
-                        class="btn btn-soft"
-                        x-text="$store.presensi.user?.name"
-                    ></span>
-                </div>
-            </div>
-        </div>
+        <x-presensi.header/>
     </x-slot>
     
     <main class="min-h-screen w-full flex items-center justify-center">
@@ -67,6 +54,7 @@
             user: {},
             message: '',
             isDetected: false,
+            isLogin: false,
             intervalId: null,
             qrCode: '',
             updateUser() {
@@ -87,6 +75,7 @@
                         }
                         this.message = res.data.message;
                         this.isDetected = res.data.is_detected;
+                        this.isLogin = res.data.is_login;
 
                         // Hentikan polling jika terdeteksi
                         if (this.isDetected) {
