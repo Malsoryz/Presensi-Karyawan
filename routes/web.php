@@ -37,7 +37,7 @@ Route::prefix('presensi')->controller(PresensiControllers::class)->group(functio
         ->middleware('auth');
     Route::get('/get-qr', 'getQr')
         ->name('presensi.getqr');
-        Route::get('/get-user', 'getUser')
+    Route::get('/get-user', 'getUser')
         ->name('presensi.get-user');
         
     Route::get('/check-cookie', 'checkCookie')
