@@ -27,6 +27,12 @@ class PresensiControllers extends Controller
         // if ((Auth::check() || $request->hasCookie('user')) && $presensi->isPresence) {
         //     session()->flash('info', 'anda telah presensi');
         // }
+
+        // if (condition) {
+        //     # code...
+        // }
+
+        // default view atau untuk yang belum login
         return view('presensi');
     }
 
@@ -46,13 +52,13 @@ class PresensiControllers extends Controller
                 ->with('info', 'bukan waktu presensi');
         }
 
+        $user = Auth::user();
         if ($presensi->isPresence) {
             return redirect()
                 ->route('presensi.index')
-                ->with('info', 'anda sudah presensi sehingga tidak perlu');
+                ->with('info', "hari ini $user->name telah melakukan presensi");
         }
 
-        $user = Auth::user();
         if ($presensi->presenceType !== null && $presensi->presenceStatus !== null) {
             $user->presensis()->create([
                 'nama_karyawan' => $user->name,
@@ -68,28 +74,32 @@ class PresensiControllers extends Controller
 
         return redirect()
             ->route('presensi.index')
-            ->with('info', 'telah presensi');
+            ->with('info', "$user->name melakukan presensi");
     }
 
     public function getQr()
     {
         $token = Str::uuid();
         Cache::put("token_{$token}", true, now()->addMinutes(1));
-        Cookie::queue(Cookie::forget('token_browser'));
         Cookie::queue('browser_token', $token, 1);
         $svg = QrCode::size(256)->generate(route('presensi.store', ['token' => $token]));
         return response($svg, 200)
             ->header('Content-Type', 'image/svg+xml');
             // agar yang dikembalikan adalah svg
     }
-
+    
     public function getUser(Request $request)
     {
         if (Auth::check()) {
             $user = Auth::user();
+            if (!$request->hasCookie('user')) {
+                Cookie::queue('user', $user->id, 43200);
+                Cookie::queue(Cookie::forget('browser_token'));
+            }
             return response()->json([
                 'message' => 'user '.$user->name.' menggunakan token',
                 'is_detected' => true,
+                'is_login' => Auth::check(),
                 'user' => [
                     'name' => $user->name,
                     // dan data lain lainnya
@@ -105,6 +115,7 @@ class PresensiControllers extends Controller
             return response()->json([
                 'message' => 'user '.$user->name.' menggunakan token',
                 'is_detected' => true,
+                'is_login' => Auth::check(),
                 'user' => [
                     'name' => $user->name,
                     // dan data lain lainnya
@@ -115,14 +126,15 @@ class PresensiControllers extends Controller
 
         // buat jika tidak ada
         $cookieToken = $request->cookie('browser_token');
-        if (Cache::has("scanned_{$cookieToken}")) {
+        if ($cookieToken && Cache::has("scanned_{$cookieToken}")) {
             $userId = Cache::get("scanned_{$cookieToken}");
             $user = User::find($userId);
             Cookie::queue('user', $userId, 43200);
-            Cookie::queue(Cookie::forget('token_browser'));
+            Cookie::queue(Cookie::forget('browser_token'));
             return response()->json([
                 'message' => 'user '.$user->name.' menggunakan token',
                 'is_detected' => true,
+                'is_login' => Auth::check(),
                 'user' => [
                     'name' => $user->name,
                     // dan data lain lainnya
@@ -130,6 +142,7 @@ class PresensiControllers extends Controller
                 ],
             ]);
         }
+
 
         // jika browser token sama sekali tidak ada
         return response()->json([
@@ -145,7 +158,11 @@ class PresensiControllers extends Controller
 
     public function test()
     {
-        return dd($this->check());
+        return dd([
+            'isLogin' => Auth::check(),
+            'isUsingCookie' => request()->hasCookie('user'),
+        ]);
+        // return dd($this->check());
     }
 
     private function check(): array
@@ -209,7 +226,6 @@ class PresensiControllers extends Controller
             'presenceType' => $sessionType,
 
             'timezone' => $timezone,
-            'user' => $user,
         ];
     }
 }
