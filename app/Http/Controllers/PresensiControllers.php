@@ -20,8 +20,13 @@ use App\Enums\Presensi\SesiPresensi;
 
 class PresensiControllers extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $presensi = (object) $this->check();
+
+        // if ((Auth::check() || $request->hasCookie('user')) && $presensi->isPresence) {
+        //     session()->flash('info', 'anda telah presensi');
+        // }
         return view('presensi');
     }
 
@@ -41,6 +46,12 @@ class PresensiControllers extends Controller
                 ->with('info', 'bukan waktu presensi');
         }
 
+        if ($presensi->isPresence) {
+            return redirect()
+                ->route('presensi.index')
+                ->with('info', 'anda sudah presensi sehingga tidak perlu');
+        }
+
         $user = Auth::user();
         if ($presensi->presenceType !== null && $presensi->presenceStatus !== null) {
             $user->presensis()->create([
@@ -49,9 +60,10 @@ class PresensiControllers extends Controller
                 'status' => $presensi->presenceStatus->value,
                 'ip_address' => $request->ip(),
             ]);
+            Cookie::queue('user', $user->id, 43200);
         }
 
-        Cache::put("scanned_{$token}", $user, now()->addMinutes(1));
+        Cache::put("scanned_{$token}", $user->id, now()->addMinutes(1));
         Cache::forget("token_{$token}");
 
         return redirect()
@@ -63,32 +75,59 @@ class PresensiControllers extends Controller
     {
         $token = Str::uuid();
         Cache::put("token_{$token}", true, now()->addMinutes(1));
+        Cookie::queue(Cookie::forget('token_browser'));
         Cookie::queue('browser_token', $token, 1);
         $svg = QrCode::size(256)->generate(route('presensi.store', ['token' => $token]));
-        return response($svg, 200)->header('Content-Type', 'image/svg+xml');
+        return response($svg, 200)
+            ->header('Content-Type', 'image/svg+xml');
+            // agar yang dikembalikan adalah svg
     }
 
     public function getUser(Request $request)
     {
-        // ambil jika ada
+        if (Auth::check()) {
+            $user = Auth::user();
+            return response()->json([
+                'message' => 'user '.$user->name.' menggunakan token',
+                'is_detected' => true,
+                'user' => [
+                    'name' => $user->name,
+                    // dan data lain lainnya
+                    // yang diperlukan dari user
+                ],
+            ]);
+        }
+
+        // ambil jika ada dari cookie
         if ($request->hasCookie('user')) {
             $userId = $request->cookie('user');
             $user = User::find($userId);
             return response()->json([
                 'message' => 'user '.$user->name.' menggunakan token',
                 'is_detected' => true,
+                'user' => [
+                    'name' => $user->name,
+                    // dan data lain lainnya
+                    // yang diperlukan dari user
+                ],
             ]);
         }
 
         // buat jika tidak ada
         $cookieToken = $request->cookie('browser_token');
         if (Cache::has("scanned_{$cookieToken}")) {
-            $user = Cache::get("scanned_{$cookieToken}");
-            Cookie::queue('user', $user->id, 43200);
+            $userId = Cache::get("scanned_{$cookieToken}");
+            $user = User::find($userId);
+            Cookie::queue('user', $userId, 43200);
             Cookie::queue(Cookie::forget('token_browser'));
             return response()->json([
                 'message' => 'user '.$user->name.' menggunakan token',
                 'is_detected' => true,
+                'user' => [
+                    'name' => $user->name,
+                    // dan data lain lainnya
+                    // yang diperlukan dari user
+                ],
             ]);
         }
 
@@ -104,10 +143,18 @@ class PresensiControllers extends Controller
         return var_dump($request->cookie('user'));
     }
 
+    public function test()
+    {
+        return dd($this->check());
+    }
+
     private function check(): array
     {
         // user
-        $user = Auth::user();
+        // agar jika dalam keadaan belum login
+        // data user didapat dari cookie
+        $userId = request()->cookie('user');
+        $user = Auth::user() ?? User::find($userId);
 
         // dekonstruksi array dari model
         extract(Config::presencesTime());
@@ -141,7 +188,7 @@ class PresensiControllers extends Controller
 
         // cek apakah sudah presensi hari ini # 3
         $session = $now->lt($siangMulai) ? JenisPresensi::Pagi : JenisPresensi::Siang;       
-        $isPresence = Presensi::where('nama_karyawan', $user->name)
+        $isPresence = Presensi::where('nama_karyawan', $user->name ?? '')
                 ->where('jenis_presensi', $session->value)
                 ->whereDate('tanggal', $now->toDateString())
                 ->exists();
@@ -150,11 +197,9 @@ class PresensiControllers extends Controller
             'presenceStartTime' => Carbon::parse($pagiMulai),
 
             // sesi presensi nya, atau status waktu presensi
-            // contohnya BELUM, SESI_PRESENSI dan SELESAI
             'presenceSession' => $presensiSession,
 
             // status presensi atau misalnya
-            // MASUK, IJIN, dan dll
             'presenceStatus' => $statusPresensi,
 
             // apakah sudah presensi?
