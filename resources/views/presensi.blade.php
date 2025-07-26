@@ -1,6 +1,19 @@
-<x-layout title="Presensi">
+<x-layout title="Presensi" x-data x-init="updateUser">
     <x-slot name="header">
-        <x-presensi.header/>
+        {{-- Untuk menampilkan nama user yang login --}}
+        <div class="navbar px-8 py-4 w-full fixed top-0 left-0 right-0">
+            <div class="navbar-start">
+                <button class="btn btn-soft">Login</button>
+            </div>
+            <div class="navbar-end">
+                <div>
+                    <span 
+                        class="btn btn-soft"
+                        x-text="$store.presensi.user?.name"
+                    ></span>
+                </div>
+            </div>
+        </div>
     </x-slot>
     
     <main class="min-h-screen w-full flex items-center justify-center">
@@ -34,9 +47,7 @@
                     </div>
                     <div 
                         class="card glassmorphism w-72 h-32"
-                        x-data="userData()"
-                        x-init="start()"
-                        x-text="message"
+                        x-text="$store.presensi.message"
                     >
                         {{-- Status --}}
 
@@ -51,35 +62,50 @@
 
 <x-slot name="scriptAfter">
 <script>
-    function userData() {
-        return {
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('presensi', Alpine.reactive({
+            user: {},
             message: '',
             isDetected: false,
             intervalId: null,
-            start() {
-                this.getData();
-                if (!this.intervalId && !this.isDetected) {
-                    this.intervalId = setInterval(() => {
-                        console.log('mendapatkan ulang data');
-                        this.getData();
+        }));
+    });
 
-                        if (this.isDetected) {
-                            clearInterval(this.intervalId);
-                            this.intervalId = null;
-                        }
-                    }, 3000);
+    function updateUser() {
+        const store = Alpine.store('presensi');
+
+        // Cegah polling ganda
+        if (store.intervalId) return;
+
+        getData();
+        store.intervalId = setInterval(() => {
+            console.log('memuat ulang');
+            getData();
+        }, 3000);
+    }
+
+    function getData() {
+        const store = Alpine.store('presensi');
+
+        // Cegah polling ganda
+        axios.get("{{ route('presensi.get-user') }}")
+            .then(res => {
+                if (res.data.user) {
+                    Object.assign(store.user, res.data.user);
                 }
-            },
-            getData() {
-                axios.get("{{ route('presensi.get-user') }}")
-                .then(res => {
-                        this.message = res.data.message;
-                        this.isDetected = res.data.is_detected;
-                        console.log(this.message);
-                        console.log('user terdeteksi: ' + this.isDetected);
-                    });
-            }
-        }
+                store.message = res.data.message;
+                store.isDetected = res.data.is_detected;
+                console.log('user ' + store.user.name);
+                console.log('is detected ' + store.is_detected);
+
+                // Hentikan polling jika terdeteksi
+                if (store.isDetected) {
+                    console.log('user ' + store.user.name);
+                    clearInterval(store.intervalId);
+                    store.intervalId = null;
+                    console.log('Polling dihentikan karena user terdeteksi');
+                }
+            });
     }
 
     function svgRefresh() {

@@ -30,10 +30,12 @@
         style="background-image: url('{{ asset('images/unsplash.jpg') }}');" 
         class="min-h-screen w-full bg-fixed bg-center bg-cover"
     >
-        <header>
-            {{ $header }}
-        </header>
-        {{ $slot }}
-        {{ $scriptAfter }}
+        <div {{ $attributes }}>
+            <header>
+                {{ $header }}
+            </header>
+            {{ $slot }}
+            {{ $scriptAfter }}
+        </div>
     </body>
 </html>

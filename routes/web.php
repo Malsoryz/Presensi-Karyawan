@@ -43,9 +43,8 @@ Route::prefix('presensi')->controller(PresensiControllers::class)->group(functio
     Route::get('/check-cookie', 'checkCookie')
         ->name('presensi.check-cookie');
 
-    Route::get('/test', function () {
-        return auth()->user()->name;
-    });
+    Route::get('/test', 'test')
+        ->name('presensi.test');
 });
 
 require __DIR__.'/auth.php';

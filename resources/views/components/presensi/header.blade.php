@@ -1,5 +1,8 @@
 @props([
-    'user' => null,
+    'xData' => '{}',
+    'xInit' => '',
+    'xText' => '',
+    'xIf' => '',
 ])
 
 <div class="navbar px-8 py-4 w-full fixed top-0 left-0 right-0">
@@ -7,6 +10,18 @@
         <button class="btn btn-soft">Login</button>
     </div>
     <div class="navbar-end">
-        <span class="btn btn-soft">{{ $user ?? 'User' }}</span>
+        <div {{ $attributes->merge([
+            'x-data' => $xData,
+            'x-init' => $xInit,
+        ]) }}>
+            <template {{ $attributes->merge([
+                'x-if' => $xIf,
+            ]) }}>
+                <span
+                    {{ $attributes->merge(['x-text' => $xText]) }}
+                    class="btn btn-soft"
+                ></span>
+            </template>
+        </div>
     </div>
 </div>
