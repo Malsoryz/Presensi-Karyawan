@@ -7,6 +7,7 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 
 use App\Enums\User\Gender;
+use App\Enums\User\Role;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -127,6 +128,12 @@ class UserResource extends Resource
                                     ->numeric()
                                     ->visibleOn('edit')
                                     ->disabled(fn (string $operation) => $operation === 'edit'),
+                            ]),
+                        Tab::make('Role')
+                            ->schema([
+                                Select::make('role')
+                                    ->label('Role')
+                                    ->options(Role::toSelectItem()),
                             ]),
                     ])
             ]);
