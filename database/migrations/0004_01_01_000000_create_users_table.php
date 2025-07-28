@@ -3,6 +3,7 @@
 use App\Enums\User\Jabatan;
 use App\Enums\User\Tipe;
 use App\Enums\User\Gender;
+use App\Enums\User\Role;
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -29,6 +30,8 @@ return new class extends Migration
             $table->date('tanggal_masuk')->nullable();
             $table->date('tanggal_masuk_sebagai_karyawan')->nullable();
             $table->string('rekening_bank')->nullable();
+            $table->boolean('status_approved')->default(0);
+            $table->enum('role', Role::toArray());
             $table->unsignedBigInteger('jabatan_id')->nullable();
             $table->foreign('jabatan_id')
                 ->references('id')

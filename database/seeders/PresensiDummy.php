@@ -7,6 +7,9 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
+use App\Enums\Presensi\StatusPresensi;
+use App\Enums\Presensi\JenisPresensi;
+
 class PresensiDummy extends Seeder
 {
     /**
@@ -16,8 +19,8 @@ class PresensiDummy extends Seeder
     {
         $users = DB::table('users')->select('id', 'name')->get();
 
-        $status = ['masuk', 'terlambat', 'ijin', 'sakit', 'tidak_masuk'];
-        $sesiPresensi = ['pagi', 'siang'];
+        $status = StatusPresensi::toArray();
+        $sesiPresensi = JenisPresensi::toArray();
 
         foreach ($users as $user) {
             foreach ($sesiPresensi as $sesi) {
