@@ -22,21 +22,45 @@ class PresensiControllers extends Controller
 {
     public function index(Request $request)
     {
+        $data = [ // default
+            'message' => "Nothing have to say.",
+            'isPresenceAllowed' => true,
+        ];
         
-        // if ((Auth::check() || $request->hasCookie('user')) && $presensi->isPresence) {
-            //     session()->flash('info', 'anda telah presensi');
-            // }
-            
-            // if (condition) {
-                //     # code...
-                // }
-                
         if (Auth::check() || $request->hasCookie('user')) {
             $presensi = (object) $this->check();
+            $now = now($presensi->timezone);
+
+            // diluar jam presensi
+            if (!$presensi->presenceSession->isSession()) {
+                $data = [
+                    'message' => match (true) {
+                        $now->lt($presensi->presenceStartTime) => "Presensi belum dimulai.",
+                        $now->gt($presensi->presenceEndTime) => "Presensi telah berakhir",
+                        default => "how?",
+                    },
+                    'isPresenceAllowed' => false,
+                    'presenceStartAt' => $now->lt($presensi->presenceStartTime) ? $presensi->presenceStartTime : null,
+                ];
+            }
+
+            // jika hari minggu atau hari libur nasional
+            if ($now->isSunday() || HariLibur::isHoliday()) {
+                $holiday = HariLibur::todayHoliday();
+                $data = [
+                    'message' => match (true) {
+                        HariLibur::isHoliday() => "Hari ini adalah hari libur nasional!",
+                        $now->isSunday() => "Sayangnya hari ini, hari minggu.",
+                        default => "how?",
+                    },
+                    'isPresenceAllowed' => false,
+                    'todayHoliday' => $holiday,
+                ];
+            }
         }
 
         // default view atau untuk yang belum login
-        return view('presensi');
+        return view('presensi', $data);
     }
 
     public function store(Request $request, string $token)
@@ -93,78 +117,63 @@ class PresensiControllers extends Controller
     
     public function getUser(Request $request)
     {
+        $user = null;
+
+        if ($request->hasCookie('browser_token')) {
+            $cookieToken = $request->cookie('browser_token');
+            if (Cache::has("scanned_{$cookieToken}")) {
+                $userId = Cache::get("scanned_{$cookieToken}");
+                $user = User::find($userId);
+                Cookie::queue('user', $userId, 43200);
+                Cookie::queue(Cookie::forget('browser_token'));
+            }
+        }
+
+        if ($request->hasCookie('user')) {
+            $userId = $request->cookie('user');
+            $user = User::find($userId);
+        }
+
         if (Auth::check()) {
             $user = Auth::user();
             if (!$request->hasCookie('user')) {
                 Cookie::queue('user', $user->id, 43200);
                 Cookie::queue(Cookie::forget('browser_token'));
             }
-            return response()->json([
-                'message' => 'user '.$user->name.' menggunakan token',
-                'is_detected' => true,
-                'is_login' => Auth::check(),
-                'user' => [
-                    'name' => $user->name,
-                    // dan data lain lainnya
-                    // yang diperlukan dari user
-                ],
-            ]);
         }
 
-        // ambil jika ada dari cookie
-        if ($request->hasCookie('user')) {
-            $userId = $request->cookie('user');
-            $user = User::find($userId);
-            return response()->json([
-                'message' => 'user '.$user->name.' menggunakan token',
-                'is_detected' => true,
-                'is_login' => Auth::check(),
-                'user' => [
-                    'name' => $user->name,
-                    // dan data lain lainnya
-                    // yang diperlukan dari user
-                ],
-            ]);
-        }
-
-        // buat jika tidak ada
-        $cookieToken = $request->cookie('browser_token');
-        if ($cookieToken && Cache::has("scanned_{$cookieToken}")) {
-            $userId = Cache::get("scanned_{$cookieToken}");
-            $user = User::find($userId);
-            Cookie::queue('user', $userId, 43200);
-            Cookie::queue(Cookie::forget('browser_token'));
-            return response()->json([
-                'message' => 'user '.$user->name.' menggunakan token',
-                'is_detected' => true,
-                'is_login' => Auth::check(),
-                'user' => [
-                    'name' => $user->name,
-                    // dan data lain lainnya
-                    // yang diperlukan dari user
-                ],
-            ]);
-        }
-
-
-        // jika browser token sama sekali tidak ada
         return response()->json([
-            'message' => 'Nothing happen.',
-            'is_detected' => false,
+            'message' => (boolean) $user ? "user {$user->name} menggunakan token" : 'Nothing happen.',
+            'is_detected' => (boolean) $user,
+            'is_login' => Auth::check(),
+            'user' => (boolean) $user ? [
+                'name' => $user->name,
+            ] : null,
         ]);
     }
 
-    public function checkCookie(Request $request)
+    public function getPresenceData(Request $request)
     {
-        return var_dump($request->cookie('user'));
+        $name = $request->query('name');
+        $accumulation = Presensi::accumulatedUser($name);
+        return response()->json([
+            'today_presences' => Presensi::today()
+                ->limit(5)
+                ->get()
+                ->toArray(),
+            'user_accumulation' => (boolean) $accumulation ? [
+                'masuk' => (int) $accumulation->total_masuk,
+                'terlambat' => (int) $accumulation->total_terlambat,
+                'ijin' => (int) $accumulation->total_ijin,
+                'sakit' => (int) $accumulation->total_sakit,
+                'tidak_masuk' => (int) $accumulation->total_tidak_masuk,
+            ] : null,
+        ]);
     }
 
     public function test()
     {
-        return dd([
-            'isLogin' => Auth::check(),
-            'isUsingCookie' => request()->hasCookie('user'),
-        ]);
+        return dd(Presensi::limit(5)->get());
         // return dd($this->check());
     }
 
@@ -193,7 +202,7 @@ class PresensiControllers extends Controller
 
         // Status Presensi # 2 perlu diambil ->value
         $statusPresensi = match (true) {
-            $presensiSession => StatusPresensi::Masuk,
+            $presensiSession->isSession() => StatusPresensi::Masuk,
             $isAfterPagi || $isAfterSiang => StatusPresensi::Terlambat,
             $now->gt($pulangKerja) => StatusPresensi::TidakMasuk,
             default => null,
@@ -214,20 +223,27 @@ class PresensiControllers extends Controller
                 ->exists();
 
         return [
-            'presenceStartTime' => Carbon::parse($pagiMulai),
+            // Carbon
+            'presenceStartTime' => $pagiMulai,
+            'presenceEndTime' => $pulangKerja,
 
             // sesi presensi nya, atau status waktu presensi
+            // enum SesiPresensi
             'presenceSession' => $presensiSession,
 
             // status presensi atau misalnya
+            // enum StatusPresensi
             'presenceStatus' => $statusPresensi,
 
             // apakah sudah presensi?
+            // boolean
             'isPresence' => $isPresence,
 
             //tipe presensi, pagi atau siang, tapi default nya none
+            // enum JenisPresensi
             'presenceType' => $sessionType,
 
+            // string
             'timezone' => $timezone,
         ];
     }
