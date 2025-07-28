@@ -38,6 +38,7 @@ class User extends Authenticatable //implements FilamentUser
         'tanggal_masuk',
         'tanggal_masuk_sebagai_karyawan',
         'rekening_bank',
+        'status_approved',
         'jabatan_id',
         'tipe_id',
     ];
@@ -72,6 +73,7 @@ class User extends Authenticatable //implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'status_approved' => 'boolean',
         ];
     }
 

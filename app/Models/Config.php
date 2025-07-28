@@ -43,7 +43,7 @@ class Config extends Model
             'pagiMulai' => self::getTime('presensi_pagi_mulai', '08:00:00'),
             'pagiSelesai' => self::getTime('presensi_pagi_selesai', '09:00:00'),
             'siangMulai' => self::getTime('presensi_siang_mulai', '14:00:00'),
-            'siangSelesai' => self::getTime('presensi_siang_selesai', '15:00:00'),
+            'siangSelesai' => self::getTime('presensi_siang_selesai', '15:00:00')->addHours(now(self::timezone())->isFriday() ? 1 : 0),
             'toleransi' => (int) self::get('toleransi_presensi', 0),
             'timezone' => self::timezone(),
             'mulaiKerja' => self::getTime('jam_mulai_kerja', '08:00:00'),

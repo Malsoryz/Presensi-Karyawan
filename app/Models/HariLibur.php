@@ -30,6 +30,12 @@ class HariLibur extends Model
         return self::whereDate('tanggal', $today)->exists();
     }
 
+    public static function todayHoliday()
+    {
+        $today = now(Cfg::timezone())->toDateString();
+        return self::whereDate('tanggal', $today)->get();
+    }
+
     public static function isSunday()
     {
         return now(Cfg::timezone())->isSunday();
