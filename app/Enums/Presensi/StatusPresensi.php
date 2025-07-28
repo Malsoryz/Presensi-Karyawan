@@ -13,7 +13,7 @@ enum StatusPresensi: string {
     case Terlambat = 'terlambat';
     case Ijin = 'ijin';
     case Sakit = 'sakit';
-    case TidakMasuk = 'tidak masuk';
+    case TidakMasuk = 'tidak_masuk';
 
     public function message(): string
     {
