@@ -59,6 +59,10 @@ class PresensiControllers extends Controller
             }
         }
 
+        if (Auth::check()) {
+            $isAdmin = (bool) Auth::user()->isAdmin();
+        }
+
         // default view atau untuk yang belum login
         return view('presensi', $data);
     }
