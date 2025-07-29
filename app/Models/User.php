@@ -7,6 +7,7 @@ use App\Models\Jabatan;
 use App\Models\Tipe;
 use App\Models\AdminNotification;
 use App\Enums\StatusPresensi;
+use App\Enums\User\Role;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -112,7 +113,12 @@ class User extends Authenticatable //implements FilamentUser
 
     public function isApproved(): bool
     {
-        return (bool) $this->status_approved;
+        return $this->status_approved;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === Role::Admin->value;
     }
 
     // public function canAccessPanel(Panel $panel): bool
