@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\Tipe;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +14,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public string $email = '';
     public string $password = '';
     public string $password_confirmation = '';
+    public int $type_id = 0;
+    public $allTypes;
+    public bool $status_approved = false;
+
+    public function mount()
+    {
+        $this->allTypes = Tipe::all();
+    }
 
     /**
      * Handle an incoming registration request.
@@ -23,15 +32,25 @@ new #[Layout('components.layouts.auth')] class extends Component {
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+            'type_id' => ['required', 'numeric'],
+            'status_approved' => ['required', 'boolean'],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
 
-        event(new Registered(($user = User::create($validated))));
+        $user = User::create($validated);
 
-        Auth::login($user);
+        event(new Registered($user));
 
-        $this->redirect(route('dashboard', absolute: false), navigate: true);
+        $user->notifications()->create([
+            'title' => "Approval Request",
+            'description' => "Approval needed for new account '{$user->name}'",
+            'type' => 'approval',
+        ]);
+
+        // Auth::login($user);
+
+        $this->redirect(route('approval.wait', ['id' => $user->id]));
     }
 }; ?>
 
@@ -79,6 +98,22 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 placeholder="Confirm password"
             />
         </div>
+
+        <div class="grid gap-2">
+            <flux:select 
+                wire:model="type"
+                id="type"
+                placeholder="{{ __('Chose type') }}"
+                name="type"
+                required
+            >
+                @foreach ($allTypes as $type)
+                    <flux:select.option value="{{ $type->id }}">{{ $type->nama_tipe }}</flux:select.option>
+                @endforeach
+            </flux:select>
+        </div>
+
+        <input wire:model="status_approved" id="status_approved" name="status_approved" type="hidden">
 
         <div class="flex items-center justify-end">
             <flux:button type="submit" variant="primary" class="w-full">
