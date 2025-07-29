@@ -146,7 +146,7 @@ class UserResource extends Resource
                 TextColumn::make('name')
                     ->label('Nama')
                     ->searchable(),
-                TextColumn::make('jabatan.nama')
+                TextColumn::make('role')
                     ->label('Role'),
                 TextColumn::make('email')
                     ->label('Email'),

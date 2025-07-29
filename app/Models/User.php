@@ -39,6 +39,7 @@ class User extends Authenticatable //implements FilamentUser
         'tanggal_masuk_sebagai_karyawan',
         'rekening_bank',
         'status_approved',
+        'role',
         'jabatan_id',
         'tipe_id',
     ];
