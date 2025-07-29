@@ -1,12 +1,17 @@
 <?php
 
-use App\Http\Controllers\Auth\VerifyEmailController;
+// use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
+use App\Livewire\Presensi\Login;
+use App\Livewire\Presensi\Approval;
+
 Route::middleware('guest')->group(function () {
-    Volt::route('login', 'auth.login')
-        ->name('login');
+    // Volt::route('login', 'auth.login')
+    //     ->name('login');
+
+    Route::get('/login', Login::class)->name('login');
 
     Volt::route('register', 'auth.register')
         ->name('register');
@@ -17,6 +22,7 @@ Route::middleware('guest')->group(function () {
     Volt::route('reset-password/{token}', 'auth.reset-password')
         ->name('password.reset');
 
+    Route::get('/approval-wait/{id}', Approval::class)->name('approval.wait');
 });
 
 // Route::middleware('auth')->group(function () {
