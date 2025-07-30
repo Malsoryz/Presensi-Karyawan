@@ -5,7 +5,7 @@
                 heading="Login ke akun mu."
                 subheading="Masukan email dan password mu untuk Log in."
             />
-            <form wire:submit="create" class="w-full">
+            <form wire:submit="create" class="w-full flex flex-col gap-8">
                 {{ $this->form }}
                 <x-filament::button class="w-full" type="submit">
                     Log in

@@ -33,6 +33,14 @@ class Login extends Component implements HasForms
                     ->required()
                     ->placeholder('email@example.com')
                     ->email(),
+                TextInput::make('password')
+                    ->label('Password')
+                    ->required()
+                    ->password()
+                    ->revealable()
+                    ->hintAction(
+                        Action::make('lupa_password?'),
+                    ),
             ])
             ->statePath('data')
             ->model(User::class);
