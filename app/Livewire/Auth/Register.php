@@ -3,14 +3,14 @@
 namespace App\Livewire\Auth;
 
 use App\Models\User;
+use App\Models\Config;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Auth;
 
 use App\Enums\User\Gender;
 use App\Enums\User\Role;
@@ -25,6 +25,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Hidden;
 
 class Register extends Component implements HasForms
 {
@@ -52,13 +53,13 @@ class Register extends Component implements HasForms
                                 ->label('Nama')
                                 ->required()
                                 ->columnSpanFull()
-                                ->placeholder('Masukkan nama lengkap Anda'),
+                                ->placeholder('i.e: Budi Hermawan'),
                             TextInput::make('email')
                                 ->label('Email')
                                 ->required()
                                 ->columnSpanFull()
                                 ->email()
-                                ->placeholder('Masukkan alamat email Anda'),
+                                ->placeholder('i.e: email@example.com'),
                             DatePicker::make('birth_date')
                                 ->label('Tanggal lahir')
                                 ->required()
@@ -82,18 +83,20 @@ class Register extends Component implements HasForms
                                 ->mask('9999 9999 9999')
                                 ->stripCharacters(' ')
                                 // ->prefix('+62')
-                                ->placeholder('Masukan nomor telepon anda'),
-                                Textarea::make('address')
+                                ->placeholder('i.e: 0812 3456 7890'),
+                            Textarea::make('address')
                                 ->label('Alamat')
                                 ->required()
                                 ->columnSpanFull()
                                 ->autosize()
                                 ->disableGrammarly()
-                                ->placeholder('Masukan alamat anda'),
+                                ->placeholder('i.e: Jalan kayutangi 2...'),
                         ]),
                     Wizard\Step::make('Credential')
                         ->description('Data penting pengguna')
                         ->schema([
+                            Hidden::make('status_approved')
+                                ->default(fn() => (bool) Config::get('auto_approve', false)),
                             Select::make('tipe_id')
                                 ->label('Tipe pengguna')
                                 ->required()
@@ -115,7 +118,7 @@ class Register extends Component implements HasForms
                         ->description('Data extra pengguna')
                         ->schema([
                             Checkbox::make('agreement')
-                                ->label('Dengan ini saya menyetujui Syarat dan Ketentuan')
+                                ->label(fn() => Config::get('aggrement_label', ''))
                                 ->dehydrated(false)
                                 ->accepted(),
                         ]),
@@ -130,13 +133,24 @@ class Register extends Component implements HasForms
             ->model(User::class);
     }
 
-    public function create(): void
+    public function register(): void
     {
         $data = $this->form->getState();
+        $user = User::create($data);
 
-        $record = User::create($data);
+        $this->form->model($user)->saveRelationships();
 
-        $this->form->model($record)->saveRelationships();
+        if (!$data['status_approved']) {
+            $user->notifications()->create([
+                'title' => "Approval request",
+                'description' => "Approval needed for new account '{$user->name}'",
+                'type' => 'approval',
+            ]);
+            $this->redirect(route('approval.wait', ['id' => $user->id]));
+        } else {
+            Auth::login($user);
+            $this->redirect(route('presensi.index'));
+        };
     }
 
     public function render(): View

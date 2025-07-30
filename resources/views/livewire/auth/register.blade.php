@@ -5,7 +5,7 @@
                 heading="Register"
                 subheading="Register akun baru."
             />
-            <form wire:submit="create">
+            <form wire:submit="register">
                 {{ $this->form }}
             </form>
             <x-filament-actions::modals />
