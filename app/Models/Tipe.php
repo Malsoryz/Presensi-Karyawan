@@ -12,6 +12,11 @@ class Tipe extends Model
 
     protected $fillable = [
         'nama_tipe',
+        'wajib_upload',
+    ];
+
+    protected $casts = [
+        'wajib_upload' => 'boolean',
     ];
 
     public function users()
