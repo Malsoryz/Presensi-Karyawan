@@ -30,4 +30,8 @@ Route::prefix('presensi')->controller(PresensiControllers::class)->group(functio
 
 Route::get('/check-approval', [AuthController::class, 'checkApproval'])->name('check.approval');
 
+Route::get('/test', function () {
+    return view('test');
+});
+
 require __DIR__.'/auth.php';
