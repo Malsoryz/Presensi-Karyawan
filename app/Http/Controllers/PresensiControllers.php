@@ -59,6 +59,10 @@ class PresensiControllers extends Controller
             }
         }
 
+        if (Auth::check()) {
+            $isAdmin = (bool) Auth::user()->isAdmin();
+        }
+
         // default view atau untuk yang belum login
         return view('presensi', $data);
     }
@@ -143,10 +147,10 @@ class PresensiControllers extends Controller
         }
 
         return response()->json([
-            'message' => (boolean) $user ? "user {$user->name} menggunakan token" : 'Nothing happen.',
-            'is_detected' => (boolean) $user,
+            'message' => (bool) $user ? "user {$user->name} menggunakan token" : 'Nothing happen.',
+            'is_detected' => (bool) $user,
             'is_login' => Auth::check(),
-            'user' => (boolean) $user ? [
+            'user' => (bool) $user ? [
                 'name' => $user->name,
             ] : null,
         ]);
@@ -161,7 +165,7 @@ class PresensiControllers extends Controller
                 ->limit(5)
                 ->get()
                 ->toArray(),
-            'user_accumulation' => (boolean) $accumulation ? [
+            'user_accumulation' => (bool) $accumulation ? [
                 'masuk' => (int) $accumulation->total_masuk,
                 'terlambat' => (int) $accumulation->total_terlambat,
                 'ijin' => (int) $accumulation->total_ijin,
@@ -236,7 +240,7 @@ class PresensiControllers extends Controller
             'presenceStatus' => $statusPresensi,
 
             // apakah sudah presensi?
-            // boolean
+            // bool
             'isPresence' => $isPresence,
 
             //tipe presensi, pagi atau siang, tapi default nya none

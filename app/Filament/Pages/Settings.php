@@ -16,6 +16,10 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\View;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\RichEditor;
+
+use Filament\Notifications\Notification as Notif;
 
 class Settings extends Page implements HasForms
 {
@@ -149,14 +153,24 @@ class Settings extends Page implements HasForms
                                             ->suffix('%'),
                                         TextInput::make('data.ambang_batas_keterlambatan')
                                             ->label('Ambang batas keterlambatan')
-                                            ->suffix('Kali')
+                                            ->suffix('Kali'),
+                                        Toggle::make('data.auto_approve'),
                                     ])
                             ]),
                         Tabs\Tab::make('Hari libur')
                             ->id('hari-libur')
                             ->schema([
                                 View::make('components.tables.hari-libur'),
-                            ])
+                            ]),
+                        Tabs\Tab::make('On Register')
+                            ->id('on-register')
+                            ->schema([
+                                Section::make()
+                                    ->schema([
+                                        RichEditor::make('data.short_term_of_service'),
+                                        TextInput::make('data.aggrement_label'),
+                                    ])
+                            ]),
                     ]),
                 Actions::make([
                     Actions\Action::make('save')
@@ -165,9 +179,12 @@ class Settings extends Page implements HasForms
                             foreach ($this->data as $name => $value) {
                                 Config::set($name, $value);
                             }
-                        })
-                        ->requiresConfirmation(),
-                ])
+                            Notif::make()
+                                ->title('Perubahan di simpan')
+                                ->success()
+                                ->send();
+                        }),
+                    ]),
             ]);
         }
 }

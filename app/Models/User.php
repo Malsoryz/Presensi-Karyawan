@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Models\Presensi;
 use App\Models\Jabatan;
 use App\Models\Tipe;
+use App\Models\AdminNotification;
 use App\Enums\StatusPresensi;
+use App\Enums\User\Role;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -83,6 +85,11 @@ class User extends Authenticatable //implements FilamentUser
         return $this->hasMany(Presensi::class);
     }
 
+    public function notifications()
+    {
+        return $this->hasMany(AdminNotification::class, 'sender_id');
+    }
+
     public function jabatan()
     {
         return $this->belongsTo(Jabatan::class);
@@ -102,6 +109,16 @@ class User extends Authenticatable //implements FilamentUser
             ->explode(' ')
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status_approved;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === Role::Admin->value;
     }
 
     // public function canAccessPanel(Panel $panel): bool

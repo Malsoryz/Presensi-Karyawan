@@ -31,14 +31,9 @@ class LoginListener
         $tomorrow = Carbon::tomorrow(Config::timezone());
         $minuteUntilTomorrow = $now->diffInMinutes($tomorrow->startOfDay());
 
-        if (request()->hasCookie('update_cookie')) {
-            Log::info("{$user->name} hari ini sudah memperbarui Cookie");
-        } else {
-            Cookie::queue('user', $user->id, 43200);
-            Cookie::queue('update_cookie', true, $minuteUntilTomorrow);
+        Cookie::queue('user', $user->id, 43200);
+        Cookie::queue('update_cookie', true, $minuteUntilTomorrow);
 
-            Log::info("{$user->name} memperbarui Cookie");
-        }
-
+        Log::info("{$user->name} memperbarui Cookie");
     }
 }

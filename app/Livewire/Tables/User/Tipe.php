@@ -3,7 +3,6 @@
 namespace App\Livewire\Tables\User;
 
 use App\Models\Tipe as Tp;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -12,6 +11,13 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
+
+use Filament\Support\Enums\Alignment;
+
+use Filament\Tables\Columns\TextColumn;
+
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Checkbox;
 
 class Tipe extends Component implements HasForms, HasTable
 {
@@ -23,19 +29,24 @@ class Tipe extends Component implements HasForms, HasTable
         return $table
             ->query(Tp::query())
             ->columns([
-                Tables\Columns\TextColumn::make('nama_tipe')
-                    ->label('Nama Tipe')
-                    ->sortable(),
+                TextColumn::make('nama_tipe')
+                    ->label('Nama Tipe'),
+                TextColumn::make('wajib_upload')
+                    ->label('Wajib upload file')
+                    ->alignment(Alignment::Center)
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'yes' : 'no' )
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->model(Tp::class)
-                    ->label('Add Type')
+                    ->label('Add new Type')
                     ->modalHeading('Tambah Tipe')
                     ->form([
                         TextInput::make('nama_tipe')
                             ->required()
                             ->label('Nama Tipe'),
+                        Checkbox::make('wajib_upload')
+                            ->label('Wajib upload file'),
                     ]),
             ])
             ->actions([
@@ -45,14 +56,16 @@ class Tipe extends Component implements HasForms, HasTable
                         TextInput::make('nama_tipe')
                             ->required()
                             ->label('Nama Tipe'),
+                        Checkbox::make('wajib_upload')
+                            ->label('Wajib upload file'),
                     ]),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\DeleteAction::make(),
             ]);
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         Tables\Actions\DeleteBulkAction::make(),
+            //     ]),
+            // ]);
     }
 
     public function render(): View

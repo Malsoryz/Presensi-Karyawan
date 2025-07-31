@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\PresensiControllers;
+use App\Http\Controllers\AuthController;
 
 Route::redirect('/', '/presensi');
 
@@ -17,14 +18,20 @@ Route::prefix('presensi')->controller(PresensiControllers::class)->group(functio
     Route::get('/get-user', 'getUser')
         ->name('presensi.get-user');
         
-    // Route::get('/check-cookie', 'checkCookie')
-    //     ->name('presensi.check-cookie');
+    Route::get('/cookie', 'checkCookie')
+        ->name('presensi.check-cookie');
 
     Route::get('/data', 'getPresenceData')
         ->name('presensi.data');
 
     Route::get('/test', 'test')
         ->name('presensi.test');
+});
+
+Route::get('/check-approval', [AuthController::class, 'checkApproval'])->name('check.approval');
+
+Route::get('/test', function () {
+    return view('test');
 });
 
 require __DIR__.'/auth.php';
