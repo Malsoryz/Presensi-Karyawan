@@ -18,11 +18,11 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/register', Auth\Register::class)->name('register');
 
-    Volt::route('forgot-password', 'auth.forgot-password')
-        ->name('password.request');
+    // Volt::route('forgot-password', 'auth.forgot-password')
+    //     ->name('password.request');
 
-    Volt::route('reset-password/{token}', 'auth.reset-password')
-        ->name('password.reset');
+    // Volt::route('reset-password/{token}', 'auth.reset-password')
+    //     ->name('password.reset');
 
     Route::get('/approval-wait/{id}', Presensi\Approval::class)->name('approval.wait');
 });

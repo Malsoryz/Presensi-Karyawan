@@ -8,6 +8,7 @@ use App\Enums\User\Role;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -30,7 +31,7 @@ return new class extends Migration
             $table->date('tanggal_masuk')->nullable();
             $table->date('tanggal_masuk_sebagai_karyawan')->nullable();
             $table->string('rekening_bank')->nullable();
-            $table->boolean('status_approved')->default(0);
+            $table->boolean('status_approved')->default(false);
             $table->enum('role', Role::toArray());
             $table->unsignedBigInteger('jabatan_id')->nullable();
             $table->foreign('jabatan_id')
@@ -62,6 +63,14 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        DB::table('users')->insert([
+            'name' => 'Admin',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('admin123'),
+            'role' => Role::Admin->value,
+            'status_approved' => true,
+        ]);
     }
 
     /**
