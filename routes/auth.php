@@ -8,14 +8,7 @@ use App\Livewire\Presensi;
 use App\Livewire\Auth;
 
 Route::middleware('guest')->group(function () {
-    // Volt::route('login', 'auth.login')
-    //     ->name('login');
-
     Route::get('/login', Auth\Login::class)->name('login');
-
-    // Volt::route('register', 'auth.register')
-    //     ->name('register');
-
     Route::get('/register', Auth\Register::class)->name('register');
 
     // Volt::route('forgot-password', 'auth.forgot-password')

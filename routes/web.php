@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Livewire\Volt\Volt;
 use App\Http\Controllers\PresensiControllers;
 use App\Http\Controllers\AuthController;
 
@@ -35,3 +34,4 @@ Route::get('/test', function () {
 });
 
 require __DIR__.'/auth.php';
+require __DIR__.'/api.php';
