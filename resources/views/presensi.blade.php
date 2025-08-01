@@ -30,7 +30,12 @@
                         ></button>
                     </template>
                 </div>
-                <div class="btn border-none bg-transparent text-glassmorphism text-white">
+                <div 
+                    class="btn border-none bg-transparent text-glassmorphism text-white"
+                    x-data="clock"
+                    x-init="startTime()"
+                    x-text="time"
+                >
                     {{-- jam --}}
                     00:00:00
                 </div>
