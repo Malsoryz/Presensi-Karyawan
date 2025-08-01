@@ -68,11 +68,13 @@ select:focus[data-flux-control] {
     @apply size-4;
 } */
 
+[x-cloak] { display: none !important; }
+
 .glassmorphism {
-    @apply bg-base-300/20 isolate shadow-xl backdrop-blur-lg border border-base-content/5;
+    @apply bg-base-300/20 isolate shadow-xl backdrop-blur-lg border border-base-content/10 hover:border-base-content/20;
 }
 
-.glassmorphism-text {
+.text-glassmorphism {
     @apply text-shadow-sm/20 mix-blend-difference;
 }
 

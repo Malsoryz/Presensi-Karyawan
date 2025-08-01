@@ -1,189 +1,138 @@
-<x-layout title="Presensi" x-data="userData" x-init="updateUser()">
+<x-layouts.presensi title="Presensi" x-data="userData" x-init="updateUser()">
     <x-slot name="header">
         <x-presensi.header/>
     </x-slot>
     
     <main class="min-h-screen w-full flex items-center justify-center">
 
-        <div class="flex flex-col gap-4">
-            <div class="card glassmorphism p-0.5 flex flex-row gap-1">
-                <template x-for="tab in $x.tab.tabs" :key="tab.id">
-                    <button
-                        x-init="$x.tab.activeTab = $x.tab.tabs[0].id"
-                        :class="$x.tab.activeTab === tab.id ? 'bg-base-300/10' : 'bg-transparent'"
-                        class="btn rounded-xl border-none card glassmorphism-text text-white"
-                        x-text="tab.label"
-                        x-on:click="$x.tab.activeTab = tab.id"
-                    ></button>
-                </template>
-            </div>
-
-            <template x-if="$x.tab.activeTab === 'tab-presensi'">
-                <div class="flex flex-row gap-4 items-stretch">
-                    <div class="flex flex-col gap-4">
-                        <div class="card glassmorphism w-72 h-32">
-                            {{-- Jam dinamis --}}
-                            @if (session('info'))
-                                {{ session('info') }}
-                            @endif
-                        </div>
-                        <div class="card glassmorphism w-72 h-72">
-                            <div 
-                                x-data="refreshQrCode" 
-                                x-init="start()" 
-                                x-html="$x.qrCode"
-                            ></div>
-                        </div>
-                        <div 
-                            class="card glassmorphism w-72 h-32"
-                            x-text="$x.message"
-                        >
-                            {{-- Status --}}
-    
-                        </div>
-                    </div>
-                    <div class="card glassmorphism w-128">
-                        @if (isset($message))
-                            {{ $message }}
-                        @endif
-                        @if (isset($isPresenceAllowed))
-                            {{ $isPresenceAllowed ? 'di ijinkan' : 'tidak di ijinkan' }}
-                        @endif
-                        @if (isset($todayHoliday))
-                            @if ((boolean) $todayHoliday)
-                                @foreach ($todayHoliday as $holiday)
-                                    {{ $holiday }},
-                                @endforeach
-                            @endif
-                        @endif
-                        @if (isset($presenceStartAt))
-                            {{ $presenceStartAt }}
-                        @endif
-                    </div>
-                </div>
-            </template>
-
-        </div>
-    </main>
-
-<x-slot name="scriptAfter">
-<script>
-    document.addEventListener('alpine:init', () => {
-        const globalStoreName = 'app';
-
-        Alpine.magic('x', () => Alpine.store(globalStoreName));
-
-        Alpine.store(globalStoreName, Alpine.reactive({
-            user: {},
-            message: '',
-            isDetected: false,
-            isLogin: false,
-            qrCode: '',
-            todayPresences: [],
-            userAccumulation: {},
-            tab: {
+        <div 
+            x-data="{
                 activeTab: '',
                 tabs: [
                     { id: 'tab-presensi', label: 'Presensi' },
                     { id: 'tab-detail', label: 'Detail' },
                 ],
-            },
-        }));
-        
-        Alpine.data('userData', () => ({
-            intervalId: null,
-            updateUser() {
-                // Cegah polling ganda
-                if (Alpine.store(globalStoreName).intervalId) return;
-    
-                this.getData();
-                this.intervalId = setInterval(() => {
-                    console.log('memuat ulang');
-                    this.getData();
-                }, 3000);
-            },
-            getData() {
-                axios.get("{{ route('presensi.get-user') }}")
-                    .then(res => {
-                        const store = Alpine.store(globalStoreName);
+            }"
+            class="flex flex-col gap-2 min-w-205 max-w-205"
+            x-cloak
+        >
+            <div
+                x-init="activeTab = tabs[0].id" 
+                class="card glassmorphism p-2 flex flex-row justify-between gap-2"
+            >
+                <div class="flex flex-row gap-2">
+                    <template x-for="tab in tabs" :key="tab.id">
+                        <button
+                            :class="activeTab === tab.id ? 'bg-base-300/10 hover:bg-base-300/20' : 'bg-transparent hover:bg-base-300/10'"
+                            class="btn border-none rounded-lg text-glassmorphism text-white"
+                            x-text="tab.label"
+                            x-on:click="activeTab = tab.id"
+                        ></button>
+                    </template>
+                </div>
+                <div class="btn border-none bg-transparent text-glassmorphism text-white">
+                    {{-- jam --}}
+                    00:00:00
+                </div>
+            </div>
 
-                        if (res.data.user) {
-                            Object.assign(store.user, res.data.user);
-                        }
-                        store.message = res.data.message;
-                        store.isDetected = res.data.is_detected;
-                        store.isLogin = res.data.is_login;
-    
-                        if (store.isDetected) {
-                            console.log(`user ${store.user.name} terdeteksi`);
-                            clearInterval(this.intervalId);
-                            this.intervalId = null;
-                            console.log('Polling dihentikan karena user terdeteksi');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Gagal melakukan request: ', err);
-                    });
-            }
-        }));
+            <div x-show="activeTab === 'tab-presensi'">
+                <div class="flex flex-row gap-2 items-stretch">
+                    <div class="flex flex-col gap-2">
+                        <div class="card glassmorphism p-2 flex items-center justify-center">
+                            <div 
+                                x-data="refreshQrCode" 
+                                x-init="start()" 
+                                x-html="qrCode"
+                                class="p-2 bg-white rounded-lg"
+                            ></div>
+                        </div>
+                        <div class="card glassmorphism p-2">
+                            {{-- Status --}}
+                            <span class="text-glassmorhism text-white text-3xl">
+                                Status: <span class="text-green-400">OnTime</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card glassmorphism p-8 w-full flex items-center justify-center">
+                        {{-- Motivasi --}}
+                        <div class="text-glassmorhism text-white text-center flex flex-col gap-8">
+                            <p class="break-words text-3xl">“ It is never too late to be what you might have been. ”</p>
+                            <span class="font-bold">George Eliot</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        Alpine.data('presencesData', () => ({
-            refresh() {
-                console.log('refresh data presensi');
-                this.getData();
-                setInterval(() => {
-                    console.log('refresh data presensi');
-                    this.getData();
-                }, 10000);
-            },
-            getData() {
-                axios.get("{{ route('presensi.data') }}", {
-                    params: { name: Alpine.store(globalStoreName).user?.name }
-                })
-                .then(res => {
-                    const store = Alpine.store(globalStoreName);
+            <div x-show="activeTab === 'tab-detail'">
+                <div
+                    x-data="presencesData"
+                    x-init="refresh()"
+                    class="flex flex-col gap-2 w-full"
+                >
+                    <div class="card glassmorphism flex flex-col overflow-x-auto">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="text-glassmorphism text-white">
+                                        Akumulasi presensi anda di tahun 2025
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="w-full flex flex-row">
+                                <tr class="flex w-full">
+                                    <th class="text-glassmorphism text-white">Username</th>
+                                    <td class="text-glassmorphism text-white flex-1 flex">
+                                        <div class="grid grid-cols-2 gap-x-6 gap-y-4 flex-1">
+                                            <div class="col-span-1 flex flex-row justify-between">
+                                                <strong>Masuk</strong>
+                                                <span x-text="userAccumulation.masuk">10x</span>
+                                            </div>
+                                            <div class="col-span-1 flex flex-row justify-between">
+                                                <strong>Terlambat</strong>
+                                                <span x-text="userAccumulation.masuk">10x</span>
+                                            </div>
+                                            <div class="col-span-1 flex flex-row justify-between">
+                                                <strong>Sakit</strong>
+                                                <span x-text="userAccumulation.masuk">10x</span>
+                                            </div>
+                                            <div class="col-span-1 flex flex-row justify-between">
+                                                <strong>Ijin</strong>
+                                                <span x-text="userAccumulation.masuk">10x</span>
+                                            </div>
+                                            <div class="col-span-1 flex flex-row justify-between">
+                                                <strong>Tidak Masuk</strong>
+                                                <span x-text="userAccumulation.masuk">10x</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card glassmorphism">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="text-glassmorphism text-white">No</th>
+                                    <th class="text-glassmorphism text-white">Nama</th>
+                                    <th class="text-glassmorphism text-white">Jam presensi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <tr>
+                                        <td class="text-glassmorphism text-white">{{ $i }}</td>
+                                        <td class="text-glassmorphism text-white">Username</td>
+                                        <td class="text-glassmorphism text-white">00:00:00</td>
+                                    </tr>
+                                @endfor
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
-                    if (res.data.user_accumulation) {
-                        Object.assign(store.userAccumulation, res.data.user_accumulation);
-                    }
-                    store.todayPresences = res.data.today_presences;
-                })
-                .catch(err => {
-                    console.error('Gagal melakukan request: ', err);
-                })
-            }
-        }));
-
-        Alpine.data('refreshQrCode', () => ({
-            start() {
-                console.log('Membuat qr code baru');
-                this.loadQrCode();
-                setInterval(() => {
-                    console.log('membuat qr code baru');
-                    this.loadQrCode();
-                }, 60000);
-            },
-            loadQrCode() {
-                axios.get("{{ route('presensi.getqr') }}")
-                    .then(res => {
-                        Alpine.store(globalStoreName).qrCode = res.data;
-                    })
-                    .catch(err => {
-                        console.error('Gagal memuat svg: ', err);
-                    });
-            }
-        }));
-    });
-</script>
-</x-slot>
-
-</x-layout>
-
-{{-- <div class="flex flex-col gap-4">
-    <div class="card glassmorphism w-128 h-64">
-        Akumulasi
-    </div>
-    <div class="card glassmorphism w-128 h-64">
-        daftar yang sudah presensi
-    </div>
-</div> --}}
+</x-layouts.presensi>
