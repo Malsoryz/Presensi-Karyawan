@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Presensi;
+namespace App\Livewire\Auth;
 
 use Livewire\Component;
 use App\Models\User;
@@ -20,6 +20,6 @@ class Approval extends Component
 
     public function render()
     {
-        return view('livewire.presensi.approval')->layout('components.layouts.auth');
+        return view('livewire.auth.approval')->layout('components.layouts.auth');
     }
 }
