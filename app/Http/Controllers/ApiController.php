@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Presensi;
+use App\Support\Inspire\Motivation;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -90,5 +91,10 @@ class ApiController extends Controller
         return response()->json([
             'is_approved' => $isApproved,
         ]);
+    }
+
+    public function motivation()
+    {
+        return response()->json(Motivation::quote());
     }
 }

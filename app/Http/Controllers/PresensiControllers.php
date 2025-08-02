@@ -14,17 +14,30 @@ use App\Models\Presensi;
 use App\Models\Config;
 use App\Models\HariLibur;
 use App\Models\User;
+use App\Models\Background;
 use App\Enums\Presensi\StatusPresensi;
 use App\Enums\Presensi\JenisPresensi;
 use App\Enums\Presensi\SesiPresensi;
+use App\Enums\User\Role;
 
 class PresensiControllers extends Controller
 {
     public function index(Request $request)
     {
+        $now = now(Config::timezone());
+        $endOfDay = Carbon::tomorrow()->startOfDay();
+        $minutesUntilMidnight = $now->diffInMinutes($endOfDay);
+
+        $background = $request->cookie('todayWallpaper') ?? Background::randomImage();
+
+        if (!$request->hasCookie('todayWallpaper')) {
+            Cookie::queue('todayWalpaper', $background, $minutesUntilMidnight);
+        }
+
         $data = [ // default
             'message' => "Nothing have to say.",
             'isPresenceAllowed' => true,
+            'background' => (bool) $background ? asset("storage/{$background}") : '',
         ];
         
         if (Auth::check() || $request->hasCookie('user')) {
@@ -41,6 +54,7 @@ class PresensiControllers extends Controller
                     },
                     'isPresenceAllowed' => false,
                     'presenceStartAt' => $now->lt($presensi->presenceStartTime) ? $presensi->presenceStartTime : null,
+                    'background' => (bool) $background ? asset("storage/{$background}") : '',
                 ];
             }
 
@@ -55,12 +69,17 @@ class PresensiControllers extends Controller
                     },
                     'isPresenceAllowed' => false,
                     'todayHoliday' => $holiday,
+                    'background' => (bool) $background ? asset("storage/{$background}") : '',
                 ];
             }
         }
 
-        if (Auth::check()) {
-            $isAdmin = (bool) Auth::user()->isAdmin();
+        if (Auth::check() && Auth::user()->isAdmin()) {
+            $data = [
+                'message' => "Anda adalah admin, anda tidak perlu melakukan presensi",
+                'isPresenceAllowed' => false,
+                'background' => (bool) $background ? asset("storage/{$background}") : '',
+            ];
         }
 
         // default view atau untuk yang belum login
@@ -84,6 +103,12 @@ class PresensiControllers extends Controller
         }
 
         $user = Auth::user();
+        if ($user->isAdmin()) {
+            return redirect()
+                ->route('presensi.index')
+                ->with('info', "{$user->name} adalah Admin");
+        }
+
         if ($presensi->isPresence) {
             return redirect()
                 ->route('presensi.index')

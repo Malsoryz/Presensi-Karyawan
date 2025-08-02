@@ -3,6 +3,7 @@
     'header' => null,
     'scriptAfter' => null,
     'scriptBefore' => null,
+    'background' => null,
 ])
 
 <!DOCTYPE html>
@@ -27,7 +28,7 @@
         {{ $scriptBefore }}
     </head>
     <body
-        style="background-image: url('{{ asset('images/unsplash.jpg') }}');" 
+        style="background-image: url('{{ (bool) $background ? (string) $background : null }}');" 
         class="min-h-screen w-full bg-fixed bg-center bg-cover"
     >
         <div {{ $attributes }}>
