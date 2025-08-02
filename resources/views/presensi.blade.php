@@ -9,7 +9,7 @@
             <div class="navbar-start">
                 <template x-if="!$x.isLogin">
                     <button 
-                        class="btn btn-soft"
+                        class="btn glassmorphism text-glassmorphism text-white"
                         x-on:click="window.location.href='{{ route('login') }}'"
                     >
                         Log In
@@ -18,7 +18,7 @@
                 <template x-if="$x.isLogin">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button class="btn btn-soft">
+                        <button class="btn glassmorphism text-glassmorphism text-white">
                             Log Out
                         </button>
                     </form>
@@ -26,7 +26,7 @@
             </div>
             <div class="navbar-end">
                 <template x-if="$x.isDetected">
-                    <span class="btn btn-soft" x-text="$x.user?.name"></span>
+                    <span class="btn glassmorphism text-glassmorphism text-white" x-text="$x.user?.name"></span>
                 </template>
             </div>
         </div>
@@ -60,12 +60,23 @@
                     </template>
                 </div>
                 <div 
-                    class="btn border-none bg-transparent text-glassmorphism text-white"
-                    x-data="clock"
-                    x-bind="clockDom"
+                    class="btn border-none bg-transparent text-glassmorphism text-white flex gap-2"
+                    x-data="datetime"
                 >
+                    <div class="flex items-center gap-2">
+                        <x-heroicon-o-calendar class="text-yellow-400 h-6 w-6"/>
+                        <span
+                            class="text-yellow-400"
+                        ></span>
+                    </div>
                     {{-- jam --}}
-                    00:00:00
+                    <div class="flex items-center gap-2">
+                        <x-heroicon-o-clock class="text-yellow-400 h-6 w-6"/>
+                        <span 
+                            class="text-yellow-400"
+                            x-bind="clockDom"
+                        ></span>
+                    </div>
                 </div>
             </div>
 
@@ -143,7 +154,10 @@
                                             </div>
                                             <div class="col-span-1 flex flex-row justify-between">
                                                 <strong>Tidak Masuk</strong>
-                                                <span x-text="userAccumulation.tidak_masuk + 'x'"></span>
+                                                <span
+                                                    class="text-red-500" 
+                                                    x-text="userAccumulation.tidak_masuk + 'x'"
+                                                ></span>
                                             </div>
                                         </div>
                                     </td>
@@ -155,10 +169,18 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th class="text-glassmorphism text-white">No</th>
-                                    <th class="text-glassmorphism text-white">Nama</th>
-                                    <th class="text-glassmorphism text-white">Jam presensi</th>
+                                    <th 
+                                        class="text-glassmorphism text-white"
+                                        x-text="todayPresences.length > 0 ? 'Presensi hari ini' : 'Tidak ada yang presensi hari ini.'"
+                                    ></th>
                                 </tr>
+                                <template x-if="todayPresences.length > 0">
+                                    <tr>
+                                        <th class="text-glassmorphism text-white">No</th>
+                                        <th class="text-glassmorphism text-white">Nama</th>
+                                        <th class="text-glassmorphism text-white">Jam presensi</th>
+                                    </tr>
+                                </template>
                             </thead>
                             <tbody>
                                 <template x-for="(presence, index) in todayPresences" :key="presence.nama_karyawan">

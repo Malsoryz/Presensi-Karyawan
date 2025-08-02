@@ -15,7 +15,7 @@ document.addEventListener('alpine:init', () => {
         isLogin: false,
     }));
 
-    Alpine.data('clock', () => ({
+    Alpine.data('datetime', () => ({
         time: '',
         updateTime() {
             const now = new Date();
