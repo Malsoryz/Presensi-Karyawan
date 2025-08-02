@@ -27,8 +27,6 @@ Route::prefix('presensi')->controller(PresensiControllers::class)->group(functio
         ->name('presensi.test');
 });
 
-Route::get('/check-approval', [AuthController::class, 'checkApproval'])->name('check.approval');
-
 Route::get('/test', function () {
     return view('test');
 });

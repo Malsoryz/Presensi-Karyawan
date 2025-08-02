@@ -17,7 +17,7 @@ Route::middleware('guest')->group(function () {
     // Volt::route('reset-password/{token}', 'auth.reset-password')
     //     ->name('password.reset');
 
-    Route::get('/approval-wait/{id}', Presensi\Approval::class)->name('approval.wait');
+    Route::get('/approval-wait/{id}', Auth\Approval::class)->name('approval.wait');
 });
 
 // Route::middleware('auth')->group(function () {

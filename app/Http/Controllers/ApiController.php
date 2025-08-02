@@ -81,4 +81,14 @@ class ApiController extends Controller
             ] : null,
         ]);
     }
+
+    public function checkApproval(Request $request)
+    {
+        $id = $request->query('id');
+        $user = User::find($id);
+        $isApproved = (bool) $user->status_approved;
+        return response()->json([
+            'is_approved' => $isApproved,
+        ]);
+    }
 }
