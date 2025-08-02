@@ -32,6 +32,7 @@ return new class extends Migration
             $table->date('tanggal_masuk_sebagai_karyawan')->nullable();
             $table->string('rekening_bank')->nullable();
             $table->boolean('status_approved')->default(false);
+            $table->string('surat_pernyataan')->nullable();
             $table->enum('role', Role::toArray());
             $table->unsignedBigInteger('jabatan_id')->nullable();
             $table->foreign('jabatan_id')

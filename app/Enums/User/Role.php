@@ -10,4 +10,5 @@ enum Role: string {
 
     case Karyawan = 'karyawan';
     case Admin = 'admin';
+    case Magang = 'magang';
 }
