@@ -19,6 +19,6 @@ class Background extends Model
     public static function randomImage($isSpecial = false): ?string
     {
         return self::where('special_friday', $isSpecial)
-            ->inRandomOrder()->first();
+            ->inRandomOrder()->first()->image_path;
     }
 }
