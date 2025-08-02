@@ -71,7 +71,7 @@ select:focus[data-flux-control] {
 [x-cloak] { display: none !important; }
 
 .glassmorphism {
-    @apply bg-base-300/20 isolate shadow-xl backdrop-blur-lg border border-base-content/10 hover:border-base-content/20;
+    @apply bg-base-300/20 isolate shadow-xl backdrop-blur-xl border border-base-content/10 hover:border-base-content/20;
 }
 
 .text-glassmorphism {
