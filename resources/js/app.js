@@ -15,7 +15,7 @@ document.addEventListener('alpine:init', () => {
         isLogin: false,
     }));
 
-    Alpine.data('clock', () => Alpine.reactive({
+    Alpine.data('clock', () => ({
         time: '',
         updateTime() {
             const now = new Date();
@@ -27,14 +27,22 @@ document.addEventListener('alpine:init', () => {
         startTime() {
             this.updateTime();
             setInterval(() => this.updateTime(), 1000);
-        }
+        },
+        clockDom: {
+            ['x-init']() {
+                this.startTime();
+            },
+            ['x-text']() {
+                return this.time;
+            }
+        },
     }))
     
     Alpine.data('userData', () => ({
         intervalId: null,
         updateUser() {
             // Cegah polling ganda
-            if (this.$x.intervalId) return;
+            if (this.intervalId) return;
 
             this.getData();
             this.intervalId = setInterval(() => {
@@ -45,17 +53,15 @@ document.addEventListener('alpine:init', () => {
         getData() {
             axios.get("/api/authuser")
                 .then(res => {
-                    const store = this.$x;
-
                     if (res.data.user) {
-                        Object.assign(store.user, res.data.user);
+                        Object.assign(this.$x.user, res.data.user);
                     }
-                    store.message = res.data.message;
-                    store.isDetected = res.data.is_detected;
-                    store.isLogin = res.data.is_login;
+                    this.$x.message = res.data.message;
+                    this.$x.isDetected = res.data.is_detected;
+                    this.$x.isLogin = res.data.is_login;
 
-                    if (store.isDetected) {
-                        console.log(`user ${store.user.name} terdeteksi`);
+                    if (this.$x.isDetected) {
+                        console.log(`user ${this.$x.user.name} terdeteksi`);
                         clearInterval(this.intervalId);
                         this.intervalId = null;
                         console.log('Polling dihentikan karena user terdeteksi');
@@ -67,13 +73,16 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    Alpine.data('presencesData', () => Alpine.reactive({
+    Alpine.data('presencesData', () => ({
         todayPresences: [],
         userAccumulation: {},
+        intervalId: null,
         refresh() {
+            if (this.intervalId) return;
+
             console.log('refresh data presensi');
             this.getData();
-            setInterval(() => {
+            this.intervalId = setInterval(() => {
                 console.log('refresh data presensi');
                 this.getData();
             }, 10000);
@@ -95,10 +104,24 @@ document.addEventListener('alpine:init', () => {
                     console.error('Gagal melakukan request: ', err);
                 });
             } else console.log('data user belum ada');
-        }
+        },
+        formatTime($iso) {
+            const date = new Date($iso);
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        },
+        detailDom: {
+            ['x-effect']() {
+                if (this.$x.user.name) {
+                    this.refresh();
+                }
+            }
+        },
     }));
 
-    Alpine.data('refreshQrCode', () => Alpine.reactive({
+    Alpine.data('refreshQrCode', () => ({
         qrCode: '',
         start() {
             console.log('Membuat qr code baru');
@@ -116,7 +139,18 @@ document.addEventListener('alpine:init', () => {
                 .catch(err => {
                     console.error('Gagal memuat svg: ', err);
                 });
-        }
+        },
+        qrDom: {
+            ['x-init']() {
+                this.start();
+            },
+            ['x-html']() {
+                return this.qrCode;
+            },
+            ['x-show']() {
+                return this.qrCode;
+            }
+        },
     }));
 });
 

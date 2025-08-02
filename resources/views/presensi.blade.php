@@ -1,6 +1,30 @@
 <x-layouts.presensi title="Presensi" x-data="userData" x-init="updateUser()">
     <x-slot name="header">
-        <x-presensi.header/>
+        <div class="navbar px-8 py-4 w-full fixed top-0 left-0 right-0">
+            <div class="navbar-start">
+                <template x-if="!$x.isLogin">
+                    <button 
+                        class="btn btn-soft"
+                        x-on:click="window.location.href='{{ route('login') }}'"
+                    >
+                        Log In
+                    </button>
+                </template>
+                <template x-if="$x.isLogin">
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button class="btn btn-soft">
+                            Log Out
+                        </button>
+                    </form>
+                </template>
+            </div>
+            <div class="navbar-end">
+                <template x-if="$x.isDetected">
+                    <span class="btn btn-soft" x-text="$x.user?.name"></span>
+                </template>
+            </div>
+        </div>
     </x-slot>
     
     <main class="min-h-screen w-full flex items-center justify-center">
@@ -33,8 +57,7 @@
                 <div 
                     class="btn border-none bg-transparent text-glassmorphism text-white"
                     x-data="clock"
-                    x-init="startTime()"
-                    x-text="time"
+                    x-bind="clockDom"
                 >
                     {{-- jam --}}
                     00:00:00
@@ -47,8 +70,7 @@
                         <div class="card glassmorphism p-2 flex items-center justify-center">
                             <div 
                                 x-data="refreshQrCode" 
-                                x-init="start()" 
-                                x-html="qrCode"
+                                x-bind="qrDom"
                                 class="p-2 bg-white rounded-lg"
                             ></div>
                         </div>
@@ -72,7 +94,7 @@
             <div x-show="activeTab === 'tab-detail'">
                 <div
                     x-data="presencesData"
-                    x-init="refresh()"
+                    x-bind="detailDom"
                     class="flex flex-col gap-2 w-full"
                 >
                     <div class="card glassmorphism flex flex-col overflow-x-auto">
@@ -91,23 +113,23 @@
                                         <div class="grid grid-cols-2 gap-x-6 gap-y-4 flex-1">
                                             <div class="col-span-1 flex flex-row justify-between">
                                                 <strong>Masuk</strong>
-                                                <span x-text="userAccumulation.masuk">10x</span>
+                                                <span x-text="userAccumulation.masuk + 'x'"></span>
                                             </div>
                                             <div class="col-span-1 flex flex-row justify-between">
                                                 <strong>Terlambat</strong>
-                                                <span x-text="userAccumulation.masuk">10x</span>
+                                                <span x-text="userAccumulation.terlambat + 'x'"></span>
                                             </div>
                                             <div class="col-span-1 flex flex-row justify-between">
                                                 <strong>Sakit</strong>
-                                                <span x-text="userAccumulation.masuk">10x</span>
+                                                <span x-text="userAccumulation.ijin + 'x'"></span>
                                             </div>
                                             <div class="col-span-1 flex flex-row justify-between">
                                                 <strong>Ijin</strong>
-                                                <span x-text="userAccumulation.masuk">10x</span>
+                                                <span x-text="userAccumulation.sakit + 'x'"></span>
                                             </div>
                                             <div class="col-span-1 flex flex-row justify-between">
                                                 <strong>Tidak Masuk</strong>
-                                                <span x-text="userAccumulation.masuk">10x</span>
+                                                <span x-text="userAccumulation.tidak_masuk + 'x'"></span>
                                             </div>
                                         </div>
                                     </td>
@@ -125,13 +147,13 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @for ($i = 1; $i <= 5; $i++)
+                                <template x-for="(presence, index) in todayPresences" :key="presence.nama_karyawan">
                                     <tr>
-                                        <td class="text-glassmorphism text-white">{{ $i }}</td>
-                                        <td class="text-glassmorphism text-white">Username</td>
-                                        <td class="text-glassmorphism text-white">00:00:00</td>
+                                        <td x-text="index + 1"></td>
+                                        <td x-text="presence.nama_karyawan"></td>
+                                        <td x-text="formatTime(presence.tanggal)"></td>
                                     </tr>
-                                @endfor
+                                </template>
                             </tbody>
                         </table>
                     </div>
