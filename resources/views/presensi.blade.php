@@ -1,4 +1,9 @@
-<x-layouts.presensi title="Presensi" x-data="userData" x-init="updateUser()">
+<x-layouts.presensi 
+    title="Presensi"
+    :background="$background"
+    x-data="userData" 
+    x-init="updateUser()"
+>
     <x-slot name="header">
         <div class="navbar px-8 py-4 w-full fixed top-0 left-0 right-0">
             <div class="navbar-start">
@@ -66,26 +71,35 @@
 
             <div x-show="activeTab === 'tab-presensi'">
                 <div class="flex flex-row gap-2 items-stretch">
-                    <div class="flex flex-col gap-2">
-                        <div class="card glassmorphism p-2 flex items-center justify-center">
-                            <div 
-                                x-data="refreshQrCode" 
-                                x-bind="qrDom"
-                                class="p-2 bg-white rounded-lg"
-                            ></div>
+                    @if ($isPresenceAllowed)
+                        <div class="flex flex-col gap-2">
+                            <div class="card glassmorphism p-2 flex items-center justify-center">
+                                <div 
+                                    x-data="refreshQrCode" 
+                                    x-bind="qrDom"
+                                    class="p-2 bg-white rounded-lg"
+                                ></div>
+                            </div>
+                            <div class="card glassmorphism p-2">
+                                {{-- Status --}}
+                                <span class="text-glassmorhism text-white text-3xl">
+                                    Status: <span class="text-green-400">OnTime</span>
+                                </span>
+                            </div>
                         </div>
-                        <div class="card glassmorphism p-2">
-                            {{-- Status --}}
-                            <span class="text-glassmorhism text-white text-3xl">
-                                Status: <span class="text-green-400">OnTime</span>
-                            </span>
-                        </div>
-                    </div>
+                    @endif
                     <div class="card glassmorphism p-8 w-full flex items-center justify-center">
                         {{-- Motivasi --}}
-                        <div class="text-glassmorhism text-white text-center flex flex-col gap-8">
-                            <p class="break-words text-3xl">“ It is never too late to be what you might have been. ”</p>
-                            <span class="font-bold">George Eliot</span>
+                        <div 
+                            class="text-glassmorhism text-white text-center flex flex-col gap-8"
+                            x-data="motivation"
+                            x-init="start()"
+                        >
+                            <p 
+                                class="break-words text-3xl"
+                                x-text="words"
+                            ></p>
+                            <span class="font-bold" x-text="author"></span>
                         </div>
                     </div>
                 </div>
@@ -108,7 +122,7 @@
                             </thead>
                             <tbody class="w-full flex flex-row">
                                 <tr class="flex w-full">
-                                    <th class="text-glassmorphism text-white">Username</th>
+                                    <th class="text-glassmorphism text-white" x-text="$x.user?.name"></th>
                                     <td class="text-glassmorphism text-white flex-1 flex">
                                         <div class="grid grid-cols-2 gap-x-6 gap-y-4 flex-1">
                                             <div class="col-span-1 flex flex-row justify-between">

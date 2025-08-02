@@ -152,6 +152,29 @@ document.addEventListener('alpine:init', () => {
             }
         },
     }));
+
+    Alpine.data('motivation', () => ({
+        words: '',
+        author: '',
+        getMotivation() {
+            axios.get("/api/motivation")
+                .then(res => {
+                    this.words = `" ${res.data.words} "`;
+                    console.log(this.words);
+                    this.author = res.data.author;
+                    console.log(this.author);
+                })
+                .catch(err => {
+                    console.error('Kata-kata tidak ditemukan: ', err);
+                });
+        },
+        start() {
+            this.getMotivation();
+            setInterval(() => {
+                this.getMotivation();
+            }, 60000);
+        },
+    }));
 });
 
 Alpine.start();
