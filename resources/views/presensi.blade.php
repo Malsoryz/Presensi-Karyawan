@@ -26,7 +26,10 @@
             </div>
             <div class="navbar-end">
                 <template x-if="$x.isDetected">
-                    <span class="btn glassmorphism text-glassmorphism text-white" x-text="$x.user?.name"></span>
+                    <span 
+                        class="btn glassmorphism text-glassmorphism text-white"
+                        x-text="$x.isLogin ? $x.user?.name : 'Terakhir diketahui sebagai ' + $x.user?.name"
+                    ></span>
                 </template>
             </div>
         </div>
@@ -67,6 +70,7 @@
                         <x-heroicon-o-calendar class="text-yellow-400 h-6 w-6"/>
                         <span
                             class="text-yellow-400"
+                            x-bind="dateDom"
                         ></span>
                     </div>
                     {{-- jam --}}
@@ -91,10 +95,15 @@
                                     class="p-2 bg-white rounded-lg"
                                 ></div>
                             </div>
-                            <div class="card glassmorphism p-2">
+                            <div 
+                                class="card glassmorphism p-2"
+                                x-data="presencesStatus"
+                            >
                                 {{-- Status --}}
-                                <span class="text-glassmorhism text-white text-3xl">
-                                    Status: <span class="text-green-400">OnTime</span>
+                                <span class="text-glassmorhism text-white text-2xl">
+                                    Status: <span 
+                                        x-bind="statusDom"
+                                    ></span>
                                 </span>
                             </div>
                         </div>

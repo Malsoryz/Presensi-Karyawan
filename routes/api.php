@@ -9,4 +9,6 @@ Route::prefix('api')->controller(ApiController::class)->group(function () {
     Route::get('presences', 'presencesData')->name('api.presences');
     Route::get('approval', 'checkApproval')->name('api.approval');
     Route::get('motivation', 'motivation')->name('api.motivation');
+    Route::get('datetime', 'getDatetime')->name('api.datetime');
+    Route::get('presences/status', 'presencesStatus')->name('api.presences.status');
 });
