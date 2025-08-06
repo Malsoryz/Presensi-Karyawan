@@ -50,6 +50,7 @@ class Register extends Component implements HasForms
         return $form
             ->schema([
                 Wizard::make([
+                    /*------------------------------------------PROFILE--------------------------------------------*/
                     Wizard\Step::make('Profile')
                         ->description('Informasi dasar pengguna')
                         ->columns([
@@ -99,13 +100,23 @@ class Register extends Component implements HasForms
                                 ->disableGrammarly()
                                 ->placeholder('i.e: Jalan kayutangi 2...'),
                         ]),
+                    /*------------------------------------------CREDENTIAL--------------------------------------------*/
                     Wizard\Step::make('Credential')
                         ->description('Data penting pengguna')
                         ->schema([
                             Hidden::make('status_approved')
                                 ->default(fn() => (bool) Config::get('auto_approve', false)),
+                            Select::make('divisi')
+                                ->label('Divisi')
+                                ->options([
+                                    'item1' => 'item 1',
+                                    'item2' => 'item 2',
+                                    'item3' => 'item 3',
+                                ])
+                                ->dehydrated(false),
                             Select::make('tipe_id')
                                 ->label('Tipe pengguna')
+                                ->placeholder('i.e: Karyawan tetap, magang...')
                                 ->required()
                                 ->relationship(name: 'tipe', titleAttribute: 'nama_tipe'),
                             TextInput::make('password')
@@ -121,6 +132,7 @@ class Register extends Component implements HasForms
                                 ->password()
                                 ->revealable(),
                         ]),
+                    /*------------------------------------------EXTRAS--------------------------------------------*/
                     Wizard\Step::make('Extra')
                         ->description('Data extra pengguna')
                         ->schema([

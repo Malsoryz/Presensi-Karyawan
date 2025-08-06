@@ -11,10 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jabatan', function (Blueprint $table) {
+        Schema::create('tunjangan', function (Blueprint $table) {
             $table->id();
             $table->string('nama', length: 255);
-            $table->string('gaji_pokok_bulanan');
+            $table->string('jumlah');
+            $table->unsignedBigInteger('jabatan_id');
+            $table->foreign('jabatan_id')
+                ->references('id')
+                ->on('jabatan')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
             $table->timestamps();
         });
     }
@@ -24,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jabatan');
+        Schema::dropIfExists('tunjangan');
     }
 };

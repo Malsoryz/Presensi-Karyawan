@@ -16,7 +16,8 @@ document.addEventListener('alpine:init', () => {
     }));
 
     Alpine.data('datetime', () => ({
-        time: '',
+        time: null,
+        date: null,
         updateTime() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -27,6 +28,23 @@ document.addEventListener('alpine:init', () => {
         startTime() {
             this.updateTime();
             setInterval(() => this.updateTime(), 1000);
+        },
+        getDate() {
+            axios.get("/api/datetime")
+                .then(res => {
+                    this.date = res.data;
+                })
+                .catch(err => {
+                    console.error('Error date request: ', err);
+                });
+        },
+        dateDom: {
+            ['x-init']() {
+                this.getDate();
+            },
+            ['x-text']() {
+                return this.date;
+            }
         },
         clockDom: {
             ['x-init']() {
@@ -73,6 +91,38 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
+    Alpine.data('presencesStatus', () => ({
+        status: null,
+        class: null,
+        check() {
+            axios.get("/api/presences/status")
+                .then(res => {
+                    if (res.data) {
+                        this.status = res.data.status;
+                        this.class = res.data.class;
+                    }
+                })
+                .catch(err => {
+                    console.error('Status request error: ', err);
+                });
+        },
+        start() {
+            this.check();
+            setInterval(() => this.check(), 5000);
+        },
+        statusDom: {
+            ['x-init']() {
+                this.start();
+            },
+            ['x-text']() {
+                return this.status;
+            },
+            [':class']() {
+                return this.class;
+            }
+        },
+    }));
+
     Alpine.data('presencesData', () => ({
         todayPresences: [],
         userAccumulation: {},
@@ -97,8 +147,6 @@ document.addEventListener('alpine:init', () => {
                         Object.assign(this.userAccumulation, res.data.user_accumulation);
                     }
                     this.todayPresences = res.data.today_presences;
-                    console.log(JSON.stringify(this.todayPresences, null, 2));
-                    console.log(JSON.stringify(this.userAccumulation, null, 2));
                 })
                 .catch(err => {
                     console.error('Gagal melakukan request: ', err);

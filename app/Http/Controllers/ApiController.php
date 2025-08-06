@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Presensi;
+use App\Models\Config;
 use App\Support\Inspire\Motivation;
 
 use Illuminate\Http\Request;
@@ -11,6 +12,10 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
+
+use Carbon\Carbon;
+use App\Enums\Presensi\StatusPresensi;
+use App\Enums\Presensi\SesiPresensi;
 
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -96,5 +101,42 @@ class ApiController extends Controller
     public function motivation()
     {
         return response()->json(Motivation::quote());
+    }
+
+    public function getDatetime()
+    {
+        $now = now(Config::timezone());
+        return response()->json($now->locale('id')->isoFormat('dddd, DD MMMM'));
+    }
+
+    public function presencesStatus()
+    {
+        extract(Config::presencesTime());
+
+        $now = now($timezone);
+
+        $isAfterPagi = $now->between($pagiSelesai->copy()->addMinutes($toleransi), $siangMulai);
+        $isAfterSiang = $now->between($siangSelesai->copy()->addMinutes($toleransi), $pulangKerja);
+
+        $sesiPagi = $now->between($pagiMulai, $pagiSelesai->copy()->addMinutes($toleransi));
+        $sesiSiang = $now->between($siangMulai, $siangSelesai->copy()->addMinutes($toleransi));
+
+        $presencesStatus = match (true) {
+            $sesiPagi || $sesiSiang => [
+                'status' => 'Ontime',
+                'class' => 'text-green-600 dark:text-green-400',
+            ], //StatusPresensi::Masuk,
+            $isAfterPagi || $isAfterSiang => [
+                'status' => 'Terlambat',
+                'class' => 'text-yellow-600 dark:text-yellow-400',
+            ], //StatusPresensi::Terlambat,
+            $now->gt($pulangKerja) => [
+                'status' => 'Tidak masuk',
+                'class' => 'text-red-600 dark:text-red-400',
+            ], //StatusPresensi::TidakMasuk,
+            default => null,
+        };
+
+        return response()->json($presencesStatus);
     }
 }

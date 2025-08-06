@@ -17,7 +17,6 @@ use Filament\Resources\Resource;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\DatePicker;
@@ -51,7 +50,7 @@ class UserResource extends Resource
                 Tabs::make('User Forms')
                     // ->contained(false)
                     ->tabs([
-                        Tab::make('Profile')
+                        Tabs\Tab::make('Profile')
                             ->schema([
                                 TextInput::make('name')
                                     ->label('Nama')
@@ -76,7 +75,7 @@ class UserResource extends Resource
                                     ->autosize()
                                     ->disableGrammarly(),
                             ]),
-                        Tab::make('Credential')
+                        Tabs\Tab::make('Credential')
                             ->schema([
                                 TextInput::make('password')
                                     ->label(fn (string $operation) => $operation === 'create' ? 'Password' : 'New Password')
@@ -96,7 +95,7 @@ class UserResource extends Resource
                                     ->maxLength(255)
                                     ->revealable(),
                             ]),
-                        Tab::make('Data Karyawan')
+                        Tabs\Tab::make('Data Karyawan')
                             ->schema([
                                 Select::make('jabatan_id')
                                     ->label('Jabatan')
@@ -129,7 +128,7 @@ class UserResource extends Resource
                                     ->visibleOn('edit')
                                     ->disabled(fn (string $operation) => $operation === 'edit'),
                             ]),
-                        Tab::make('Role')
+                        Tabs\Tab::make('Role')
                             ->schema([
                                 Select::make('role')
                                     ->label('Role')
