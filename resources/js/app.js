@@ -66,7 +66,7 @@ document.addEventListener('alpine:init', () => {
             this.intervalId = setInterval(() => {
                 console.log('memuat ulang');
                 this.getData();
-            }, 3000);
+            }, 3000); // 3 detik
         },
         getData() {
             axios.get("/api/authuser")
@@ -108,7 +108,7 @@ document.addEventListener('alpine:init', () => {
         },
         start() {
             this.check();
-            setInterval(() => this.check(), 5000);
+            setInterval(() => this.check(), 5000); // 5 detik
         },
         statusDom: {
             ['x-init']() {
@@ -135,7 +135,7 @@ document.addEventListener('alpine:init', () => {
             this.intervalId = setInterval(() => {
                 console.log('refresh data presensi');
                 this.getData();
-            }, 10000);
+            }, 10000); // 10 detik
         },
         getData() {
             if (this.$x.user.name) {
@@ -177,7 +177,7 @@ document.addEventListener('alpine:init', () => {
             setInterval(() => {
                 console.log('membuat qr code baru');
                 this.loadQrCode();
-            }, 60000);
+            }, 60000); // 1 menit
         },
         loadQrCode() {
             axios.get("/api/qrcode")
@@ -220,7 +220,50 @@ document.addEventListener('alpine:init', () => {
             this.getMotivation();
             setInterval(() => {
                 this.getMotivation();
-            }, 60000);
+            }, 60000); // 1 menit
+        },
+    }));
+
+    Alpine.data('background', () => ({
+        latestUrl: null,
+        async getBg() {
+            let res = await axios.get("/api/background");
+
+            if (!res.data || !res.data.background) {
+                const parent  = this.$refs.bgpoint;
+                while (parent.firstChild) {
+                    parent.removeChild(parent.firstChild);
+                }
+                return;
+            }
+
+            while (res.data.count > 1 && this.latestUrl && this.latestUrl === res.data.background) {
+                res = await axios.get("/api/background");
+                console.log('while...: ', res.data.background);
+            }
+
+            this.latestUrl = res.data.background;
+
+            const img = new Image();
+            img.src = res.data.background;
+            img.onload = () => {
+                img.className = 'min-h-screen w-full object-cover object-center';
+                const parent = this.$refs.bgpoint;
+                const child = parent.querySelector('img');                        
+                if (parent.contains(child)) {
+                    parent.replaceChild(img, child);
+                } else parent.appendChild(img);
+            };
+        },
+        start() {
+            this.getBg();
+            setInterval(() => this.getBg(), 5000);
+        },
+        bgDom: {
+            ['x-init']() {
+                return this.start();
+            },
+            ['x-ref']: 'bgpoint',
         },
     }));
 });

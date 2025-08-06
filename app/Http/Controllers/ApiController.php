@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Presensi;
 use App\Models\Config;
+use App\Models\Background;
 use App\Support\Inspire\Motivation;
 
 use Illuminate\Http\Request;
@@ -138,5 +139,15 @@ class ApiController extends Controller
         };
 
         return response()->json($presencesStatus);
+    }
+
+    public function backgrounds()
+    {
+        $background = Background::randomImage();
+        $count = Background::countImage();
+        return response()->json($background ? [
+            'background' => $background,
+            'count' => $count,
+        ] : null);
     }
 }

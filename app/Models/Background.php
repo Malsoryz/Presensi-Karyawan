@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Config;
+use Carbon\Carbon;
 
 class Background extends Model
 {
@@ -16,9 +18,18 @@ class Background extends Model
         'special_friday' => 'boolean',
     ];
 
-    public static function randomImage($isSpecial = false): ?string
+    public static function randomImage(): ?string
     {
-        $background = self::where('special_friday', $isSpecial)->inRandomOrder();
-        return $background->exists() ? $background->first()->image_path : null;
+        $now = now(Config::timezone());
+        $isFriday = $now->isFriday();
+        $background = self::where('special_friday', $isFriday)->inRandomOrder();
+        return $background->exists() ? asset("storage/{$background->first()->image_path}") : null;
+    }
+
+    public static function countImage(): int
+    {
+        $now = now(Config::timezone());
+        $isFriday = $now->isFriday();
+        return self::where('special_friday', $isFriday)->count();
     }
 }
