@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Tunjangan;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,11 +14,22 @@ class Jabatan extends Model
     protected $fillable = [
         'nama',
         'gaji_pokok_bulanan',
-        'tunjangan_kehadiran_harian',
     ];
+
+    public function casts(): array
+    {
+        return [
+            'gaji_pokok_bulanan' => 'integer',
+        ];
+    }
 
     public function users()
     {
         return $this->hasMany(User::class);
+    }
+
+    public function tunjangan()
+    {
+        return $this->hasMany(Tunjangan::class, 'jabatan_id');
     }
 }

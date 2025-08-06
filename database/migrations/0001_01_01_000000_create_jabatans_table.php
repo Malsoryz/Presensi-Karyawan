@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('nama', length: 255);
             $table->string('gaji_pokok_bulanan');
-            $table->string('tunjangan_kehadiran_harian');
             $table->timestamps();
         });
     }
