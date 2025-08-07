@@ -75,7 +75,9 @@ class Login extends Component implements HasForms
         RateLimiter::clear($this->throttleKey($email));
         Session::regenerate();
 
-        $this->redirectIntended(route('presensi.index'));
+        if (Auth::user()->isAdmin()) {
+            $this->redirectIntended(route('filament.admin.pages.dashboard'));
+        } else $this->redirectIntended(route('presensi.index'));
     }
 
     protected function ensureIsNotRateLimited(string $email = null): void

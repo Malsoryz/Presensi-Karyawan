@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Presensi;
 use App\Models\Config;
+use App\Models\Background;
 use App\Support\Inspire\Motivation;
 
 use Illuminate\Http\Request;
@@ -41,13 +42,13 @@ class ApiController extends Controller
                 ->limit(5)
                 ->get()
                 ->toArray(),
-            'user_accumulation' => (bool) $accumulation ? [
-                'masuk' => (int) $accumulation->total_masuk,
-                'terlambat' => (int) $accumulation->total_terlambat,
-                'ijin' => (int) $accumulation->total_ijin,
-                'sakit' => (int) $accumulation->total_sakit,
-                'tidak_masuk' => (int) $accumulation->total_tidak_masuk,
-            ] : null,
+            'user_accumulation' => [
+                'masuk' => (int) $accumulation ? $accumulation->total_masuk : 0,
+                'terlambat' => (int) $accumulation ? $accumulation->total_terlambat : 0,
+                'ijin' => (int) $accumulation ? $accumulation->total_ijin : 0,
+                'sakit' => (int) $accumulation ? $accumulation->total_sakit : 0,
+                'tidak_masuk' => (int) $accumulation ? $accumulation->total_tidak_masuk : 0,
+            ],
         ]);
     }
 
@@ -138,5 +139,15 @@ class ApiController extends Controller
         };
 
         return response()->json($presencesStatus);
+    }
+
+    public function backgrounds()
+    {
+        $background = Background::randomImage();
+        $count = Background::countImage();
+        return response()->json($background ? [
+            'background' => $background,
+            'count' => $count,
+        ] : null);
     }
 }

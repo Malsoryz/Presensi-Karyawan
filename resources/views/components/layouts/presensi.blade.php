@@ -27,10 +27,12 @@
         @endif
         {{ $scriptBefore }}
     </head>
-    <body
-        style="background-image: url('{{ (bool) $background ? (string) $background : null }}');" 
-        class="min-h-screen w-full bg-fixed bg-center bg-cover"
-    >
+    <body>
+        <div 
+            class="w-full min-h-screen absolute" 
+            x-data="background" 
+            x-bind="bgDom"
+        ></div>
         <div {{ $attributes }}>
             <header>
                 {{ $header }}
