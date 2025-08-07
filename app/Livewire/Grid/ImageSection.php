@@ -129,20 +129,7 @@ class ImageSection extends Component implements HasForms, HasTable
                 // ...
             ])
             ->bulkActions([
-                DeleteAction::make()
-                    ->requiresConfirmation()
-                    ->modalIcon('heroicon-o-trash')
-                    ->modalHeading('Delete background?')
-                    ->modalDescription('Are you sure you\'d like to delete this background? This cannot be undone.')
-                    ->cancelParentActions('view-edit')
-                    ->action(function (Background $record) {
-                        $image = $record->image_path;
-                        if ($image && Storage::disk('public')->exists($image)) {
-                            Storage::disk('public')->delete($image);
-                        }
-
-                        Background::where('id', $record->id)->delete();
-                    }),
+                // ...
             ]);
     }
 
