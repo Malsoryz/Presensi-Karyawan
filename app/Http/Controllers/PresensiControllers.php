@@ -37,7 +37,6 @@ class PresensiControllers extends Controller
         $data = [ // default
             'message' => "Nothing have to say.",
             'isPresenceAllowed' => true,
-            'background' => (bool) $background ? asset("storage/{$background}") : '',
         ];
         
         if (Auth::check() || $request->hasCookie('user')) {
@@ -54,7 +53,6 @@ class PresensiControllers extends Controller
                     },
                     'isPresenceAllowed' => false,
                     'presenceStartAt' => $now->lt($presensi->presenceStartTime) ? $presensi->presenceStartTime : null,
-                    'background' => (bool) $background ? asset("storage/{$background}") : '',
                 ];
             }
 
@@ -69,17 +67,12 @@ class PresensiControllers extends Controller
                     },
                     'isPresenceAllowed' => false,
                     'todayHoliday' => $holiday,
-                    'background' => (bool) $background ? asset("storage/{$background}") : '',
                 ];
             }
         }
 
         if (Auth::check() && Auth::user()->isAdmin()) {
-            $data = [
-                'message' => "Anda adalah admin, anda tidak perlu melakukan presensi",
-                'isPresenceAllowed' => false,
-                'background' => (bool) $background ? asset("storage/{$background}") : '',
-            ];
+            return redirect()->route('filament.admin.pages.dashboard');
         }
 
         // default view atau untuk yang belum login

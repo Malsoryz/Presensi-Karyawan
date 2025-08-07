@@ -1,6 +1,5 @@
 <x-layouts.presensi 
     title="Presensi"
-    :background="$background"
     x-data="userData" 
     x-init="updateUser()"
 >
@@ -67,7 +66,7 @@
                     x-data="datetime"
                 >
                     <div class="flex items-center gap-2">
-                        <x-heroicon-o-calendar class="text-yellow-400 h-6 w-6"/>
+                        <x-heroicon-o-calendar class="text-yellow-400 h-6 w-6 drop-shadow-sm"/>
                         <span
                             class="text-yellow-400"
                             x-bind="dateDom"
@@ -75,7 +74,7 @@
                     </div>
                     {{-- jam --}}
                     <div class="flex items-center gap-2">
-                        <x-heroicon-o-clock class="text-yellow-400 h-6 w-6"/>
+                        <x-heroicon-o-clock class="text-yellow-400 h-6 w-6 drop-shadow-sm"/>
                         <span 
                             class="text-yellow-400"
                             x-bind="clockDom"
@@ -103,6 +102,7 @@
                                 <span class="text-glassmorhism text-white text-2xl">
                                     Status: <span 
                                         x-bind="statusDom"
+                                        class="text-glassmorphism"
                                     ></span>
                                 </span>
                             </div>
@@ -131,49 +131,52 @@
                     x-bind="detailDom"
                     class="flex flex-col gap-2 w-full"
                 >
+                <template x-if="$x.user?.name">
                     <div class="card glassmorphism flex flex-col overflow-x-auto">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th class="text-glassmorphism text-white">
-                                        Akumulasi presensi anda di tahun 2025
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="w-full flex flex-row">
-                                <tr class="flex w-full">
-                                    <th class="text-glassmorphism text-white" x-text="$x.user?.name"></th>
-                                    <td class="text-glassmorphism text-white flex-1 flex">
-                                        <div class="grid grid-cols-2 gap-x-6 gap-y-4 flex-1">
-                                            <div class="col-span-1 flex flex-row justify-between">
-                                                <strong>Masuk</strong>
-                                                <span x-text="userAccumulation.masuk + 'x'"></span>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th 
+                                            class="text-glassmorphism text-white"
+                                            x-text="Object.entries(userAccumulation).length > 0 ? 'Akumulasi presensi anda di tahun 2025' : `${$x.user?.name} belum pernah melakukan presensi`"
+                                        ></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="w-full flex flex-row">
+                                    <tr class="flex w-full">
+                                        <th class="text-glassmorphism text-white" x-text="$x.user?.name"></th>
+                                        <td class="text-glassmorphism text-white flex-1 flex">
+                                            <div class="grid grid-cols-2 gap-x-6 gap-y-4 flex-1">
+                                                <div class="col-span-1 flex flex-row justify-between">
+                                                    <strong>Masuk</strong>
+                                                    <span x-text="userAccumulation.masuk + 'x'"></span>
+                                                </div>
+                                                <div class="col-span-1 flex flex-row justify-between">
+                                                    <strong>Terlambat</strong>
+                                                    <span x-text="userAccumulation.terlambat + 'x'"></span>
+                                                </div>
+                                                <div class="col-span-1 flex flex-row justify-between">
+                                                    <strong>Sakit</strong>
+                                                    <span x-text="userAccumulation.ijin + 'x'"></span>
+                                                </div>
+                                                <div class="col-span-1 flex flex-row justify-between">
+                                                    <strong>Ijin</strong>
+                                                    <span x-text="userAccumulation.sakit + 'x'"></span>
+                                                </div>
+                                                <div class="col-span-1 flex flex-row justify-between">
+                                                    <strong>Tidak Masuk</strong>
+                                                    <span
+                                                        class="text-red-500" 
+                                                        x-text="userAccumulation.tidak_masuk + 'x'"
+                                                    ></span>
+                                                </div>
                                             </div>
-                                            <div class="col-span-1 flex flex-row justify-between">
-                                                <strong>Terlambat</strong>
-                                                <span x-text="userAccumulation.terlambat + 'x'"></span>
-                                            </div>
-                                            <div class="col-span-1 flex flex-row justify-between">
-                                                <strong>Sakit</strong>
-                                                <span x-text="userAccumulation.ijin + 'x'"></span>
-                                            </div>
-                                            <div class="col-span-1 flex flex-row justify-between">
-                                                <strong>Ijin</strong>
-                                                <span x-text="userAccumulation.sakit + 'x'"></span>
-                                            </div>
-                                            <div class="col-span-1 flex flex-row justify-between">
-                                                <strong>Tidak Masuk</strong>
-                                                <span
-                                                    class="text-red-500" 
-                                                    x-text="userAccumulation.tidak_masuk + 'x'"
-                                                ></span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </template>
                     <div class="card glassmorphism">
                         <table class="table">
                             <thead>
