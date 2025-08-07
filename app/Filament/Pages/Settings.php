@@ -3,6 +3,10 @@
 namespace App\Filament\Pages;
 
 use App\Models\Config;
+use App\Models\Background;
+
+use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
 
 use Filament\Pages\Page;
 use Filament\Forms\Form;
@@ -18,6 +22,15 @@ use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\View;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\FileUpload;
+
+use App\Livewire\Tables\Config\HariKerja;
+use App\Livewire\Tables\Config\HariLibur;
+
+use App\Forms\Components\ViewLivewire;
+
+use App\Livewire\Grid\ImageSection;
 
 use Filament\Notifications\Notification as Notif;
 
@@ -46,10 +59,15 @@ class Settings extends Page implements HasForms
                     ->contained(false)
                     ->persistTabInQueryString('tab')
                     ->tabs([
+                        Tabs\Tab::make('Presensi')
+                            ->id('presensi')
+                            ->schema([
+                                ViewLivewire::make(ImageSection::class),
+                            ]),
                         Tabs\Tab::make('Hari Kerja')
                             ->id('hari-kerja')
                             ->schema([
-                                View::make('components.tables.hari-kerja'),
+                                ViewLivewire::make(HariKerja::class),
                                 Section::make()
                                     ->columns([
                                         'default' => 2,
@@ -90,14 +108,15 @@ class Settings extends Page implements HasForms
                                             ->displayFormat('H:i:s')
                                             ->columnSpan(['default' => 1]),
                                         TimePicker::make('data.jam_selesai_istirahat')
-                                        ->label('Selesai istirahat')
-                                        ->native(false)
-                                        ->displayFormat('H:i:s')
+                                            ->label('Selesai istirahat')
+                                            ->native(false)
+                                            ->displayFormat('H:i:s')
                                             ->columnSpan(['default' => 1]),
                                         TextInput::make('data.toleransi_presensi')
-                                        ->numeric()
-                                        ->label('Toleransi presensi')
+                                            ->numeric()
+                                            ->label('Toleransi presensi')
                                             ->suffix('Menit')
+                                            ->minValue(0)
                                             ->columnSpan(2),
                                     ]),
                             ]),
@@ -160,7 +179,7 @@ class Settings extends Page implements HasForms
                         Tabs\Tab::make('Hari libur')
                             ->id('hari-libur')
                             ->schema([
-                                View::make('components.tables.hari-libur'),
+                                ViewLivewire::make(HariLibur::class),
                             ]),
                         Tabs\Tab::make('On Register')
                             ->id('on-register')
