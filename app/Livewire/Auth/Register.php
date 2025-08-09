@@ -108,12 +108,7 @@ class Register extends Component implements HasForms
                                 ->default(fn() => (bool) Config::get('auto_approve', false)),
                             Select::make('divisi')
                                 ->label('Divisi')
-                                ->options([
-                                    'item1' => 'item 1',
-                                    'item2' => 'item 2',
-                                    'item3' => 'item 3',
-                                ])
-                                ->dehydrated(false),
+                                ->relationship(name: 'divisi', titleAttribute: 'nama'),
                             Select::make('tipe_id')
                                 ->label('Tipe pengguna')
                                 ->placeholder('i.e: Karyawan tetap, magang...')

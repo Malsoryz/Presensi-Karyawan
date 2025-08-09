@@ -80,7 +80,7 @@ class Login extends Component implements HasForms
         } else $this->redirectIntended(route('presensi.index'));
     }
 
-    protected function ensureIsNotRateLimited(string $email = null): void
+    protected function ensureIsNotRateLimited(?string $email = null): void
     {
         $email = $email ?? ($this->data['email'] ?? '');
 

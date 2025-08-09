@@ -3,6 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Models\User;
+use App\Models\Config;
+use App\Models\Tipe;
+use App\Models\Jabatan;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 
@@ -23,6 +26,17 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\FileUpload;
+
+use Filament\Forms\Components\Wizard;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Group;
+
+use App\Forms\Components\TermOfServices;
+use App\Livewire\Tables\User\Tunjangan as TunjanganTable;
+use Filament\Forms\Get;
 
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -30,6 +44,12 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 
 use Illuminate\Support\Facades\Hash;
+
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\HtmlString;
+use Filament\Support\RawJs;
+
+use Filament\Forms\Components\Livewire;
 
 class UserResource extends Resource
 {
@@ -46,95 +66,121 @@ class UserResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+            ->columns(1)
             ->schema([
-                Tabs::make('User Forms')
-                    // ->contained(false)
-                    ->tabs([
-                        Tabs\Tab::make('Profile')
-                            ->schema([
-                                TextInput::make('name')
-                                    ->label('Nama')
-                                    ->required()
-                                    ->autoFocus(),
-                                TextInput::make('email')
-                                    ->label('Email')
-                                    ->required()
-                                    ->email(),
-                                DatePicker::make('birth_date')
-                                    ->label('Date of birth'),
-                                Radio::make('gender')
-                                    ->options(Gender::toSelectItem())
-                                    ->inline()
-                                    ->inlineLabel(false),
-                                TextInput::make('phone_number')
-                                    ->label('No Telepon')
-                                    ->numeric()
-                                    ->inputMode('tel'),
-                                Textarea::make('address')
-                                    ->label('Alamat')
-                                    ->autosize()
-                                    ->disableGrammarly(),
-                            ]),
-                        Tabs\Tab::make('Credential')
-                            ->schema([
-                                TextInput::make('password')
-                                    ->label(fn (string $operation) => $operation === 'create' ? 'Password' : 'New Password')
-                                    ->password()
-                                    ->required(fn (string $operation) => $operation === 'create')
-                                    ->confirmed()
-                                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                                    ->dehydrated(fn ($state) => filled($state))
-                                    ->maxLength(255)
-                                    ->revealable(),
-
-                                TextInput::make('password_confirmation')
-                                    ->label('Confirm Password')
-                                    ->password()
-                                    ->required(fn (string $operation) => $operation === 'create')
-                                    ->visible(fn (string $operation) => in_array($operation, ['create', 'edit']))
-                                    ->maxLength(255)
-                                    ->revealable(),
-                            ]),
-                        Tabs\Tab::make('Data Karyawan')
-                            ->schema([
-                                Select::make('jabatan_id')
-                                    ->label('Jabatan')
-                                    ->relationship(name: 'jabatan', titleAttribute: 'nama')
-                                    ->disabled(fn (string $operation) => $operation === 'edit'),
-                                TextInput::make('departmen')
-                                    ->label('Departmen'),
-                                Select::make('tipe_id')
-                                    ->label('Tipe')
-                                    ->relationship(name: 'tipe', titleAttribute: 'nama_tipe')
-                                    ->disabled(fn (string $operation) => $operation === 'edit'),
-                                DatePicker::make('tanggal_masuk')
-                                    ->label('Tanggal masuk')
-                                    ->visibleOn('edit')
-                                    ->disabled(fn (string $operation) => $operation === 'edit'),
-                                DatePicker::make('tanggal_masuk_sebagai_karyawan')
-                                    ->label('Tanggal masuk sebagai karyawan')
-                                    ->visibleOn('edit')
-                                    ->disabled(fn (string $operation) => $operation === 'edit'),
-                                TextInput::make('rekening_bank')
-                                    ->label('Rekening bank'),
-                                TextInput::make('gaji_pokok_bulanan')
-                                    ->label('Gaji pokok bulanan')
-                                    ->numeric()
-                                    ->visibleOn('edit')
-                                    ->disabled(fn (string $operation) => $operation === 'edit'),
-                                TextInput::make('tunjangan_kehadiran_harian')
-                                    ->label('Tunjangan kehadiran harian')
-                                    ->numeric()
-                                    ->visibleOn('edit')
-                                    ->disabled(fn (string $operation) => $operation === 'edit'),
-                            ]),
-                        Tabs\Tab::make('Role')
-                            ->schema([
-                                Select::make('role')
-                                    ->label('Role')
-                                    ->options(Role::toSelectItem()),
-                            ]),
-                    ])
+                Wizard::make([
+                    /*------------------------------------------PROFILE--------------------------------------------*/
+                    Wizard\Step::make('Profile')
+                        ->description('Informasi dasar pengguna')
+                        ->columns([
+                            'default' => 2
+                        ])
+                        ->schema([
+                            TextInput::make('name')
+                                ->label('Nama')
+                                ->required()
+                                ->columnSpanFull()
+                                ->placeholder('i.e: Budi Hermawan'),
+                            TextInput::make('email')
+                                ->label('Email')
+                                ->required()
+                                ->columnSpanFull()
+                                ->email()
+                                ->placeholder('i.e: email@example.com'),
+                            DatePicker::make('birth_date')
+                                ->label('Tanggal lahir')
+                                ->required()
+                                ->columnSpan(1),
+                            Radio::make('gender')
+                                ->label('Jenis kelamin')
+                                ->required()
+                                ->columnSpan(1)
+                                ->options([
+                                    'laki-laki' => 'Laki-Laki',
+                                    'perempuan' => 'Perempuan',
+                                ])
+                                ->inline()
+                                ->inlineLabel(false),
+                            TextInput::make('phone_number')
+                                ->label('No telepon')
+                                ->required()
+                                ->columnSpanFull()
+                                ->numeric()
+                                ->inputMode('tel')
+                                ->mask('9999 9999 9999')
+                                ->stripCharacters(' ')
+                                // ->prefix('+62')
+                                ->placeholder('i.e: 0812 3456 7890'),
+                            Textarea::make('address')
+                                ->label('Alamat')
+                                ->required()
+                                ->columnSpanFull()
+                                ->autosize()
+                                ->disableGrammarly()
+                                ->placeholder('i.e: Jalan kayutangi 2...'),
+                        ]),
+                    /*------------------------------------------CREDENTIAL--------------------------------------------*/
+                    Wizard\Step::make('Credential')
+                        ->description('Data penting pengguna')
+                        ->schema([
+                            Hidden::make('status_approved')
+                                ->default(fn() => (bool) Config::get('auto_approve', false)),
+                            Select::make('divisi')
+                                ->label('Divisi')
+                                ->relationship(name: 'divisi', titleAttribute: 'nama'),
+                            Select::make('tipe_id')
+                                ->label('Tipe pengguna')
+                                ->placeholder('i.e: Karyawan tetap, magang...')
+                                ->required()
+                                ->relationship(name: 'tipe', titleAttribute: 'nama_tipe'),
+                            TextInput::make('password')
+                                ->label('Password')
+                                ->required()
+                                ->password()
+                                ->revealable()
+                                ->confirmed(),
+                            TextInput::make('password_confirmation')
+                                ->label('Konfirmasi Password')
+                                ->dehydrated(false)
+                                ->required()
+                                ->password()
+                                ->revealable(),
+                        ]),
+                    /*------------------------------------------EXTRAS--------------------------------------------*/
+                    Wizard\Step::make('Extra')
+                        ->description('Data extra pengguna')
+                        ->schema([
+                            TermOfServices::make('term_of_services')
+                                ->label('Term of Services'),
+                            FileUpload::make('surat_pernyataan')
+                                ->label('Surat pernyataan')
+                                ->required(function (Get $get): bool {
+                                    $tipe = Tipe::find($get('tipe_id') ?? 0);
+                                    return $tipe ? $tipe->wajib_upload : false;
+                                })
+                                ->visible(function (Get $get): bool {
+                                    $tipe = Tipe::find($get('tipe_id') ?? 0);
+                                    return $tipe ? $tipe->wajib_upload : false;
+                                })
+                                ->image()
+                                ->disk('public')
+                                ->directory('documents')
+                                ->visibility('public')
+                                ->maxSize(2048)
+                                ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file, Get $get): string
+                                {
+                                    $name =  $get('name');
+                                    $timestamp = now(Config::get('timezone', 'Asia/Makassar'))->format('YmdHis');
+                                    $extension = $file->getClientOriginalExtension();
+                                    return "surat-pernyataan-{$name}-{$timestamp}.{$extension}";
+                                }),
+                            Checkbox::make('agreement')
+                                ->label(fn() => Config::get('aggrement_label', ''))
+                                ->dehydrated(false)
+                                ->accepted(),
+                        ]),
+                ])
+                ->submitAction(view('filament.partial.submitAction'))
             ]);
     }
 
