@@ -28,11 +28,13 @@ use Filament\Forms\Components\FileUpload;
 use App\Livewire\Tables\Config\HariKerja;
 use App\Livewire\Tables\Config\HariLibur;
 
-use App\Forms\Components\ViewLivewire;
+use Filament\Forms\Components\Livewire;
 
 use App\Livewire\Grid\ImageSection;
 
 use Filament\Notifications\Notification as Notif;
+
+use Carbon\Carbon;
 
 class Settings extends Page implements HasForms
 {
@@ -62,56 +64,60 @@ class Settings extends Page implements HasForms
                         Tabs\Tab::make('Presensi')
                             ->id('presensi')
                             ->schema([
-                                ViewLivewire::make(ImageSection::class),
+                                Livewire::make(ImageSection::class)
+                                    ->key('image-section'),
                             ]),
                         Tabs\Tab::make('Hari Kerja')
                             ->id('hari-kerja')
                             ->schema([
-                                ViewLivewire::make(HariKerja::class),
+                                Livewire::make(HariKerja::class)
+                                    ->key('hari-kerja'),
                                 Section::make()
-                                    ->columns([
-                                        'default' => 2,
-                                        ])
+                                    ->columns(2)
                                     ->schema([
                                         TextInput::make('data.timezone')
                                             ->label('Timezone')
-                                            ->columnSpan(['default' => 2]),
+                                            ->columnSpan(2),
                                         TimePicker::make('data.presensi_pagi_mulai')
                                             ->label('Pagi Mulai')
                                             ->native(false)
                                             ->displayFormat('H:i:s')
-                                            ->columnSpan(['default' => 1]),
+                                            ->format('H:i:s')
+                                            ->columnSpan(1),
                                         TimePicker::make('data.presensi_pagi_selesai')
                                             ->label('Pagi Selesai')
                                             ->native(false)
                                             ->displayFormat('H:i:s')
-                                            ->columnSpan(['default' => 1]),
+                                            ->format('H:i:s')
+                                            ->columnSpan(1),
                                         TimePicker::make('data.presensi_siang_mulai')
                                             ->label('Siang Mulai')
                                             ->native(false)
                                             ->displayFormat('H:i:s')
-                                            ->columnSpan(['default' => 1]),
+                                            ->format('H:i:s')
+                                            ->columnSpan(1),
                                         TimePicker::make('data.presensi_siang_selesai')
                                             ->label('Siang Selesai')
                                             ->native(false)
                                             ->displayFormat('H:i:s')
-                                            ->columnSpan(['default' => 1]),
+                                            ->format('H:i:s')
+                                            ->columnSpan(1),
                                     ]),
                                 Section::make()
-                                    ->columns([
-                                        'default' => 2,
-                                        ])
+                                    ->columns(2)
                                     ->schema([
                                         TimePicker::make('data.jam_mulai_kerja')
                                             ->label('Kerja mulai')
                                             ->native(false)
                                             ->displayFormat('H:i:s')
-                                            ->columnSpan(['default' => 1]),
+                                            ->format('H:i:s')
+                                            ->columnSpan(1),
                                         TimePicker::make('data.jam_selesai_istirahat')
                                             ->label('Selesai istirahat')
                                             ->native(false)
                                             ->displayFormat('H:i:s')
-                                            ->columnSpan(['default' => 1]),
+                                            ->format('H:i:s')
+                                            ->columnSpan(1),
                                         TextInput::make('data.toleransi_presensi')
                                             ->numeric()
                                             ->label('Toleransi presensi')
@@ -154,7 +160,7 @@ class Settings extends Page implements HasForms
                             ]),
                         Tabs\Tab::make('Aturan')
                             ->id('aturan')
-                            ->columns(['default' => 2])
+                            ->columns(2)
                             ->schema([
                                 Section::make()
                                     ->schema([
@@ -179,7 +185,8 @@ class Settings extends Page implements HasForms
                         Tabs\Tab::make('Hari libur')
                             ->id('hari-libur')
                             ->schema([
-                                ViewLivewire::make(HariLibur::class),
+                                Livewire::make(HariLibur::class)
+                                    ->key('hari-libur'),
                             ]),
                         Tabs\Tab::make('On Register')
                             ->id('on-register')

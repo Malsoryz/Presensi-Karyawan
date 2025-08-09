@@ -33,8 +33,10 @@ class Config extends Model
         if ($result == null) {
             return $default;
         }
+
+        $time = Carbon::parse($result)->toTimeString();
         
-        return Carbon::createFromTimeString($result, self::timezone());
+        return Carbon::createFromTimeString($time, self::timezone());
     }
 
     public static function presencesTime(): array
