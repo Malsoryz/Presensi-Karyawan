@@ -53,9 +53,7 @@ class Register extends Component implements HasForms
                     /*------------------------------------------PROFILE--------------------------------------------*/
                     Wizard\Step::make('Profile')
                         ->description('Informasi dasar pengguna')
-                        ->columns([
-                            'default' => 2
-                        ])
+                        ->columns(2)
                         ->schema([
                             TextInput::make('name')
                                 ->label('Nama')

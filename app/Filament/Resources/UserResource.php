@@ -72,9 +72,7 @@ class UserResource extends Resource
                     /*------------------------------------------PROFILE--------------------------------------------*/
                     Wizard\Step::make('Profile')
                         ->description('Informasi dasar pengguna')
-                        ->columns([
-                            'default' => 2
-                        ])
+                        ->columns(2)
                         ->schema([
                             TextInput::make('name')
                                 ->label('Nama')
@@ -135,12 +133,14 @@ class UserResource extends Resource
                                 ->relationship(name: 'tipe', titleAttribute: 'nama_tipe'),
                             TextInput::make('password')
                                 ->label('Password')
+                                ->placeholder('Password')
                                 ->required()
                                 ->password()
                                 ->revealable()
                                 ->confirmed(),
                             TextInput::make('password_confirmation')
                                 ->label('Konfirmasi Password')
+                                ->placeholder('Password')
                                 ->dehydrated(false)
                                 ->required()
                                 ->password()

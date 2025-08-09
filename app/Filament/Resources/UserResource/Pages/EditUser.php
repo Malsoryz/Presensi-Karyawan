@@ -65,25 +65,38 @@ class EditUser extends EditRecord
                                 TextInput::make('name')
                                     ->label('Nama')
                                     ->required()
-                                    ->autoFocus(),
+                                    ->autoFocus()
+                                    ->placeholder('i.e: Budi Hermawan'),
                                 TextInput::make('email')
                                     ->label('Email')
                                     ->required()
-                                    ->email(),
+                                    ->email()
+                                    ->placeholder('i.e: email@example.com'),
                                 DatePicker::make('birth_date')
                                     ->label('Date of birth'),
                                 Radio::make('gender')
-                                    ->options(Gender::toSelectItem())
+                                    ->label('Jenis kelamin')
+                                    ->options([
+                                        'laki-laki' => 'Laki-Laki',
+                                        'perempuan' => 'Perempuan',
+                                    ])
                                     ->inline()
                                     ->inlineLabel(false),
                                 TextInput::make('phone_number')
-                                    ->label('No Telepon')
+                                    ->label('No telepon')
+                                    ->required()
                                     ->numeric()
-                                    ->inputMode('tel'),
+                                    ->inputMode('tel')
+                                    ->mask('9999 9999 9999')
+                                    ->stripCharacters(' ')
+                                    // ->prefix('+62')
+                                    ->placeholder('i.e: 0812 3456 7890'),
                                 Textarea::make('address')
                                     ->label('Alamat')
+                                    ->required()
                                     ->autosize()
-                                    ->disableGrammarly(),
+                                    ->disableGrammarly()
+                                    ->placeholder('i.e: Jalan kayutangi 2...'),
                             ]),
                         Tabs\Tab::make('Credential')
                             ->schema([
@@ -108,12 +121,15 @@ class EditUser extends EditRecord
                             ->schema([
                                 Select::make('jabatan_id')
                                     ->label('Jabatan')
+                                    ->placeholder('Pilih jabatan')
                                     ->relationship(name: 'jabatan', titleAttribute: 'nama'),
                                 Select::make('divisi_id')
-                                    ->label('Jabatan')
+                                    ->label('Divisi')
+                                    ->placeholder('Pilih divisi')
                                     ->relationship(name: 'divisi', titleAttribute: 'nama'),
                                 Select::make('tipe_id')
                                     ->label('Tipe')
+                                    ->placeholder('Pilih tipe')
                                     ->relationship(name: 'tipe', titleAttribute: 'nama_tipe'),
                                 DatePicker::make('tanggal_masuk')
                                     ->label('Tanggal masuk')
@@ -137,7 +153,8 @@ class EditUser extends EditRecord
                                                 $money($input, ',', '.');
                                             JS))
                                             ->stripCharacters('.')
-                                            ->dehydrated(false),
+                                            ->dehydrated(false)
+                                            ->disabled(),
                                         Hidden::make('id'),
                                         Livewire::make(TunjanganTable::class, fn (Get $get) => [
                                             'id' => $get('id'),
