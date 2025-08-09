@@ -56,9 +56,7 @@ class TunjanganEdit extends Page implements HasTable, HasForms
     public function getFormSchema(): array
     {
         return [
-            Grid::make([
-                    'default' => 1,
-                ])
+            Grid::make(1)
                 ->schema([
                     TextInput::make('nama')
                         ->required()
@@ -81,7 +79,7 @@ class TunjanganEdit extends Page implements HasTable, HasForms
     public function table(Table $table): Table
     {
         return $table
-            ->query(Tunjangan::query())
+            ->query(Tunjangan::query()->where('jabatan_id', $this->getRecord()->id))
             ->columns([
                 TextColumn::make('nama')
                     ->label('Nama Tunjangan')

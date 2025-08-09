@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MasterResource\Pages;
 
 use App\Models\Jabatan;
+use App\Models\Tunjangan;
 
 use App\Filament\Resources\MasterResource;
 use Filament\Actions;
@@ -67,6 +68,15 @@ class JabatanTable extends Page implements HasTable, HasForms
                 TextColumn::make('nama')
                     ->label('Nama Jabatan')
                     ->sortable(),
+                TextColumn::make('id')
+                    ->label('Jumlah Tunjangan')
+                    ->alignCenter()
+                    ->formatStateUsing(function ($state) {
+                        $result = Tunjangan::whereHas('jabatan', function($query) use ($state) {
+                            $query->where('jabatan_id', $state);
+                        });
+                        return count($result->get());
+                    }),
                 TextColumn::make('gaji_pokok_bulanan')
                     ->label('Gaji Pokok')
                     ->formatStateUsing(fn ($state) => 'Rp. ' . number_format($state, 0, ',', '.')),

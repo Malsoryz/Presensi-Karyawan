@@ -46,6 +46,12 @@ return new class extends Migration
                 ->on('tipe')
                 ->nullOnDelete()
                 ->cascadeOnUpdate();
+            $table->unsignedBigInteger('divisi_id')->nullable();
+            $table->foreign('divisi_id')
+                ->references('id')
+                ->on('divisi')
+                ->nullOnDelete()
+                ->cascadeOnUpdate();
             $table->rememberToken();
             $table->timestamps();
         });

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Presensi;
 use App\Models\Jabatan;
 use App\Models\Tipe;
+use App\Models\Divisi;
 use App\Models\AdminNotification;
 use App\Enums\StatusPresensi;
 use App\Enums\User\Role;
@@ -45,6 +46,7 @@ class User extends Authenticatable //implements FilamentUser
         'role',
         'jabatan_id',
         'tipe_id',
+        'divisi_id',
     ];
 
     /**
@@ -99,6 +101,11 @@ class User extends Authenticatable //implements FilamentUser
     public function tipe()
     {
         return $this->belongsTo(Tipe::class);
+    }
+
+    public function divisi()
+    {
+        return $this->belongsTo(Divisi::class);
     }
 
     /**

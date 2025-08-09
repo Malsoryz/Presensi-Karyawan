@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\User;
+
 class Divisi extends Model
 {
     protected $table = 'divisi';
@@ -11,4 +13,9 @@ class Divisi extends Model
     protected $fillable = [
         'nama'
     ];
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 }
