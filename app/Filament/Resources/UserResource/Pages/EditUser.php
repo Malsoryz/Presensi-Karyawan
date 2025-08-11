@@ -84,7 +84,6 @@ class EditUser extends EditRecord
                                     ->inlineLabel(false),
                                 TextInput::make('phone_number')
                                     ->label('No telepon')
-                                    ->required()
                                     ->numeric()
                                     ->inputMode('tel')
                                     ->mask('9999 9999 9999')
@@ -93,7 +92,6 @@ class EditUser extends EditRecord
                                     ->placeholder('i.e: 0812 3456 7890'),
                                 Textarea::make('address')
                                     ->label('Alamat')
-                                    ->required()
                                     ->autosize()
                                     ->disableGrammarly()
                                     ->placeholder('i.e: Jalan kayutangi 2...'),

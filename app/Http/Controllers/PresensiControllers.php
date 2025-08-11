@@ -155,9 +155,12 @@ class PresensiControllers extends Controller
         $isAfterPagi = $now->between($pagiSelesai->copy()->addMinutes($toleransi), $siangMulai);
         $isAfterSiang = $now->between($siangSelesai->copy()->addMinutes($toleransi), $pulangKerja);
 
+        $sesiPagi = $now->between($pagiMulai, $pagiSelesai->copy()->addMinutes($toleransi));
+        $sesiSiang = $now->between($siangMulai, $siangSelesai->copy()->addMinutes($toleransi));
+
         // Status Presensi # 2 perlu diambil ->value
         $statusPresensi = match (true) {
-            $presensiSession->isSession() => StatusPresensi::Masuk,
+            $sesiPagi || $sesiSiang => StatusPresensi::Masuk,
             $isAfterPagi || $isAfterSiang => StatusPresensi::Terlambat,
             $now->gt($pulangKerja) => StatusPresensi::TidakMasuk,
             default => null,
