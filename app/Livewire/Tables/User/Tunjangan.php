@@ -55,7 +55,7 @@ class Tunjangan extends Component implements HasForms, HasTable
     public function render()
     {
         return <<<'BLADE'
-            <div wire:ignore>
+            <div>
                 {{ $this->table }}
             </div>
         BLADE;
