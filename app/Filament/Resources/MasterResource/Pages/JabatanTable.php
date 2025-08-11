@@ -44,6 +44,7 @@ class JabatanTable extends Page implements HasTable, HasForms
                 ->schema([
                     TextInput::make('nama')
                         ->required()
+                        ->id('nama-jabatan')
                         ->label('Nama Jabatan')
                         ->placeholder('i.e: Manajer'),
                     TextInput::make('gaji_pokok_bulanan')
