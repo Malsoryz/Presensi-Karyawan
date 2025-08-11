@@ -43,11 +43,11 @@ class ApiController extends Controller
                 ->get()
                 ->toArray(),
             'user_accumulation' => [
-                'masuk' => (int) $accumulation ? $accumulation->total_masuk : 0,
-                'terlambat' => (int) $accumulation ? $accumulation->total_terlambat : 0,
-                'ijin' => (int) $accumulation ? $accumulation->total_ijin : 0,
-                'sakit' => (int) $accumulation ? $accumulation->total_sakit : 0,
-                'tidak_masuk' => (int) $accumulation ? $accumulation->total_tidak_masuk : 0,
+                'masuk' => (bool) $accumulation ? (int) $accumulation->total_masuk : 0,
+                'terlambat' => (bool) $accumulation ? (int) $accumulation->total_terlambat : 0,
+                'ijin' => (bool) $accumulation ? (int) $accumulation->total_ijin : 0,
+                'sakit' => (bool) $accumulation ? (int) $accumulation->total_sakit : 0,
+                'tidak_masuk' => (bool) $accumulation ? (int) $accumulation->total_tidak_masuk : 0,
             ],
         ]);
     }

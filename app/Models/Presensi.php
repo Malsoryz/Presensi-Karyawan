@@ -48,18 +48,6 @@ class Presensi extends Model
             )->groupBy('nama_karyawan')->orderByDesc('total_masuk');
     }
 
-    // public static function getTotal()
-    // {
-    //     return self::select(
-    //         'nama_karyawan',
-    //             DB::raw('SUM(CASE WHEN status = "masuk" THEN 1 ELSE 0 END) as total_masuk'),
-    //             DB::raw('SUM(CASE WHEN status = "terlambat" THEN 1 ELSE 0 END) as total_terlambat'),
-    //             DB::raw('SUM(CASE WHEN status = "ijin" THEN 1 ELSE 0 END) as total_ijin'),
-    //             DB::raw('SUM(CASE WHEN status = "sakit" THEN 1 ELSE 0 END) as total_sakit'),
-    //             DB::raw('SUM(CASE WHEN status = "tidak_masuk" THEN 1 ELSE 0 END) as total_tidak_masuk'),
-    //         )->groupBy('nama_karyawan')->orderByDesc('total_masuk');
-    // }
-
     public static function today()
     {
         $today = now(Config::timezone())->toDateString();
@@ -76,6 +64,6 @@ class Presensi extends Model
                 DB::raw('SUM(CASE WHEN status = "ijin" THEN 1 ELSE 0 END) as total_ijin'),
                 DB::raw('SUM(CASE WHEN status = "sakit" THEN 1 ELSE 0 END) as total_sakit'),
                 DB::raw('SUM(CASE WHEN status = "tidak_masuk" THEN 1 ELSE 0 END) as total_tidak_masuk'),
-            )->groupBy('nama_karyawan')->orderByDesc('total_masuk')->where('nama_karyawan', '=', $name)->first() : null;
+            )->groupBy('nama_karyawan')->orderByDesc('total_masuk')->where('nama_karyawan', $name)->first() : null;
     }
 }

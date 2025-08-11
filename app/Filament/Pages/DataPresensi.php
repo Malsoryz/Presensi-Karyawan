@@ -15,7 +15,7 @@ class DataPresensi extends Page implements HasTable
 {
     use InteractsWithTable;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static string $view = 'filament.pages.data-presensi';
 

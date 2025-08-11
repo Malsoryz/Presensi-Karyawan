@@ -9,7 +9,7 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification as Notif;
 class Notification extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-bell';
 
     protected static string $view = 'filament.pages.notification';
 

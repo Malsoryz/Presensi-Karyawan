@@ -40,7 +40,7 @@ class Settings extends Page implements HasForms
 {
     use InteractsWithForms;
     
-    protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
+    protected static ?string $navigationIcon = 'heroicon-o-cog-8-tooth';
 
     protected static string $view = 'filament.pages.settings';
 
