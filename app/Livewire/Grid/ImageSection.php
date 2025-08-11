@@ -135,6 +135,10 @@ class ImageSection extends Component implements HasForms, HasTable
 
     public function render()
     {
-        return view('livewire.grid.image-section');
+        return <<<'BLADE'
+            <div>
+                {{ $this->table }}
+            </div>
+        BLADE;
     }
 }
