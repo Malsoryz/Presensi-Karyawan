@@ -43,7 +43,7 @@ class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
 
-    protected static string $view = 'filament.resources.user-resource.pages.edit-user';
+    // protected static string $view = 'filament.resources.user-resource.pages.edit-user';
 
     protected function getHeaderActions(): array
     {
@@ -168,21 +168,6 @@ class EditUser extends EditRecord
                                     ->options(Role::toSelectItem()),
                             ]),
                         ]),
-                    FormActions::make([
-                        FormActions\Action::make('save-changes')
-                            ->label('Save changes')
-                            ->button()
-                            ->extraAttributes([
-                                'type' => 'submit',
-                            ]),
-                        FormActions\Action::make('cancel')
-                            ->label('Cancel')
-                            ->button()
-                            ->color('gray')
-                            ->extraAttributes([
-                                'onclick' => "history.back()"
-                            ])
-                    ])
             ]);
     }
 }
