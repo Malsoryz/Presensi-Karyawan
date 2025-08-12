@@ -29,21 +29,9 @@ use Filament\Forms\Components\Actions as FormActions;
 
 use Filament\Support\RawJs;
 
-/*-------------------------------------------------------*/
-// CATATAN: Pada resources page ini, menggunakan submit
-// button custom berupa hanya action saja, yang pastinya
-// tidak stabil ataupun sama seperti button dasarnya,
-// terkait permasalahan penggunaan table di component
-// form 'Livewire::make()' karena table memiliki form nya
-// sendiri yang membuat button submit asli dari form edit nya
-// tidak bisa digunakan, sehingga menggunakan form action.
-/*-------------------------------------------------------*/
-
 class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
-
-    // protected static string $view = 'filament.resources.user-resource.pages.edit-user';
 
     protected function getHeaderActions(): array
     {
