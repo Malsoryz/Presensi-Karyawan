@@ -29,14 +29,15 @@ class Tunjangan extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
+            ->view('filament.components.override.table.index')
             ->query(Tunjang::query()->where('jabatan_id', $this->id))
             ->paginated(false)
             ->columns([
                 TextColumn::make('nama')
-                    ->label('Nama Tunjangan')
+                    ->label('Tunjangan')
                     ->sortable(),
                 TextColumn::make('jumlah')
-                    ->label('Jumlah tunjangan')
+                    ->label('Nominal tunjangan')
                     ->formatStateUsing(fn ($state) => 'Rp. ' . number_format($state, 0, ',', '.')),
             ])
             ->filters([
