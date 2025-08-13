@@ -55,6 +55,9 @@ class Config extends Model
 
     public static function set(string $name, $value): bool
     {
+        if (is_array($value) || is_object($value)) {
+            $value = json_encode($value);
+        }
         return self::updateOrCreate(
             ['name' => $name],
             ['value' => $value]
