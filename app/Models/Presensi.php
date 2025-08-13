@@ -39,14 +39,18 @@ class Presensi extends Model
     public static function getTotalQuery()
     {
         return self::query()
+            ->join('users', 'users.id', '=', 'presensi.user_id')
             ->select(
-                'nama_karyawan',
+                'users.id',
+                'users.name as nama_karyawan',
                 DB::raw('SUM(CASE WHEN status = "masuk" THEN 1 ELSE 0 END) as total_masuk'),
                 DB::raw('SUM(CASE WHEN status = "terlambat" THEN 1 ELSE 0 END) as total_terlambat'),
                 DB::raw('SUM(CASE WHEN status = "ijin" THEN 1 ELSE 0 END) as total_ijin'),
                 DB::raw('SUM(CASE WHEN status = "sakit" THEN 1 ELSE 0 END) as total_sakit'),
                 DB::raw('SUM(CASE WHEN status = "tidak_masuk" THEN 1 ELSE 0 END) as total_tidak_masuk'),
-            )->groupBy('nama_karyawan')->orderByDesc('total_masuk');
+            )
+            ->groupBy('users.id', 'users.name')
+            ->orderByRaw("SUM(CASE WHEN status = 'masuk' THEN 1 ELSE 0 END) DESC");
     }
 
     public static function getThisMonth()
