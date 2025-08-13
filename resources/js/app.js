@@ -226,33 +226,27 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.data('background', () => ({
         latestUrl: null,
+        image: null,
         async getBg() {
             let res = await axios.get("/api/background");
-
-            if (!res.data || !res.data.background) {
-                const parent  = this.$refs.bgpoint;
-                while (parent.firstChild) {
-                    parent.removeChild(parent.firstChild);
-                }
+            
+            if (!res.data) {
                 return;
             }
+            
+            const backgrounds = res.data;
 
-            while (res.data.count > 1 && this.latestUrl && this.latestUrl === res.data.background) {
-                res = await axios.get("/api/background");
-                console.log('while...: ', res.data.background);
-            }
+            const filterBg = backgrounds.filter(item => item !== this.latestUrl);
 
-            this.latestUrl = res.data.background;
+            const background = filterBg[Math.floor(Math.random() * filterBg.length)];
+
+            this.latestUrl = background;
 
             const img = new Image();
-            img.src = res.data.background;
+            img.src = background;
             img.onload = () => {
-                img.className = 'min-h-screen w-full object-cover object-center';
-                const parent = this.$refs.bgpoint;
-                const child = parent.querySelector('img');                        
-                if (parent.contains(child)) {
-                    parent.replaceChild(img, child);
-                } else parent.appendChild(img);
+                this.image = img.src;
+                console.log(this.image);
             };
         },
         start() {
@@ -263,7 +257,11 @@ document.addEventListener('alpine:init', () => {
             ['x-init']() {
                 return this.start();
             },
-            ['x-ref']: 'bgpoint',
+            ['x-bind:style']() {
+                return this.image ? {
+                    'background-image': `url('${this.image}')`
+                } : null;
+            }
         },
     }));
 });

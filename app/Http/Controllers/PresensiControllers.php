@@ -28,12 +28,6 @@ class PresensiControllers extends Controller
         $endOfDay = Carbon::tomorrow()->startOfDay();
         $minutesUntilMidnight = $now->diffInMinutes($endOfDay);
 
-        $background = $request->cookie('todayWallpaper') ?? Background::randomImage();
-
-        if (!$request->hasCookie('todayWallpaper')) {
-            Cookie::queue('todayWalpaper', $background, $minutesUntilMidnight);
-        }
-
         $data = [ // default
             'message' => "Nothing have to say.",
             'isPresenceAllowed' => true,
