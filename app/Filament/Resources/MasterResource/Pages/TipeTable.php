@@ -42,6 +42,7 @@ class TipeTable extends Page implements HasTable, HasForms
                 ])
                 ->schema([
                     TextInput::make('nama_tipe')
+                        ->id('nama-tipe')
                         ->required()
                         ->label('Nama Tipe'),
                     Checkbox::make('wajib_upload')

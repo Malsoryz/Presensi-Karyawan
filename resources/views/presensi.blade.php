@@ -142,38 +142,40 @@
                                         ></th>
                                     </tr>
                                 </thead>
-                                <tbody class="w-full flex flex-row">
-                                    <tr class="flex w-full">
-                                        <th class="text-glassmorphism text-white" x-text="$x.user?.name"></th>
-                                        <td class="text-glassmorphism text-white flex-1 flex">
-                                            <div class="grid grid-cols-2 gap-x-6 gap-y-4 flex-1">
-                                                <div class="col-span-1 flex flex-row justify-between">
-                                                    <strong>Masuk</strong>
-                                                    <span x-text="userAccumulation.masuk + 'x'"></span>
+                                <template x-if="Object.keys(userAccumulation).length !== 0">
+                                    <tbody class="w-full flex flex-row">
+                                        <tr class="flex w-full">
+                                            <th class="text-glassmorphism text-white" x-text="$x.user?.name"></th>
+                                            <td class="text-glassmorphism text-white flex-1 flex">
+                                                <div class="grid grid-cols-2 gap-x-6 gap-y-4 flex-1">
+                                                    <div class="col-span-1 flex flex-row justify-between">
+                                                        <strong>Masuk</strong>
+                                                        <span x-text="(userAccumulation.masuk ?? 0) + 'x'"></span>
+                                                    </div>
+                                                    <div class="col-span-1 flex flex-row justify-between">
+                                                        <strong>Terlambat</strong>
+                                                        <span x-text="(userAccumulation.terlambat ?? 0) + 'x'"></span>
+                                                    </div>
+                                                    <div class="col-span-1 flex flex-row justify-between">
+                                                        <strong>Sakit</strong>
+                                                        <span x-text="(userAccumulation.ijin ?? 0) + 'x'"></span>
+                                                    </div>
+                                                    <div class="col-span-1 flex flex-row justify-between">
+                                                        <strong>Ijin</strong>
+                                                        <span x-text="(userAccumulation.sakit ?? 0) + 'x'"></span>
+                                                    </div>
+                                                    <div class="col-span-1 flex flex-row justify-between">
+                                                        <strong>Tidak Masuk</strong>
+                                                        <span
+                                                            class="text-red-500" 
+                                                            x-text="(userAccumulation.tidak_masuk ?? 0) + 'x'"
+                                                        ></span>
+                                                    </div>
                                                 </div>
-                                                <div class="col-span-1 flex flex-row justify-between">
-                                                    <strong>Terlambat</strong>
-                                                    <span x-text="userAccumulation.terlambat + 'x'"></span>
-                                                </div>
-                                                <div class="col-span-1 flex flex-row justify-between">
-                                                    <strong>Sakit</strong>
-                                                    <span x-text="userAccumulation.ijin + 'x'"></span>
-                                                </div>
-                                                <div class="col-span-1 flex flex-row justify-between">
-                                                    <strong>Ijin</strong>
-                                                    <span x-text="userAccumulation.sakit + 'x'"></span>
-                                                </div>
-                                                <div class="col-span-1 flex flex-row justify-between">
-                                                    <strong>Tidak Masuk</strong>
-                                                    <span
-                                                        class="text-red-500" 
-                                                        x-text="userAccumulation.tidak_masuk + 'x'"
-                                                    ></span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </template>
                             </table>
                         </div>
                     </template>

@@ -43,11 +43,11 @@ class ApiController extends Controller
                 ->get()
                 ->toArray(),
             'user_accumulation' => [
-                'masuk' => (int) $accumulation ? $accumulation->total_masuk : 0,
-                'terlambat' => (int) $accumulation ? $accumulation->total_terlambat : 0,
-                'ijin' => (int) $accumulation ? $accumulation->total_ijin : 0,
-                'sakit' => (int) $accumulation ? $accumulation->total_sakit : 0,
-                'tidak_masuk' => (int) $accumulation ? $accumulation->total_tidak_masuk : 0,
+                'masuk' => (bool) $accumulation ? (int) $accumulation->total_masuk : 0,
+                'terlambat' => (bool) $accumulation ? (int) $accumulation->total_terlambat : 0,
+                'ijin' => (bool) $accumulation ? (int) $accumulation->total_ijin : 0,
+                'sakit' => (bool) $accumulation ? (int) $accumulation->total_sakit : 0,
+                'tidak_masuk' => (bool) $accumulation ? (int) $accumulation->total_tidak_masuk : 0,
             ],
         ]);
     }
@@ -125,15 +125,15 @@ class ApiController extends Controller
         $presencesStatus = match (true) {
             $sesiPagi || $sesiSiang => [
                 'status' => 'Ontime',
-                'class' => 'text-green-600 dark:text-green-400',
+                'class' => 'text-green-400',
             ], //StatusPresensi::Masuk,
             $isAfterPagi || $isAfterSiang => [
                 'status' => 'Terlambat',
-                'class' => 'text-yellow-600 dark:text-yellow-400',
+                'class' => 'text-yellow-400',
             ], //StatusPresensi::Terlambat,
             $now->gt($pulangKerja) => [
                 'status' => 'Tidak masuk',
-                'class' => 'text-red-600 dark:text-red-400',
+                'class' => 'text-red-400',
             ], //StatusPresensi::TidakMasuk,
             default => null,
         };
@@ -141,13 +141,20 @@ class ApiController extends Controller
         return response()->json($presencesStatus);
     }
 
+    public function isUserPresence(Request $request)
+    {
+        $isPresence = Presensi::isTodayPresence($request->query('name'));
+        return response()->json($isPresence);
+    }
+
     public function backgrounds()
     {
-        $background = Background::randomImage();
-        $count = Background::countImage();
-        return response()->json($background ? [
-            'background' => $background,
-            'count' => $count,
-        ] : null);
+        $backgrounds = Background::whereFriday()
+            ->pluck('image_path');
+
+        $backgroundList = $backgrounds->map(function ($item) {
+            return asset("storage/{$item}");
+        });
+        return response()->json($backgrounds->isNotEmpty() ? $backgroundList : null);
     }
 }

@@ -29,21 +29,9 @@ use Filament\Forms\Components\Actions as FormActions;
 
 use Filament\Support\RawJs;
 
-/*-------------------------------------------------------*/
-// CATATAN: Pada resources page ini, menggunakan submit
-// button custom berupa hanya action saja, yang pastinya
-// tidak stabil ataupun sama seperti button dasarnya,
-// terkait permasalahan penggunaan table di component
-// form 'Livewire::make()' karena table memiliki form nya
-// sendiri yang membuat button submit asli dari form edit nya
-// tidak bisa digunakan, sehingga menggunakan form action.
-/*-------------------------------------------------------*/
-
 class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
-
-    protected static string $view = 'filament.resources.user-resource.pages.edit-user';
 
     protected function getHeaderActions(): array
     {
@@ -84,7 +72,6 @@ class EditUser extends EditRecord
                                     ->inlineLabel(false),
                                 TextInput::make('phone_number')
                                     ->label('No telepon')
-                                    ->required()
                                     ->numeric()
                                     ->inputMode('tel')
                                     ->mask('9999 9999 9999')
@@ -93,7 +80,6 @@ class EditUser extends EditRecord
                                     ->placeholder('i.e: 0812 3456 7890'),
                                 Textarea::make('address')
                                     ->label('Alamat')
-                                    ->required()
                                     ->autosize()
                                     ->disableGrammarly()
                                     ->placeholder('i.e: Jalan kayutangi 2...'),
@@ -170,21 +156,6 @@ class EditUser extends EditRecord
                                     ->options(Role::toSelectItem()),
                             ]),
                         ]),
-                    FormActions::make([
-                        FormActions\Action::make('save-changes')
-                            ->label('Save changes')
-                            ->button()
-                            ->extraAttributes([
-                                'type' => 'submit',
-                            ]),
-                        FormActions\Action::make('cancel')
-                            ->label('Cancel')
-                            ->button()
-                            ->color('gray')
-                            ->extraAttributes([
-                                'onclick' => "history.back()"
-                            ])
-                    ])
             ]);
     }
 }

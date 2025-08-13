@@ -78,8 +78,12 @@ class HariKerja extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render(): View
+    public function render()
     {
-        return view('livewire.tables.config.hari-kerja');
+        return <<<'BLADE'
+            <div>
+                {{ $this->table }}
+            </div>
+        BLADE;
     }
 }

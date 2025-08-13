@@ -27,12 +27,11 @@
         @endif
         {{ $scriptBefore }}
     </head>
-    <body>
-        <div 
-            class="w-full min-h-screen absolute" 
-            x-data="background" 
-            x-bind="bgDom"
-        ></div>
+    <body 
+        x-data="background" 
+        x-bind="bgDom"
+        class="bg-center bg-cover"
+    >
         <div {{ $attributes }}>
             <header>
                 {{ $header }}

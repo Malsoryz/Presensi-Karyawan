@@ -12,23 +12,9 @@ Route::prefix('presensi')->controller(PresensiControllers::class)->group(functio
     Route::get('/store/{token}', 'store')
         ->name('presensi.store')
         ->middleware('auth');
-    Route::get('/get-qr', 'getQr')
-        ->name('presensi.getqr');
-    Route::get('/get-user', 'getUser')
-        ->name('presensi.get-user');
-        
-    Route::get('/cookie', 'checkCookie')
-        ->name('presensi.check-cookie');
-
-    Route::get('/data', 'getPresenceData')
-        ->name('presensi.data');
 
     Route::get('/test', 'test')
         ->name('presensi.test');
-});
-
-Route::get('/test', function () {
-    return view('test');
 });
 
 require __DIR__.'/auth.php';

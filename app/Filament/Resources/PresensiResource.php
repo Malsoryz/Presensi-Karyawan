@@ -1,25 +1,36 @@
 <?php
 
-namespace App\Filament\Pages;
+namespace App\Filament\Resources;
 
+use App\Models\User;
 use App\Models\Presensi;
-use Filament\Pages\Page;
+
+use App\Filament\Resources\PresensiResource\Pages;
+use App\Filament\Resources\PresensiResource\RelationManagers;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Support\Enums\Alignment;
 
-class DataPresensi extends Page implements HasTable
+class PresensiResource extends Resource
 {
-    use InteractsWithTable;
+    protected static ?string $model = Presensi::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationLabel = 'Data Presensi';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    
+    public static function getNavigationBadge(): ?string
+    {
+        return User::whereHas('presensis')->count();
+    }
 
-    protected static string $view = 'filament.pages.data-presensi';
-
-    public function table(Table $table): Table
+    public static function table(Table $table): Table
     {
         return $table
             ->query(Presensi::getTotalQuery())
@@ -48,18 +59,21 @@ class DataPresensi extends Page implements HasTable
                     ->alignment(Alignment::Center),
             ])
             ->filters([
-
-            ])
-            ->actions([
-
-            ])
-            ->bulkActions([
-
+                //
             ]);
     }
 
-    public function getTableRecordKey(Model $record): string
+    public static function getRelations(): array
     {
-        return $record->nama_karyawan;
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListPresensis::route('/'),
+        ];
     }
 }

@@ -85,8 +85,12 @@ class HariLibur extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render(): View
+    public function render()
     {
-        return view('livewire.tables.config.hari-libur');
+        return <<<'BLADE'
+            <div>
+                {{ $this->table }}
+            </div>
+        BLADE;
     }
 }

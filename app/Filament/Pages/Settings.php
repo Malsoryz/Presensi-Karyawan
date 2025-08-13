@@ -9,6 +9,7 @@ use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 
 use Filament\Pages\Page;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -32,6 +33,11 @@ use Filament\Forms\Components\Livewire;
 
 use App\Livewire\Grid\ImageSection;
 
+use Illuminate\Http\File;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Illuminate\Support\Str;
+
 use Filament\Notifications\Notification as Notif;
 
 use Carbon\Carbon;
@@ -40,7 +46,7 @@ class Settings extends Page implements HasForms
 {
     use InteractsWithForms;
     
-    protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
+    protected static ?string $navigationIcon = 'heroicon-o-cog-8-tooth';
 
     protected static string $view = 'filament.pages.settings';
 
@@ -48,9 +54,9 @@ class Settings extends Page implements HasForms
 
     public function mount(): void
     {
-        $this->form->fill([
-            'data' => Config::all()->pluck('value', 'name')->toArray(),
-        ]);
+        $this->form->fill(
+            Config::all()->pluck('value', 'name')->toArray(),
+        );
     }
     
     public function form(Form $form): Form
@@ -61,6 +67,37 @@ class Settings extends Page implements HasForms
                     ->contained(false)
                     ->persistTabInQueryString('tab')
                     ->tabs([
+                        Tabs\Tab::make('General')
+                            ->id('general')
+                            ->schema([
+                                Section::make()
+                                    ->columns(8)
+                                    ->schema([
+                                        FileUpload::make('app_logo')
+                                            ->label('Logo aplikasi')
+                                            ->nullable()
+                                            ->disk('public')
+                                            ->directory('app/general')
+                                            ->default(function ($state) {
+                                                $path = $state ?: Config::get('app_logo');
+
+                                                return $path ? [[
+                                                    'name' => basename($path),
+                                                    'path' => $path,
+                                                    'url'  => Storage::disk('public')->url($path), // karena FileUpload pakai disk public
+                                                ]] : [];
+                                            })
+                                            ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file, Get $get) {
+                                                $name = $get('app_brand') ?? 'app logo';
+                                                $slug = Str::slug($name, '-');
+                                                $extension = $file->getClientOriginalExtension();
+                                                return "{$name}.{$extension}";
+                                            }),
+                                        TextInput::make('app_brand')
+                                            ->label('Brand aplikasi')
+                                            ->columnSpan(7),
+                                    ])
+                            ]),
                         Tabs\Tab::make('Presensi')
                             ->id('presensi')
                             ->schema([
@@ -75,28 +112,28 @@ class Settings extends Page implements HasForms
                                 Section::make()
                                     ->columns(2)
                                     ->schema([
-                                        TextInput::make('data.timezone')
+                                        TextInput::make('timezone')
                                             ->label('Timezone')
                                             ->columnSpan(2),
-                                        TimePicker::make('data.presensi_pagi_mulai')
+                                        TimePicker::make('presensi_pagi_mulai')
                                             ->label('Pagi Mulai')
                                             ->native(false)
                                             ->displayFormat('H:i:s')
                                             ->format('H:i:s')
                                             ->columnSpan(1),
-                                        TimePicker::make('data.presensi_pagi_selesai')
+                                        TimePicker::make('presensi_pagi_selesai')
                                             ->label('Pagi Selesai')
                                             ->native(false)
                                             ->displayFormat('H:i:s')
                                             ->format('H:i:s')
                                             ->columnSpan(1),
-                                        TimePicker::make('data.presensi_siang_mulai')
+                                        TimePicker::make('presensi_siang_mulai')
                                             ->label('Siang Mulai')
                                             ->native(false)
                                             ->displayFormat('H:i:s')
                                             ->format('H:i:s')
                                             ->columnSpan(1),
-                                        TimePicker::make('data.presensi_siang_selesai')
+                                        TimePicker::make('presensi_siang_selesai')
                                             ->label('Siang Selesai')
                                             ->native(false)
                                             ->displayFormat('H:i:s')
@@ -106,19 +143,19 @@ class Settings extends Page implements HasForms
                                 Section::make()
                                     ->columns(2)
                                     ->schema([
-                                        TimePicker::make('data.jam_mulai_kerja')
+                                        TimePicker::make('jam_mulai_kerja')
                                             ->label('Kerja mulai')
                                             ->native(false)
                                             ->displayFormat('H:i:s')
                                             ->format('H:i:s')
                                             ->columnSpan(1),
-                                        TimePicker::make('data.jam_selesai_istirahat')
+                                        TimePicker::make('jam_selesai_istirahat')
                                             ->label('Selesai istirahat')
                                             ->native(false)
                                             ->displayFormat('H:i:s')
                                             ->format('H:i:s')
                                             ->columnSpan(1),
-                                        TextInput::make('data.toleransi_presensi')
+                                        TextInput::make('toleransi_presensi')
                                             ->numeric()
                                             ->label('Toleransi presensi')
                                             ->suffix('Menit')
@@ -131,12 +168,12 @@ class Settings extends Page implements HasForms
                             ->schema([
                                 Section::make()
                                     ->schema([
-                                        TextInput::make('data.ssid')
+                                        TextInput::make('ssid')
                                         ->label('SSID')
                                             ->placeholder('Nama jaringan'),
-                                        TextInput::make('data.ip_range')
+                                        TextInput::make('ip_range')
                                             ->label('IP Range'),
-                                        TextInput::make('data.static_ip_url')
+                                        TextInput::make('static_ip_url')
                                             ->label('Static IP Url')
                                             ->prefix('http://')
                                     ])
@@ -146,13 +183,13 @@ class Settings extends Page implements HasForms
                             ->schema([
                                 Section::make()
                                     ->schema([
-                                        TextInput::make('data.trigger_notifikasi_hr')
+                                        TextInput::make('trigger_notifikasi_hr')
                                             ->label('Trigger notifikasi HR')
                                             ->numeric()
                                             ->suffix('Hari'),
-                                        TextInput::make('data.metode_notifikasi')
+                                        TextInput::make('metode_notifikasi')
                                             ->label('Metode notifikasi'),
-                                        Textarea::make('data.template_pesan')
+                                        Textarea::make('template_pesan')
                                             ->label('Template pesan')
                                             ->autosize()
                                             ->placeholder('User tidak melakukan presensi...'),
@@ -164,22 +201,22 @@ class Settings extends Page implements HasForms
                             ->schema([
                                 Section::make()
                                     ->schema([
-                                        TextInput::make('data.potongan_tidak_masuk')
+                                        TextInput::make('potongan_tidak_masuk')
                                             ->label('Potongan tidak masuk')
                                             ->numeric()
                                             ->suffix('%'),
-                                        TextInput::make('data.potongan_telat')
+                                        TextInput::make('potongan_telat')
                                             ->label('Potongan telat')
                                             ->numeric()
                                             ->suffix('% per kejadian'),
-                                        TextInput::make('data.threshold_kehadiran_min')
+                                        TextInput::make('threshold_kehadiran_min')
                                             ->label('Threshold kehadiran minimal')
                                             ->numeric()
                                             ->suffix('%'),
-                                        TextInput::make('data.ambang_batas_keterlambatan')
+                                        TextInput::make('ambang_batas_keterlambatan')
                                             ->label('Ambang batas keterlambatan')
                                             ->suffix('Kali'),
-                                        Toggle::make('data.auto_approve'),
+                                        Toggle::make('auto_approve'),
                                     ])
                             ]),
                         Tabs\Tab::make('Hari libur')
@@ -193,8 +230,8 @@ class Settings extends Page implements HasForms
                             ->schema([
                                 Section::make()
                                     ->schema([
-                                        RichEditor::make('data.short_term_of_service'),
-                                        TextInput::make('data.aggrement_label'),
+                                        RichEditor::make('short_term_of_service'),
+                                        TextInput::make('aggrement_label'),
                                     ])
                             ]),
                     ]),
@@ -202,15 +239,36 @@ class Settings extends Page implements HasForms
                     Actions\Action::make('save')
                         ->label('Save changes')
                         ->action(function () {
-                            foreach ($this->data as $name => $value) {
-                                Config::set($name, $value);
+                            $appLogoTemp = collect($this->form->getState()['app_logo'])->first();
+
+                            $appLabel = $this->form->getState()['app_brand'] ?? 'app-logo-label';
+
+                            if ($appLogoTemp instanceof TemporaryUploadedFile) {
+                                $extension = $appLogoTemp->getClientOriginalExtension();
+
+                                $path = Storage::disk('local')->putFileAs(
+                                    'app/general',
+                                    new File($appLogoTemp->getPathname()),
+                                    "{$appLabel}.{$extension}"
+                                );
+
+                                $this->form->getState()['app_logo'] = $path;
+
+                            } else {
+                                $this->form->getState()['app_logo'] = $appLogoTemp;
                             }
+
+                            collect($this->form->getState())->each(function ($value, $name) {
+                                Config::set($name, $value);
+                            });
+
                             Notif::make()
                                 ->title('Perubahan di simpan')
                                 ->success()
                                 ->send();
                         }),
                     ]),
-            ]);
+            ])
+            ->statePath('data');
         }
 }

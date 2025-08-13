@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Config;
 use Carbon\Carbon;
 
+use Illuminate\Support\Collection;
+
 class Background extends Model
 {
     protected $fillable = [
@@ -18,18 +20,11 @@ class Background extends Model
         'special_friday' => 'boolean',
     ];
 
-    public static function randomImage(): ?string
-    {
-        $now = now(Config::timezone());
-        $isFriday = $now->isFriday();
-        $background = self::where('special_friday', $isFriday)->inRandomOrder();
-        return $background->exists() ? asset("storage/{$background->first()->image_path}") : null;
-    }
+    // buat function untuk mengambil atau membuat query mengenai untuk jumat atau tidak
 
-    public static function countImage(): int
+    public static function whereFriday()
     {
         $now = now(Config::timezone());
-        $isFriday = $now->isFriday();
-        return self::where('special_friday', $isFriday)->count();
+        return self::where('special_friday', $now->isFriday());
     }
 }

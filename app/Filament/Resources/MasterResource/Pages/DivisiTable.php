@@ -40,6 +40,7 @@ class DivisiTable extends Page implements HasTable, HasForms
                 ])
                 ->schema([
                     TextInput::make('nama')
+                        ->id('nama-divisi')
                         ->required()
                         ->label('Nama Divisi')
                         ->placeholder('i.e: Programmer'),

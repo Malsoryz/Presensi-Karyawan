@@ -59,6 +59,7 @@ class TunjanganEdit extends Page implements HasTable, HasForms
             Grid::make(1)
                 ->schema([
                     TextInput::make('nama')
+                        ->id('nama-tunjangan')
                         ->required()
                         ->label('Nama Tunjangan')
                         ->placeholder('i.e: Hari raya'),
