@@ -79,7 +79,7 @@ class AdminPanelProvider extends PanelProvider
 
     protected function appBrand(): string
     {
-        $brandName = Config::get('app_brand');
+        $brandName = Config::get('app_brand') ?? config('app.name');
         $brandLogo = Config::get('app_logo');
         $logo = $brandLogo ? Storage::disk('public')->url($brandLogo) : null;
 
@@ -88,7 +88,7 @@ class AdminPanelProvider extends PanelProvider
                 <div class="flex flex-row gap-3 justify-center items-center">
                     @if($brandLogo)
                         <img 
-                            alt="{{ $brandName ?? 'App Logo' }}" 
+                            alt="{{ $brandName }}" 
                             src="{{ $brandLogo }}" 
                             class="fi-logo h-6" 
                         />
