@@ -61,7 +61,6 @@ class PresenceData extends BaseWidget
             ->query($this->getTableQuery())
             ->header(view('filament.partial.widget.presence-data.header', [
                 'header' => 'Data Presensi',
-                'description' => 'Data presensi tahun ini dan di bulan ini'
             ]))
             ->columns([
                 TextColumn::make('nama_karyawan'),
