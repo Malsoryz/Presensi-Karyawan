@@ -38,16 +38,18 @@ class Presensi extends Model
 
     public static function getTotalQuery()
     {
+        $status = collect(StatusPresensi::toArray());
+
+        $rawQueries = $status->map(function ($item) {
+            return DB::raw("SUM(CASE WHEN status = '{$item}' THEN 1 ELSE 0 END) as total_{$item}");
+        })->toArray();
+
         return self::query()
             ->join('users', 'users.id', '=', 'presensi.user_id')
             ->select(
                 'users.id',
                 'users.name as nama_karyawan',
-                DB::raw('SUM(CASE WHEN status = "masuk" THEN 1 ELSE 0 END) as total_masuk'),
-                DB::raw('SUM(CASE WHEN status = "terlambat" THEN 1 ELSE 0 END) as total_terlambat'),
-                DB::raw('SUM(CASE WHEN status = "ijin" THEN 1 ELSE 0 END) as total_ijin'),
-                DB::raw('SUM(CASE WHEN status = "sakit" THEN 1 ELSE 0 END) as total_sakit'),
-                DB::raw('SUM(CASE WHEN status = "tidak_masuk" THEN 1 ELSE 0 END) as total_tidak_masuk'),
+                ...$rawQueries,
             )
             ->groupBy('users.id', 'users.name')
             ->orderByRaw("SUM(CASE WHEN status = 'masuk' THEN 1 ELSE 0 END) DESC");
@@ -56,21 +58,18 @@ class Presensi extends Model
     public static function getThisMonth()
     {
         $now = now(Config::timezone());
-        $status = StatusPresensi::toArray();
+        $status = collect(StatusPresensi::toArray());
 
-        $monthColumn = array_combine($status, array_map(fn($column) => "total_{$column}", $status));
-
-        $monthQuery = array_map(function ($stat) use ($now, $monthColumn) {
-            return DB::raw("SUM(CASE WHEN status = '{$stat}' AND MONTH(tanggal) = {$now->month} THEN 1 ELSE 0 END) as {$monthColumn[$stat]}");
-        }, $status);
+        $rawQueries = $status->map(function ($item) use ($now) {
+            return DB::raw("SUM(CASE WHEN status = '{$item}' AND MONTH(tanggal) = {$now->month} THEN 1 ELSE 0 END) as total_{$item}");
+        })->toArray();
 
         return self::query()
             ->join('users', 'users.id', '=', 'presensi.user_id')
             ->select(
                 'users.id',
                 'users.name as nama_karyawan',
-                // month
-                ...$monthQuery,
+                ...$rawQueries,
             )
             ->groupBy('users.id', 'users.name')
             ->orderByRaw("SUM(CASE WHEN status = 'masuk' AND MONTH(tanggal) = {$now->month} THEN 1 ELSE 0 END) DESC");
@@ -79,21 +78,18 @@ class Presensi extends Model
     public static function getThisYear()
     {
         $now = now(Config::timezone());
-        $status = StatusPresensi::toArray();
+        $status = collect(StatusPresensi::toArray());
 
-        $yearColumn = array_combine($status, array_map(fn($column) => "total_{$column}", $status));
-
-        $yearQuery = array_map(function ($stat) use ($now, $yearColumn) {
-            return DB::raw("SUM(CASE WHEN status = '{$stat}' AND YEAR(tanggal) = {$now->year} THEN 1 ELSE 0 END) as {$yearColumn[$stat]}");
-        }, $status);
+        $rawQueries = $status->map(function ($item) use ($now) {
+            return DB::raw("SUM(CASE WHEN status = '{$item}' AND YEAR(tanggal) = {$now->year} THEN 1 ELSE 0 END) as total_{$item}");
+        })->toArray();
 
         return self::query()
             ->join('users', 'users.id', '=', 'presensi.user_id')
             ->select(
                 'users.id',
                 'users.name as nama_karyawan',
-                // year
-                ...$yearQuery,
+                ...$rawQueries,
             )
             ->groupBy('users.id', 'users.name')
             ->orderByRaw("SUM(CASE WHEN status = 'masuk' AND YEAR(tanggal) = {$now->year} THEN 1 ELSE 0 END) DESC");
@@ -114,7 +110,7 @@ class Presensi extends Model
 
     public static function accumulatedUser(?string $name)
     {
-        return (boolean) $name ? self::select(
+        return (bool) $name ? self::select(
             'nama_karyawan',
                 DB::raw('SUM(CASE WHEN status = "masuk" THEN 1 ELSE 0 END) as total_masuk'),
                 DB::raw('SUM(CASE WHEN status = "terlambat" THEN 1 ELSE 0 END) as total_terlambat'),
