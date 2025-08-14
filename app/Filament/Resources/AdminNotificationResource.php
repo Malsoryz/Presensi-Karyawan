@@ -73,7 +73,13 @@ class AdminNotificationResource extends Resource
                     ->modalContent(fn(AdminNotification $record) => new HtmlString(self::readNotifModalContent($record)))
                     ->modalSubmitActionLabel('Approve'),
                 Action::make('Approve')
-                    ->button(),
+                    ->button()
+                    ->action(function (AdminNotification $record) {
+                        $record->user()->update([
+                            'status_approved' => true,
+                        ]);
+                        $record->delete();
+                    }),
                 Action::make('Ignore')
                     ->button()
                     ->color('gray'),
