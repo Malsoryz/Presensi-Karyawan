@@ -110,17 +110,23 @@
                     @endif
                     <div class="card glassmorphism p-8 w-full flex items-center justify-center">
                         {{-- Motivasi --}}
-                        <div 
-                            class="text-glassmorhism text-white text-center flex flex-col gap-8"
-                            x-data="motivation"
-                            x-init="start()"
-                        >
-                            <p 
-                                class="break-words text-3xl"
-                                x-text="words"
-                            ></p>
-                            <span class="font-bold" x-text="author"></span>
-                        </div>
+                        @if ($isPresenceAllowed && $message)
+                            <div 
+                                class="text-glassmorhism text-white text-center flex flex-col gap-8"
+                                x-data="motivation"
+                                x-init="start()"
+                            >
+                                <p 
+                                    class="break-words text-3xl"
+                                    x-text="words"
+                                ></p>
+                                <span class="font-bold" x-text="author"></span>
+                            </div>
+                        @else
+                            <div class="text-glassmorhism text-white text-center flex flex-col gap-8">
+                                <p class="break-words text-3xl">{{ $message }}</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

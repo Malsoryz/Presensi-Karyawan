@@ -26,7 +26,6 @@ class PresensiControllers extends Controller
     {
         $now = now(Config::timezone());
         $endOfDay = Carbon::tomorrow()->startOfDay();
-        $minutesUntilMidnight = $now->diffInMinutes($endOfDay);
 
         $data = [ // default
             'message' => "Nothing have to say.",
