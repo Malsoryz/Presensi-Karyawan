@@ -13,6 +13,7 @@ document.addEventListener('alpine:init', () => {
         message: '',
         isDetected: false,
         isLogin: false,
+        isPresence: false,
     }));
 
     Alpine.data('datetime', () => ({
@@ -77,6 +78,9 @@ document.addEventListener('alpine:init', () => {
                     this.$x.message = res.data.message;
                     this.$x.isDetected = res.data.is_detected;
                     this.$x.isLogin = res.data.is_login;
+                    if (res.data.is_presence) {
+                        this.$x.isPresence = res.data.is_presence;
+                    }
 
                     if (this.$x.isDetected) {
                         console.log(`user ${this.$x.user.name} terdeteksi`);
@@ -88,18 +92,16 @@ document.addEventListener('alpine:init', () => {
                 .catch(err => {
                     console.error('Gagal melakukan request: ', err);
                 });
-        }
+        },
     }));
 
     Alpine.data('presencesStatus', () => ({
         status: null,
-        class: null,
         check() {
             axios.get("/api/presences/status")
                 .then(res => {
                     if (res.data) {
-                        this.status = res.data.status;
-                        this.class = res.data.class;
+                        this.status = res.data;
                     }
                 })
                 .catch(err => {
@@ -114,12 +116,9 @@ document.addEventListener('alpine:init', () => {
             ['x-init']() {
                 this.start();
             },
-            ['x-text']() {
+            ['x-html']() {
                 return this.status;
             },
-            [':class']() {
-                return this.class;
-            }
         },
     }));
 
@@ -202,13 +201,13 @@ document.addEventListener('alpine:init', () => {
     }));
 
     Alpine.data('motivation', () => ({
-        words: '',
+        motivation: '',
         author: '',
         getMotivation() {
             axios.get("/api/motivation")
                 .then(res => {
-                    this.words = `" ${res.data.words} "`;
-                    console.log(this.words);
+                    this.motivation = `" ${res.data.motivation} "`;
+                    console.log(this.motivation);
                     this.author = res.data.author;
                     console.log(this.author);
                 })
@@ -230,13 +229,16 @@ document.addEventListener('alpine:init', () => {
         async getBg() {
             let res = await axios.get("/api/background");
             
-            if (!res.data) {
+            if (res.data.length === 0) {
                 return;
             }
             
             const backgrounds = res.data;
-
             const filterBg = backgrounds.filter(item => item !== this.latestUrl);
+
+            if (filterBg.length === 0) {
+                return;
+            }
 
             const background = filterBg[Math.floor(Math.random() * filterBg.length)];
 
@@ -251,7 +253,7 @@ document.addEventListener('alpine:init', () => {
         },
         start() {
             this.getBg();
-            setInterval(() => this.getBg(), 5000);
+            setInterval(() => this.getBg(), 8000);
         },
         bgDom: {
             ['x-init']() {
@@ -261,6 +263,33 @@ document.addEventListener('alpine:init', () => {
                 return this.image ? {
                     'background-image': `url('${this.image}')`
                 } : null;
+            }
+        },
+    }));
+
+    Alpine.data('generatePresenceUrl', () => ({
+        url: null,
+        getUrl() {
+            axios.get("/api/mobile/presence")
+                .then(res => {
+                    if (res.data) {
+                        this.url = res.data;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error request url: ', err);
+                });
+        },
+        start() {
+            this.getUrl();
+            setInterval(() => this.getUrl(), 60000);
+        },
+        buttonDom: {
+            ['x-init']() {
+                this.start();
+            },
+            ['x-on:click']() {
+                window.location.href = this.url;
             }
         },
     }));

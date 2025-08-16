@@ -4,6 +4,8 @@ namespace App\Enums\Presensi;
 
 use App\Enums\Icons;
 use App\Traits\ModelEnum;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Blade;
 
 enum StatusPresensi: string {
 
@@ -15,25 +17,55 @@ enum StatusPresensi: string {
     case Sakit = 'sakit';
     case TidakMasuk = 'tidak_masuk';
 
-    public function message(): string
+    public function label(): ?string
     {
         return match ($this) {
-            StatusPresensi::Masuk => 'Anda telah melakukan presensi.',
-            StatusPresensi::Terlambat => 'Anda telah melakukan presensi walaupun anda terlambat.',
-            StatusPresensi::Ijin => 'Anda telah diberikan ijin untuk tidak masuk kerja.',
-            StatusPresensi::Sakit => 'Anda telah diberikan ijin untuk tidak masuk kerja karena sakit.',
-            StatusPresensi::TidakMasuk => 'Anda tidak melakukan presensi dan tidak masuk kerja. kenapa?',
+            self::Masuk => "Ontime",
+            self::Terlambat => "Terlambat",
+            self::Ijin => "Ijin",
+            self::Sakit => "Sakit",
+            self::TidakMasuk => "Tidak masuk",
+            default => null,
         };
     }
 
-    public function icon($extraClass = null)
+    public static function enumForStatusMessage()
     {
-        return match ($this) {
-            StatusPresensi::Masuk,
-            StatusPresensi::Terlambat => Icons::Check->render($extraClass),
-            StatusPresensi::Ijin,
-            StatusPresensi::Sakit => Icons::Info->render($extraClass),
-            StatusPresensi::TidakMasuk => Icons::Error->render($extraClass),
+        return collect(self::toArray())
+            ->filter(fn ($item) => in_array($item, ['masuk', 'terlambat']))->toArray();
+    }
+
+    public static function itemForStatusMessage()
+    {
+        return collect(self::toSelectItem())
+            ->filter(fn ($item) => in_array($item, ['Masuk', 'Terlambat']))
+            ->map(fn ($value, $key) => $key === 'masuk' ? 'Ontime' : $value)
+            ->toArray();
+    }
+
+    public function display(): HtmlString|string|null|\stdClass
+    {
+        $data = match ($this) {
+            self::Masuk => (object)[
+                'label' => "Ontime",
+                'class' => "text-green-400"
+            ],
+            self::Terlambat => (object)[
+                'label' => "Terlambat",
+                'class' => "text-yellow-400",
+            ],
+            self::TidakMasuk => (object)[
+                'label' => "Tidak masuk",
+                'class' => "text-red-400",
+            ],
+            default => null,
         };
+
+        return (string) new HtmlString(Blade::render(<<<'BLADE'
+            <span class="{{ $class }}">{{ $label }}</span>
+        BLADE, [
+            'label' => $data->label,
+            'class' => $data->class,
+        ]));
     }
 }
