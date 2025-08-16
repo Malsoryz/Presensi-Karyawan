@@ -71,11 +71,31 @@ select:focus[data-flux-control] {
 [x-cloak] { display: none !important; }
 
 .glassmorphism {
-    @apply bg-base-300/20 isolate shadow-xl backdrop-blur-xl border border-base-content/10 hover:border-base-content/20;
+    @apply isolate shadow-xl backdrop-blur-xl border;
+}
+
+.bg-glassmorhpism {
+    @apply bg-base-300/20 backdrop-blur-xl border-base-content/10 hover:border-base-content/20;
+}
+
+.alert-ctn-success {
+    @apply bg-green-200/20 backdrop-blur-xl border-green-400 hover:border-green-600;
+}
+
+.alert-ctn-danger {
+    @apply bg-yellow-200/20 backdrop-blur-xl border-yellow-400 hover:border-yellow-600;
+}
+
+.alert-ctn-error {
+    @apply bg-red-200/20 backdrop-blur-xl border-red-400 hover:border-red-600;
+}
+
+.alert-ctn-info {
+    @apply bg-blue-200/20 backdrop-blur-xl border-blue-400 hover:border-blue-600;
 }
 
 .text-glassmorphism {
-    @apply text-shadow-sm/20 mix-blend-difference;
+    @apply text-shadow-sm/20;
 }
 
 strong {
