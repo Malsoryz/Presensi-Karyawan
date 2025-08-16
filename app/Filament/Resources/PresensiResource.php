@@ -27,7 +27,7 @@ class PresensiResource extends Resource
     
     public static function getNavigationBadge(): ?string
     {
-        return User::whereHas('presensis')->count();
+        return User::whereHas('presensis')->count() ?: null;
     }
 
     public static function table(Table $table): Table

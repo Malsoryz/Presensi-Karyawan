@@ -35,6 +35,7 @@ class EditUser extends EditRecord
 
     protected function getHeaderActions(): array
     {
+        // dd($this->form);
         return [
             Actions\DeleteAction::make(),
         ];
@@ -107,15 +108,15 @@ class EditUser extends EditRecord
                             ->schema([
                                 Select::make('jabatan_id')
                                     ->label('Jabatan')
-                                    ->placeholder('Pilih jabatan')
+                                    ->placeholder('Tidak ada')
                                     ->relationship(name: 'jabatan', titleAttribute: 'nama'),
                                 Select::make('divisi_id')
                                     ->label('Divisi')
-                                    ->placeholder('Pilih divisi')
+                                    ->placeholder('Tidak ada')
                                     ->relationship(name: 'divisi', titleAttribute: 'nama'),
                                 Select::make('tipe_id')
                                     ->label('Tipe')
-                                    ->placeholder('Pilih tipe')
+                                    ->placeholder('Tidak ada')
                                     ->relationship(name: 'tipe', titleAttribute: 'nama_tipe'),
                                 DatePicker::make('tanggal_masuk')
                                     ->label('Tanggal masuk')
@@ -146,7 +147,7 @@ class EditUser extends EditRecord
                                             'id' => $get('id'),
                                         ])
                                             ->key('table-tunjangan')
-                                            ->hidden(fn (Get $get): bool => (bool) $get('jabatan_id'))
+                                            ->hidden(fn (Get $get): bool => (int) $get('id') === 0),
                                     ]),
                             ]),
                         Tabs\Tab::make('Role')

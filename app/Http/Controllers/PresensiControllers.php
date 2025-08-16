@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
 use Carbon\Carbon;
 
+use Jenssegers\Agent\Agent;
+
 use App\Models\Presensi;
 use App\Models\Config;
 use App\Models\HariLibur;
@@ -20,8 +22,12 @@ use App\Enums\Presensi\JenisPresensi;
 use App\Enums\Presensi\SesiPresensi;
 use App\Enums\User\Role;
 
+use Illuminate\Support\Collection;
+
 class PresensiControllers extends Controller
 {
+    // protected Collection $session;
+
     public function index(Request $request)
     {
         $now = now(Config::timezone());
@@ -31,6 +37,14 @@ class PresensiControllers extends Controller
             'message' => "Nothing have to say.",
             'isPresenceAllowed' => true,
         ];
+
+        $session = collect([]);
+
+        $addAlert = fn (string $message, ?string $type = null, string|int|null $duration = 5) => $session->push((object)[
+            'type' => $type,
+            'message' => $message,
+            'duration' => (int) $duration,
+        ]);
         
         if (Auth::check() || $request->hasCookie('user')) {
             $presensi = (object) $this->check();
@@ -38,6 +52,18 @@ class PresensiControllers extends Controller
 
             // diluar jam presensi
             if (!$presensi->presenceSession->isSession()) {
+                $addAlert(
+                    type: match (true) {
+                        $now->lt($presensi->presenceStartTime) => 'info',
+                        $now->gt($presensi->presenceEndTime) => 'error',
+                        default => null,
+                    },
+                    message: match (true) {
+                        $now->lt($presensi->presenceStartTime) => "Presensi belum dimulai.",
+                        $now->gt($presensi->presenceEndTime) => "Presensi telah berakhir",
+                        default => "how?",
+                    }
+                );
                 $data = [
                     'message' => match (true) {
                         $now->lt($presensi->presenceStartTime) => "Presensi belum dimulai.",
@@ -52,6 +78,9 @@ class PresensiControllers extends Controller
             // jika hari minggu atau hari libur nasional
             if ($now->isSunday() || HariLibur::isHoliday()) {
                 $holiday = HariLibur::todayHoliday();
+                $addAlert(
+                    message: 'Tidak ada presensi hari ini.'
+                );
                 $data = [
                     'message' => match (true) {
                         HariLibur::isHoliday() => "Hari ini adalah hari libur nasional!",
@@ -66,18 +95,44 @@ class PresensiControllers extends Controller
 
         if (Auth::check() && Auth::user()->isAdmin()) {
             return redirect()->route('filament.admin.pages.dashboard');
+        
         }
 
-        // default view atau untuk yang belum login
-        return view('presensi', $data);
+        // $addAlert(
+        //     type: 'info',
+        //     message: 'Ini peringatan untukmu, O tuan.',
+        //     duration: 5
+        // );
+
+        if ($session->isNotEmpty()) {
+            session()->flash('alert', $session);
+        }
+
+        $agent = new Agent();
+
+        if ($agent->isMobile()) {
+            return view('presensi.mobile', $data);
+        } 
+        
+        return view('presensi.desktop', $data);
     }
 
     public function store(Request $request, string $token)
     {
+        $sessionTemplate = fn (string $message, ?string $type = null, string|int|null $duration = 5) => [
+            (object)[
+                'type' => $type,
+                'message' => $message,
+                'duration' => $duration
+            ]
+        ];
+
         if (!Cache::has("token_{$token}")) {
             return redirect()
                 ->route('presensi.index')
-                ->with('info', 'token tidak valid');
+                ->with('alert', $sessionTemplate(
+                    message: 'token tidak valid',
+                ));
         }
 
         $presensi = (object) $this->check();
@@ -85,20 +140,26 @@ class PresensiControllers extends Controller
         if (!$presensi->presenceSession->isSession()) {
             return redirect()
                 ->route('presensi.index')
-                ->with('info', 'bukan waktu presensi');
+                ->with('alert', $sessionTemplate(
+                    message: 'bukan waktu presensi',
+                ));
         }
 
         $user = Auth::user();
         if ($user->isAdmin()) {
             return redirect()
                 ->route('presensi.index')
-                ->with('info', "{$user->name} adalah Admin");
+                ->with('alert', $sessionTemplate(
+                    message: "{$user->name} adalah Admin",
+                ));
         }
 
         if ($presensi->isPresence) {
             return redirect()
                 ->route('presensi.index')
-                ->with('info', "hari ini $user->name telah melakukan presensi");
+                ->with('alert', $sessionTemplate(
+                    message: "hari ini $user->name telah melakukan presensi",
+                ));
         }
 
         if ($presensi->presenceType !== null && $presensi->presenceStatus !== null) {
@@ -116,12 +177,14 @@ class PresensiControllers extends Controller
 
         return redirect()
             ->route('presensi.index')
-            ->with('info', "$user->name melakukan presensi");
+            ->with('alert', $sessionTemplate(
+                message: "$user->name melakukan presensi",
+            ));
     }
 
     public function test()
     {
-        return dd(Presensi::limit(5)->get());
+        return dd($this->check());
         // return dd($this->check());
     }
 
