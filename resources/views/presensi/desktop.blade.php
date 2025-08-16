@@ -3,12 +3,24 @@
     x-data="userData" 
     x-init="updateUser()"
 >
+    <x-slot name="alert">
+        @if (session()->has('alert'))
+            @foreach (session('alert') as $alert)
+                <x-alert
+                    :type="$alert->type"
+                    message="{{ $alert->message }}"
+                    :second-duration="$alert->duration"
+                />
+            @endforeach
+        @endif
+    </x-slot>
+
     <x-slot name="header">
         <div class="navbar px-8 py-4 w-full fixed top-0 left-0 right-0">
             <div class="navbar-start">
                 <template x-if="!$x.isLogin">
                     <button 
-                        class="btn glassmorphism text-glassmorphism text-white"
+                        class="btn glassmorphism bg-glassmorhpism text-glassmorphism text-white"
                         x-on:click="window.location.href='{{ route('login') }}'"
                     >
                         Log In
@@ -17,7 +29,7 @@
                 <template x-if="$x.isLogin">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button class="btn glassmorphism text-glassmorphism text-white">
+                        <button class="btn glassmorphism bg-glassmorhpism text-glassmorphism text-white">
                             Log Out
                         </button>
                     </form>
@@ -26,7 +38,7 @@
             <div class="navbar-end">
                 <template x-if="$x.isDetected">
                     <span 
-                        class="btn glassmorphism text-glassmorphism text-white"
+                        class="btn glassmorphism bg-glassmorhpism text-glassmorphism text-white"
                         x-text="$x.isLogin ? $x.user?.name : 'Terakhir diketahui sebagai ' + $x.user?.name"
                     ></span>
                 </template>
@@ -49,7 +61,7 @@
         >
             <div
                 x-init="activeTab = tabs[0].id" 
-                class="card glassmorphism p-2 flex flex-row justify-between gap-2"
+                class="card glassmorphism bg-glassmorhpism p-2 flex flex-row justify-between gap-2"
             >
                 <div class="flex flex-row gap-2">
                     <template x-for="tab in tabs" :key="tab.id">
@@ -66,17 +78,17 @@
                     x-data="datetime"
                 >
                     <div class="flex items-center gap-2">
-                        <x-heroicon-o-calendar class="text-yellow-400 h-6 w-6 drop-shadow-sm"/>
+                        <x-heroicon-o-calendar class="text-amber-600 h-6 w-6 drop-shadow-sm"/>
                         <span
-                            class="text-yellow-400"
+                            class="text-amber-600"
                             x-bind="dateDom"
                         ></span>
                     </div>
                     {{-- jam --}}
                     <div class="flex items-center gap-2">
-                        <x-heroicon-o-clock class="text-yellow-400 h-6 w-6 drop-shadow-sm"/>
+                        <x-heroicon-o-clock class="text-amber-600 h-6 w-6 drop-shadow-sm"/>
                         <span 
-                            class="text-yellow-400"
+                            class="text-amber-600"
                             x-bind="clockDom"
                         ></span>
                     </div>
@@ -87,7 +99,7 @@
                 <div class="flex flex-row gap-2 items-stretch">
                     @if ($isPresenceAllowed)
                         <div class="flex flex-col gap-2">
-                            <div class="card glassmorphism p-2 flex items-center justify-center">
+                            <div class="card bg-glassmorhpism glassmorphism p-2 flex items-center justify-center">
                                 <div 
                                     x-data="refreshQrCode" 
                                     x-bind="qrDom"
@@ -95,20 +107,20 @@
                                 ></div>
                             </div>
                             <div 
-                                class="card glassmorphism p-2"
+                                class="card bg-glassmorhpism glassmorphism p-2 text-center"
                                 x-data="presencesStatus"
                             >
                                 {{-- Status --}}
-                                <span class="text-glassmorhism text-white text-2xl">
-                                    Status: <span 
+                                <span class="text-glassmorhism text-white text-lg inline-block">
+                                    <span 
                                         x-bind="statusDom"
-                                        class="text-glassmorphism"
+                                        class="text-glassmorphism text-center"
                                     ></span>
                                 </span>
                             </div>
                         </div>
                     @endif
-                    <div class="card glassmorphism p-8 w-full flex items-center justify-center">
+                    <div class="card bg-glassmorhpism glassmorphism p-8 w-full flex items-center justify-center">
                         {{-- Motivasi --}}
                         @if ($isPresenceAllowed && $message)
                             <div 
@@ -118,7 +130,7 @@
                             >
                                 <p 
                                     class="break-words text-3xl"
-                                    x-text="words"
+                                    x-text="motivation"
                                 ></p>
                                 <span class="font-bold" x-text="author"></span>
                             </div>
@@ -138,7 +150,7 @@
                     class="flex flex-col gap-2 w-full"
                 >
                 <template x-if="$x.user?.name">
-                    <div class="card glassmorphism flex flex-col overflow-x-auto">
+                    <div class="card bg-glassmorhpism glassmorphism flex flex-col overflow-x-auto">
                             <table class="table">
                                 <thead>
                                     <tr>
@@ -185,7 +197,7 @@
                             </table>
                         </div>
                     </template>
-                    <div class="card glassmorphism">
+                    <div class="card bg-glassmorhpism glassmorphism">
                         <table class="table">
                             <thead>
                                 <tr>
