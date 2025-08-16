@@ -4,6 +4,7 @@
     'scriptAfter' => null,
     'scriptBefore' => null,
     'background' => null,
+    'alert' => null
 ])
 
 <!DOCTYPE html>
@@ -30,12 +31,21 @@
     <body 
         x-data="background" 
         x-bind="bgDom"
-        class="bg-center bg-cover"
+        class="bg-center bg-cover min-h-screen w-full"
     >
+        @if ($alert)
+            <div 
+                class="alert-container flex flex-col gap-3 absolute top-0 p-4 items-center justify-center w-full z-50"
+            >
+                {{ $alert }}
+            </div>
+        @endif
         <div {{ $attributes }}>
-            <header>
-                {{ $header }}
-            </header>
+            @if ($header)
+                <header>
+                    {{ $header }}
+                </header>
+            @endif
             {{ $slot }}
             {{ $scriptAfter }}
         </div>
