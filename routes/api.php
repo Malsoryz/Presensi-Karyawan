@@ -5,6 +5,7 @@ use App\Http\Controllers\ApiController;
 
 Route::prefix('api')->controller(ApiController::class)->group(function () {
     Route::get('qrcode', 'presenceQrCode')->name('api.qrcode');
+    Route::get('mobile/presence', 'generatePresenceTokenRoute')->name('api.mobile.presence');
     Route::get('authuser', 'authUserData')->name('api.authuser');
     Route::get('approval', 'checkApproval')->name('api.approval');
     Route::get('motivation', 'motivation')->name('api.motivation');

@@ -6,7 +6,9 @@ use App\Models\User;
 use App\Models\Presensi;
 use App\Models\Config;
 use App\Models\Background;
-use App\Support\Inspire\Motivation;
+use App\Models\PesanStatus;
+use App\Models\Quote;
+// use App\Support\Inspire\Motivation;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -31,6 +33,14 @@ class ApiController extends Controller
         return response($svg, 200)
             ->header('Content-Type', 'image/svg+xml');
             // agar yang dikembalikan adalah svg
+    }
+
+    public function generatePresenceTokenRoute()
+    {
+        $token = Str::uuid();
+        Cache::put("token_{$token}", true, now()->addMinutes(1));
+        Cookie::queue('browser_token', $token, 1);
+        return response()->json(route('presensi.store', ['token' => $token]));
     }
 
     public function presencesData(Request $request)
@@ -86,6 +96,9 @@ class ApiController extends Controller
             'user' => (bool) $user ? [
                 'name' => $user->name,
             ] : null,
+            ...((bool) $user ? ['is_presence' => Presensi::where('nama_karyawan', $user->name)
+                ->whereDate('tanggal', now(Config::timezone())->toDateString())
+                ->exists()] : [])
         ]);
     }
 
@@ -101,7 +114,7 @@ class ApiController extends Controller
 
     public function motivation()
     {
-        return response()->json(Motivation::quote());
+        return response()->json(Quote::all()->random());
     }
 
     public function getDatetime()
@@ -123,22 +136,27 @@ class ApiController extends Controller
         $sesiSiang = $now->between($siangMulai, $siangSelesai->copy()->addMinutes($toleransi));
 
         $presencesStatus = match (true) {
-            $sesiPagi || $sesiSiang => [
-                'status' => 'Ontime',
-                'class' => 'text-green-400',
-            ], //StatusPresensi::Masuk,
-            $isAfterPagi || $isAfterSiang => [
-                'status' => 'Terlambat',
-                'class' => 'text-yellow-400',
-            ], //StatusPresensi::Terlambat,
-            $now->gt($pulangKerja) => [
-                'status' => 'Tidak masuk',
-                'class' => 'text-red-400',
-            ], //StatusPresensi::TidakMasuk,
+            $sesiPagi || $sesiSiang => StatusPresensi::Masuk,
+            $isAfterPagi || $isAfterSiang => StatusPresensi::Terlambat,
             default => null,
         };
 
-        return response()->json($presencesStatus);
+        $isStatus = $presencesStatus instanceof StatusPresensi;
+
+        if (!$isStatus) {
+            return response()->json(null);
+        }
+
+        $statusMessageTemplate = PesanStatus::queryFrom($presencesStatus)
+            ->pluck('template');
+
+        $statusMessage = $statusMessageTemplate->isNotEmpty() ? 
+            PesanStatus::fillStatus($statusMessageTemplate->random(), $presencesStatus) : 
+            $presencesStatus->display();
+
+        return response()->json($statusMessage);
+
+        // return response()->json($presencesStatus);
     }
 
     public function isUserPresence(Request $request)
@@ -155,6 +173,6 @@ class ApiController extends Controller
         $backgroundList = $backgrounds->map(function ($item) {
             return asset("storage/{$item}");
         });
-        return response()->json($backgrounds->isNotEmpty() ? $backgroundList : null);
+        return response()->json($backgroundList);
     }
 }
